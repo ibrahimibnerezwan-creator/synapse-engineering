@@ -5,7 +5,7 @@ const SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || 'synapse-engineering-super-secret-key-2026-b2b'
 );
 
-export async function signToken(payload: { role: string; email?: string }): Promise<string> {
+export async function signToken(payload: { role: string; email?: string } = { role: 'admin' }): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
