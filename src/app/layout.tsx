@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -58,8 +59,14 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
-        {/* Meta Pixel Script */}
-        <script
+      </head>
+      <body className="antialiased bg-[#06080c] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#00f0ff] selection:text-black">
+        {children}
+
+        {/* Meta Pixel Script via Next.js Script component */}
+        <Script
+          id="fb-pixel"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               !function(f,b,e,v,n,t,s)
@@ -75,9 +82,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className="antialiased bg-[#06080c] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#00f0ff] selection:text-black">
-        {children}
       </body>
     </html>
   );
