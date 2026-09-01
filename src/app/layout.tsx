@@ -51,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -60,10 +60,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased bg-[#06080c] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#00f0ff] selection:text-black">
+      <body className="antialiased bg-[#fafaf8] text-[#1a1a1a] min-h-screen flex flex-col justify-between selection:bg-orange-100 selection:text-[#e85d04]">
         {children}
 
-        {/* Meta Pixel Script via Next.js Script component */}
+        {/* Meta Pixel Script */}
         <Script
           id="fb-pixel"
           strategy="afterInteractive"
