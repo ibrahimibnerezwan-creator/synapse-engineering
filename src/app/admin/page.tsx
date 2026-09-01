@@ -20,7 +20,7 @@ import {
   RefreshCw,
   Search
 } from 'lucide-react';
-import { INITIAL_PRODUCTS } from '@/lib/data';
+import { INITIAL_PRODUCTS } from '@/lib/catalog';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'rfqs' | 'sourcing' | 'products' | 'ai-lister'>('rfqs');
