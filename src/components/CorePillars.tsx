@@ -12,28 +12,27 @@ export default function CorePillars({ onOpenRFQ }: CorePillarsProps) {
     {
       id: 'automation',
       icon: Cpu,
-      badge: 'Pillar 01',
-      badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+      badge: '[PILLAR_01: AUTOMATION]',
+      badgeColor: 'bg-[#00f0ff]/10 text-[#00f0ff] border-[#00f0ff]/30',
       title: 'Industrial Automation & Control',
       tagline: 'Siemens, Schneider, Omron & SCADA Systems',
       description:
-        'Complete automation supply for manufacturing plants, textile mills, and industrial automation lines. Guaranteed 100% authentic modules, contactors, HMIs, and variable frequency drives with factory serial verification.',
+        'Turnkey automation hardware for factories, textile spinning mills, and packaging automation. Guaranteed 100% authentic modules, contactors, HMIs, and VFDs with direct serial verification.',
       features: [
         'Siemens S7-1200 / S7-1500 PLC & I/O Modules',
         'Schneider Electric TeSys Contactors & Breakers',
         'Invertek & Delta VFD Variable Frequency Drives',
         'Custom Industrial Control Panel Fabrication'
       ],
-      ctaText: 'Explore Automation Catalog',
-      ctaColor: 'text-sky-400 hover:text-sky-300',
-      borderColor: 'border-sky-500/20 hover:border-sky-500/50',
-      glowColor: 'hover:shadow-sky-500/10'
+      ctaText: 'QUERY_AUTOMATION_CATALOG [↵]',
+      ctaColor: 'text-[#00f0ff] hover:text-cyan-300',
+      borderColor: 'border-[#00f0ff]/20 hover:border-[#00f0ff]/50'
     },
     {
       id: 'solar',
       icon: Sun,
-      badge: 'Pillar 02',
-      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      badge: '[PILLAR_02: ENERGY_STORAGE]',
+      badgeColor: 'bg-[#ffaa00]/10 text-[#ffaa00] border-[#ffaa00]/30',
       title: 'Solar & LiFePO₄ Energy Storage',
       tagline: 'HiTHIUM 11,000+ Cycles & Hybrid Inverters',
       description:
@@ -44,16 +43,15 @@ export default function CorePillars({ onOpenRFQ }: CorePillarsProps) {
         'Deye / Growatt 5kW - 50kW Hybrid Solar Inverters',
         'Commercial Rooftop Solar Turnkey Engineering'
       ],
-      ctaText: 'Calculate Energy Storage',
-      ctaColor: 'text-amber-400 hover:text-amber-300',
-      borderColor: 'border-amber-500/20 hover:border-amber-500/50',
-      glowColor: 'hover:shadow-amber-500/10'
+      ctaText: 'CALCULATE_ESS_REQUIREMENT [↵]',
+      ctaColor: 'text-[#ffaa00] hover:text-amber-300',
+      borderColor: 'border-[#ffaa00]/20 hover:border-[#ffaa00]/50'
     },
     {
       id: 'sourcing',
       icon: ShieldCheck,
-      badge: 'Pillar 03',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      badge: '[PILLAR_03: CHINA_PROCUREMENT]',
+      badgeColor: 'bg-[#00ff88]/10 text-[#00ff88] border-[#00ff88]/30',
       title: 'China Direct Sourcing & QC',
       tagline: 'Personal Factory Touch & Doorstep Delivery',
       description:
@@ -64,25 +62,24 @@ export default function CorePillars({ onOpenRFQ }: CorePillarsProps) {
         'Sample Verification & Pre-Shipment Video Inspection',
         'Door-to-Door Air Cargo (7-10d) & Sea Freight (25d)'
       ],
-      ctaText: 'Request Custom Sourcing',
-      ctaColor: 'text-emerald-400 hover:text-emerald-300',
-      borderColor: 'border-emerald-500/20 hover:border-emerald-500/50',
-      glowColor: 'hover:shadow-emerald-500/10'
+      ctaText: 'SUBMIT_SOURCING_BOM [↵]',
+      ctaColor: 'text-[#00ff88] hover:text-emerald-300',
+      borderColor: 'border-[#00ff88]/20 hover:border-[#00ff88]/50'
     }
   ];
 
   return (
-    <section className="py-20 bg-slate-950/60 border-t border-b border-slate-800/60">
+    <section className="py-20 bg-[#06080c] border-t border-b border-[#1a2234]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-slate-300 text-xs font-semibold uppercase tracking-wider">
-            Comprehensive Industrial Solutions
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#0b0f17] border border-[#1a2234] text-[#00f0ff] text-xs font-bold mono uppercase tracking-wider">
+            [CORE ARCHITECTURE // THREE INDUSTRIAL DIVISIONS]
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Our Three Pillars of <span className="text-sky-400">Industrial Excellence</span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight uppercase">
+            Engineered For <span className="text-[#00f0ff]">Zero Factory Downtime</span>
           </h2>
-          <p className="text-slate-400 text-base">
+          <p className="text-slate-400 text-sm sm:text-base font-light">
             From factory automation components to high-density lithium storage and direct manufacturer procurement in China.
           </p>
         </div>
@@ -95,33 +92,33 @@ export default function CorePillars({ onOpenRFQ }: CorePillarsProps) {
               <div
                 key={pillar.id}
                 id={pillar.id}
-                className={`rounded-2xl glass-panel p-8 border transition-all duration-300 shadow-xl flex flex-col justify-between ${pillar.borderColor} ${pillar.glowColor}`}
+                className={`rounded-2xl hud-panel p-8 transition-all duration-300 shadow-xl flex flex-col justify-between ${pillar.borderColor}`}
               >
                 <div className="space-y-6">
                   {/* Top Badge & Icon */}
                   <div className="flex justify-between items-center">
-                    <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full border ${pillar.badgeColor}`}>
+                    <span className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded border ${pillar.badgeColor}`}>
                       {pillar.badge}
                     </span>
-                    <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-inner">
-                      <Icon className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-lg bg-[#06080c] border border-[#1a2234] flex items-center justify-center text-white shadow-inner">
+                      <Icon className="w-5 h-5 text-[#00f0ff]" />
                     </div>
                   </div>
 
                   {/* Title & Tagline */}
                   <div>
                     <h3 className="text-xl font-bold text-white tracking-tight">{pillar.title}</h3>
-                    <p className="text-xs font-medium text-slate-400 mt-1">{pillar.tagline}</p>
+                    <p className="text-xs font-mono text-slate-400 mt-1">{pillar.tagline}</p>
                   </div>
 
                   {/* Description */}
-                  <p className="text-sm text-slate-300 leading-relaxed font-light">{pillar.description}</p>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">{pillar.description}</p>
 
                   {/* Feature Checklist */}
-                  <ul className="space-y-2.5 pt-2 border-t border-slate-800">
+                  <ul className="space-y-2.5 pt-2 border-t border-[#1a2234]">
                     {pillar.features.map((feat, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-4 h-4 text-[#00ff88] shrink-0 mt-0.5" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -132,7 +129,7 @@ export default function CorePillars({ onOpenRFQ }: CorePillarsProps) {
                 <div className="pt-8">
                   <button
                     onClick={() => onOpenRFQ?.(pillar.title)}
-                    className={`w-full py-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-sm font-semibold flex items-center justify-center gap-2 transition-all ${pillar.ctaColor}`}
+                    className={`w-full py-3 rounded-xl bg-[#090e17] hover:bg-slate-900 border border-[#1a2234] text-xs font-bold mono flex items-center justify-center gap-2 transition-all ${pillar.ctaColor}`}
                   >
                     <span>{pillar.ctaText}</span>
                     <ArrowRight className="w-4 h-4" />

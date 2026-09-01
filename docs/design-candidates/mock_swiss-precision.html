@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate 4: Swiss Precision Industrial (Siemens / ABB / Leica Aesthetic)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --surface: #10121a;
+      --border: #1f2333;
+      --accent: #0080ff;
+      --amber: #f59e0b;
+    }
+    body {
+      background: var(--bg);
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+    .mono {
+      font-family: 'Space Mono', monospace;
+    }
+    .precision-border {
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6 md:p-12 space-y-12">
+  <header class="max-w-7xl mx-auto flex justify-between items-center precision-border p-6 rounded-xl bg-slate-900/40">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold mono">
+        S
+      </div>
+      <div>
+        <div class="font-bold text-lg text-white tracking-tight">SYNAPSE ENGINEERING</div>
+        <div class="text-[10px] text-slate-400 mono uppercase">Automation Systems & Direct Supply</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-6 text-xs text-slate-300 font-medium">
+      <span class="hover:text-blue-400 cursor-pointer">PLCs & Switchgear</span>
+      <span class="hover:text-blue-400 cursor-pointer">Lithium ESS</span>
+      <span class="hover:text-blue-400 cursor-pointer">China Desk</span>
+      <button class="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors">
+        Request Quotation
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8 items-center">
+    <div class="lg:col-span-8 space-y-6">
+      <div class="text-xs font-mono text-blue-400 uppercase tracking-widest">
+        ENGINEERED FOR ZERO INDUSTRIAL DOWNTIME
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight">
+        Precision Factory Automation <br>
+        & Direct China Engineering Supply
+      </h1>
+      <p class="text-sm text-slate-400 leading-relaxed max-w-xl font-light">
+        Certified supply of Siemens S7 PLCs, Schneider Electric contactors, and HiTHIUM 11,000-cycle LiFePO₄ storage systems with local Bangladesh integration.
+      </p>
+
+      <div class="grid grid-cols-3 gap-4 precision-border rounded-xl p-6 bg-slate-900/30">
+        <div>
+          <div class="text-xs text-slate-500 mono uppercase">Serial Verification</div>
+          <div class="text-base font-bold text-white mt-1">100% Genuine</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 mono uppercase">Supply Chain</div>
+          <div class="text-base font-bold text-white mt-1">Direct Factory</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 mono uppercase">Warranty</div>
+          <div class="text-base font-bold text-blue-400 mt-1">5-10 Years</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-4 space-y-4">
+      <div class="precision-border p-6 rounded-xl bg-slate-900/50 space-y-4 text-xs">
+        <div class="font-bold text-white border-b border-slate-800 pb-3 mono">HARDWARE INVENTORY</div>
+        <div class="space-y-2 text-slate-300">
+          <div class="flex justify-between">
+            <span>Siemens 6ES7532-5HD00</span>
+            <span class="mono text-emerald-400">Available</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Schneider LC1K06105P7</span>
+            <span class="mono text-emerald-400">Available</span>
+          </div>
+          <div class="flex justify-between">
+            <span>HiTHIUM HeroEE 16kWh</span>
+            <span class="mono text-blue-400">Dispatch Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

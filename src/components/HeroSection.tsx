@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRight, ShieldCheck, Sun, Cpu, CheckCircle2, Zap, Search } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Sun, Cpu, CheckCircle2, Zap, Search, Terminal, Activity } from 'lucide-react';
 
 interface HeroSectionProps {
   onOpenRFQ?: (productName?: string) => void;
@@ -23,159 +23,159 @@ export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
   };
 
   return (
-    <section className="relative overflow-hidden pt-12 pb-20 md:pt-16 md:pb-28 tech-grid-bg">
-      {/* Ambient background glow effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-sky-500/15 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[400px] h-[300px] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none" />
+    <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28 tech-grid-bg">
+      {/* Laser Cyan & Solar Amber Ambient Core Glows */}
+      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#00f0ff]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[450px] h-[300px] bg-[#ffaa00]/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Value Proposition & High-Converting Messaging */}
+          {/* Left Column: Monolith Headline & Terminal Input */}
           <div className="lg:col-span-7 space-y-6 text-left">
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-sky-500/30 text-sky-400 text-xs font-semibold tracking-wide">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-              </span>
-              DIRECT CHINA PROCUREMENT & FACTORY ENGINEERING CONTRACTOR
+            {/* Top Coordinate Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-[#0b0f17] border border-[#00f0ff]/30 text-[#00f0ff] text-xs font-bold mono tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-[#00ff88] live-telemetry-dot" />
+              <span>LOC: GZ-CAN // DHAKA DESK // VERIFIED FACTORY CONTRACTOR</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12]">
-              Industrial Automation, <br />
-              <span className="bg-gradient-to-r from-sky-400 via-teal-300 to-amber-400 bg-clip-text text-transparent">
-                Solar LiFePO₄ Storage
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] uppercase">
+              Mission-Critical <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] via-sky-300 to-[#ffaa00]">
+                Factory Automation
               </span> <br />
-              & Global China Supply
+              & 11,000-Cycle ESS
             </h1>
 
             {/* Sub-headline */}
-            <p className="text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
-              We eliminate industrial downtime with authentic <strong>Siemens & Schneider</strong> automation parts, 
-              Tier-1 <strong>HiTHIUM 11,000-cycle LiFePO₄ battery systems</strong>, and dedicated on-ground factory sourcing 
-              with personal quality inspection in China delivered directly to Bangladesh.
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-light">
+              We eliminate industrial downtime with authentic <strong>Siemens & Schneider</strong> automation modules, 
+              Tier-1 <strong>HiTHIUM 11,000-cycle LiFePO₄ storage systems</strong>, and dedicated on-ground factory sourcing 
+              with personal video QC in China delivered straight to your factory in Bangladesh.
             </p>
 
-            {/* Quick Part Number Search Bar */}
+            {/* Command-Line Search Terminal */}
             <form onSubmit={handleSearchSubmit} className="max-w-xl">
-              <div className="relative flex items-center">
-                <Search className="absolute left-4 w-5 h-5 text-slate-400" />
+              <div className="hud-panel p-2 rounded-xl flex items-center gap-3 border border-[#00f0ff]/30 bg-[#090e17]/90 shadow-[0_0_25px_rgba(0,240,255,0.1)]">
+                <span className="mono text-xs text-[#00f0ff] font-bold pl-2 flex items-center gap-1">
+                  <Terminal className="w-3.5 h-3.5" />
+                  CMD:&gt;
+                </span>
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search Part No (e.g. 6ES7532, LC1K, HiTHIUM 16kWh)..."
-                  className="w-full pl-12 pr-32 py-3.5 rounded-xl bg-slate-900/90 border border-sky-500/30 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent text-sm shadow-inner"
+                  placeholder="QUERY PART NO (e.g. 6ES7532-5HD00, LC1K, HiTHIUM 16kWh)..."
+                  className="w-full bg-transparent text-xs mono text-white placeholder-slate-500 focus:outline-none"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold transition-all shadow-md"
+                  className="mono text-xs px-4 py-2 bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold rounded transition-all shadow-md shrink-0"
                 >
-                  Find Part
+                  EXECUTE [↵]
                 </button>
               </div>
             </form>
 
-            {/* CTA Buttons */}
+            {/* Action Triggers */}
             <div className="flex flex-wrap gap-4 pt-2">
               <button
                 onClick={() => onOpenRFQ?.()}
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-sky-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+                className="mono text-xs px-6 py-3.5 rounded bg-gradient-to-r from-[#00f0ff] via-sky-500 to-blue-600 hover:from-[#38bdf8] hover:to-blue-500 text-slate-950 font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
               >
-                <span>Request Part Quotation (RFQ)</span>
+                <span>INIT_OFFICIAL_RFQ [↵]</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <a
                 href="#sourcing"
-                className="px-6 py-3.5 rounded-xl glass-panel text-slate-200 hover:text-white font-semibold text-sm hover:border-sky-400/50 transition-all flex items-center gap-2"
+                className="mono text-xs px-6 py-3.5 rounded hud-panel text-slate-200 hover:text-white font-bold hover:border-[#00ff88]/50 transition-all flex items-center gap-2"
               >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Custom China Sourcing</span>
+                <ShieldCheck className="w-4 h-4 text-[#00ff88]" />
+                <span>CHINA_QC_WORKFLOW</span>
               </a>
             </div>
 
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80">
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>100% Guaranteed Authentic</span>
+            {/* Verification Checklist */}
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[#1a2234]">
+              <div className="flex items-center gap-2 text-xs mono text-slate-400">
+                <CheckCircle2 className="w-4 h-4 text-[#00ff88] shrink-0" />
+                <span>100% GENUINE SERIAL</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
-                <span>On-Ground China QC</span>
+              <div className="flex items-center gap-2 text-xs mono text-slate-400">
+                <CheckCircle2 className="w-4 h-4 text-[#00f0ff] shrink-0" />
+                <span>VIDEO QC BEFORE SHIP</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>7-10 Days Air Delivery</span>
+              <div className="flex items-center gap-2 text-xs mono text-slate-400">
+                <CheckCircle2 className="w-4 h-4 text-[#ffaa00] shrink-0" />
+                <span>7-10D AIR EXPRESS</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: High-Tech Interactive Hardware Preview Card */}
+          {/* Right Column: Live Telemetry HUD Widget */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-2xl glass-panel p-6 border border-sky-500/30 shadow-2xl shadow-sky-950/50 space-y-6">
-              {/* Card Header */}
-              <div className="flex justify-between items-center pb-4 border-b border-slate-800">
+            <div className="hud-panel rounded-2xl p-6 border border-[#00f0ff]/30 shadow-2xl space-y-5">
+              {/* Telemetry Header */}
+              <div className="flex justify-between items-center pb-3 border-b border-[#1a2234] text-xs mono">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-mono text-emerald-400 uppercase font-semibold">
-                    Featured Industrial Tech
-                  </span>
+                  <Activity className="w-4 h-4 text-[#00ff88]" />
+                  <span className="text-white font-bold tracking-wider">HARDWARE_TELEMETRY</span>
                 </div>
-                <span className="text-xs font-mono text-slate-400">Dhaka & China Hub</span>
+                <span className="text-[#00ff88] bg-[#00ff88]/10 px-2 py-0.5 rounded border border-[#00ff88]/30">
+                  FEED: LIVE
+                </span>
               </div>
 
-              {/* Product Highlight 1: HiTHIUM 16kWh Battery Pack */}
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-amber-500/20 hover:border-amber-500/40 transition-all flex items-center gap-4 group">
-                <div className="w-14 h-14 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                  <Zap className="w-7 h-7" />
+              {/* Telemetry Card 1: HiTHIUM 16kWh Battery */}
+              <div className="p-4 rounded-xl bg-[#070b12] border border-[#ffaa00]/20 hover:border-[#ffaa00]/50 transition-all flex items-center gap-4 group">
+                <div className="w-12 h-12 rounded bg-[#ffaa00]/10 flex items-center justify-center text-[#ffaa00] shrink-0 group-hover:scale-105 transition-transform">
+                  <Zap className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#ffaa00]/20 text-[#ffaa00] mono">
                       HiTHIUM LiFePO₄
                     </span>
-                    <span className="text-[11px] text-emerald-400">11,000 Cycles</span>
+                    <span className="text-[10px] text-[#00ff88] mono">11,000 CYCLES</span>
                   </div>
-                  <h2 className="text-sm font-bold text-white truncate mt-1">
-                    HeroEE 16kWh Portable Battery Pack
+                  <h2 className="text-xs font-bold text-white truncate mt-1">
+                    HeroEE 16kWh Battery Pack (51.2V 314Ah)
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">51.2V 314Ah • CAN/RS485 Protocol</p>
+                  <div className="text-[10px] text-slate-500 mono mt-0.5">SMART-BMS // CAN/RS485 PROTOCOL</div>
                 </div>
               </div>
 
-              {/* Product Highlight 2: Siemens S7-1500 PLC */}
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-sky-500/20 hover:border-sky-500/40 transition-all flex items-center gap-4 group">
-                <div className="w-14 h-14 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-105 transition-transform">
-                  <Cpu className="w-7 h-7" />
+              {/* Telemetry Card 2: Siemens S7-1500 PLC */}
+              <div className="p-4 rounded-xl bg-[#070b12] border border-[#00f0ff]/20 hover:border-[#00f0ff]/50 transition-all flex items-center gap-4 group">
+                <div className="w-12 h-12 rounded bg-[#00f0ff]/10 flex items-center justify-center text-[#00f0ff] shrink-0 group-hover:scale-105 transition-transform">
+                  <Cpu className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#00f0ff]/20 text-[#00f0ff] mono">
                       Siemens SIMATIC
                     </span>
-                    <span className="text-[11px] text-slate-400">S7-1500 Series</span>
+                    <span className="text-[10px] text-slate-400 mono">S7-1500</span>
                   </div>
-                  <h2 className="text-sm font-bold text-white truncate mt-1">
+                  <h2 className="text-xs font-bold text-white truncate mt-1">
                     6ES7532-5HD00-0AB0 Analog Output
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">AQ 4xU/I ST • 16-Bit Resolution</p>
+                  <div className="text-[10px] text-slate-500 mono mt-0.5">AQ 4xU/I ST // 16-BIT RESOLUTION</div>
                 </div>
               </div>
 
               {/* Sourcing Metric Banner */}
-              <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/20 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#00ff88]/10 via-[#070b12] to-[#070b12] border border-[#00ff88]/30 flex items-center justify-between mono text-xs">
                 <div>
-                  <div className="text-xs text-slate-400">China Direct Sourcing Time</div>
-                  <div className="text-base font-bold text-emerald-400">7-10 Days Air Express</div>
+                  <div className="text-[10px] text-slate-400">CHINA DISPATCH TIMELINE</div>
+                  <div className="text-xs font-bold text-[#00ff88]">7-10 DAYS AIR EXPRESS</div>
                 </div>
                 <button
                   onClick={() => onOpenRFQ?.('China Direct Sourcing Inquiry')}
-                  className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-colors"
+                  className="px-3 py-1.5 rounded bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold text-[11px] transition-colors"
                 >
-                  Inquire Now
+                  DISPATCH [↵]
                 </button>
               </div>
             </div>

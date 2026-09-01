@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, FileText, ArrowRight, MessageSquare, Phone } from 'lucide-react';
+import { X, CheckCircle2, FileText, ArrowRight, MessageSquare, Phone, Terminal } from 'lucide-react';
 
 interface RFQModalProps {
   isOpen: boolean;
@@ -74,8 +74,8 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-3xl glass-panel border border-sky-500/30 p-6 sm:p-8 bg-slate-900 shadow-2xl shadow-sky-950/80 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080c]/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg rounded-2xl hud-panel border border-[#00f0ff]/40 p-6 sm:p-8 bg-[#090e17] shadow-2xl shadow-[#00f0ff]/10 overflow-hidden">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -86,21 +86,21 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
 
         {rfqNumber ? (
           /* Success Screen */
-          <div className="text-center py-6 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/40">
+          <div className="text-center py-6 space-y-4 mono">
+            <div className="w-16 h-16 rounded-full bg-[#00ff88]/20 text-[#00ff88] flex items-center justify-center mx-auto border border-[#00ff88]/40">
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div>
-              <div className="text-xs font-mono text-emerald-400 uppercase font-bold tracking-wider">
-                RFQ Generated
+              <div className="text-xs text-[#00ff88] uppercase font-bold tracking-wider">
+                [RFQ_DISPATCH_CONFIRMED]
               </div>
-              <h3 className="text-2xl font-bold text-white mt-1">Quotation Request Received!</h3>
-              <p className="text-xs font-mono text-amber-400 mt-1 bg-amber-500/10 py-1 px-3 rounded-md inline-block">
-                Reference ID: {rfqNumber}
+              <h3 className="text-2xl font-bold text-white mt-1">Proposal Registered!</h3>
+              <p className="text-xs text-[#ffaa00] mt-1 bg-[#ffaa00]/10 py-1 px-3 rounded inline-block border border-[#ffaa00]/30">
+                REF_ID: {rfqNumber}
               </p>
             </div>
 
-            <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed font-sans">
               Our engineering & sourcing desk has received your request for <strong>{productName}</strong>. We will review availability and contact you within 1-2 hours.
             </p>
 
@@ -110,16 +110,16 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
                 href={`https://wa.me/8801886113236?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all"
+                className="w-full py-3.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,136,0.3)] transition-all"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Instant WhatsApp Follow-up (Priority)</span>
+                <span>INSTANT_WHATSAPP_CONFIRMATION [↵]</span>
               </a>
               <button
                 onClick={onClose}
                 className="w-full py-2.5 rounded-xl text-xs text-slate-400 hover:text-white transition-colors"
               >
-                Close Window
+                CLOSE_WINDOW
               </button>
             </div>
           </div>
@@ -127,56 +127,56 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
           /* Form Screen */
           <div className="space-y-5">
             <div>
-              <div className="text-xs font-mono text-sky-400 font-bold uppercase tracking-wider">
-                Official B2B Inquiry
+              <div className="text-[10px] font-mono text-[#00f0ff] font-bold uppercase tracking-wider">
+                [CMD: GENERATE_OFFICIAL_RFQ]
               </div>
-              <h3 className="text-xl font-bold text-white mt-1">Request Part Quotation (RFQ)</h3>
+              <h3 className="text-xl font-bold text-white mt-1 uppercase tracking-tight">Request Part Quotation</h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Fast engineering pricing & delivery timelines directly from our China & Dhaka stock.
+                Direct factory pricing & express delivery from China and Dhaka stock.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <form onSubmit={handleSubmit} className="space-y-3.5 mono text-xs">
               {/* Product / Spec Title */}
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Product / Required Component *
+                <label className="text-slate-300 block mb-1">
+                  REQUIRED COMPONENT / PART NUMBER *
                 </label>
                 <input
                   type="text"
                   required
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  placeholder="e.g. Siemens S7-1500, HiTHIUM 16kWh Battery, Schneider Contactor..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                  placeholder="e.g. Siemens S7-1500, HiTHIUM 16kWh Battery, LC1K Contactor..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                 />
               </div>
 
               {/* Name & Company */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Your Name *
+                  <label className="text-slate-300 block mb-1">
+                    YOUR NAME *
                   </label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Engr. Rahim..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                    placeholder="Engr. Name..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Company / Plant Name
+                  <label className="text-slate-300 block mb-1">
+                    COMPANY / PLANT
                   </label>
                   <input
                     type="text"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    placeholder="ABC Spinning Mill..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                    placeholder="Factory Name..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                   />
                 </div>
               </div>
@@ -184,8 +184,8 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
               {/* Phone & Qty */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Phone / WhatsApp *
+                  <label className="text-slate-300 block mb-1">
+                    PHONE / WHATSAPP *
                   </label>
                   <input
                     type="tel"
@@ -193,44 +193,44 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="01XXXXXXXXX"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">
-                    Quantity
+                  <label className="text-slate-300 block mb-1">
+                    QUANTITY
                   </label>
                   <input
                     type="number"
                     min="1"
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                   />
                 </div>
               </div>
 
               {/* Notes */}
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Project Notes / Voltage / Delivery urgency (Optional)
+                <label className="text-slate-300 block mb-1">
+                  PROJECT SPECIFICATIONS / TIMELINE (OPTIONAL)
                 </label>
                 <textarea
                   rows={2}
                   value={requirement}
                   onChange={(e) => setRequirement(e.target.value)}
                   placeholder="Need 7-day urgent air shipment / technical support required..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-400"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all flex items-center justify-center gap-2"
               >
-                <FileText className="w-4 h-4" />
-                <span>{loading ? 'Submitting RFQ...' : 'Submit Official RFQ Proposal'}</span>
+                <Terminal className="w-4 h-4" />
+                <span>{loading ? 'TRANSMITTING...' : 'TRANSMIT_OFFICIAL_RFQ [↵]'}</span>
               </button>
             </form>
           </div>

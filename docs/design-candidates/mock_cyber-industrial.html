@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate 1: Cyber-Industrial Monolith (Linear / Anduril HUD Aesthetic)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06080c;
+      --panel: #0b0f17;
+      --panel-elevated: #111827;
+      --border: #1a2234;
+      --border-glow: #00f0ff;
+      --cyan: #00f0ff;
+      --amber: #ffaa00;
+      --emerald: #00ff88;
+    }
+    body {
+      background: var(--bg);
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tech-grid {
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+    .hud-box {
+      background: linear-gradient(135deg, rgba(11, 15, 23, 0.95), rgba(7, 10, 16, 0.98));
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .hud-box::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 12px;
+      width: 24px;
+      height: 2px;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+    .hud-box::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: 12px;
+      width: 24px;
+      height: 2px;
+      background: var(--amber);
+    }
+    .tag-bracket {
+      color: var(--cyan);
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body class="tech-grid min-h-screen p-6 md:p-12 space-y-12">
+  <!-- Top Navigation HUD -->
+  <header class="max-w-7xl mx-auto flex justify-between items-center border-b border-slate-800/80 pb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mono font-bold">
+        SYN
+      </div>
+      <div>
+        <div class="font-extrabold text-lg tracking-wider text-white mono flex items-center gap-2">
+          SYNAPSE<span class="text-cyan-400">::SYS</span>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40">ONLINE // DHAKA-CHINA</span>
+        </div>
+        <div class="text-[11px] text-slate-500 mono">AUT-SYS.ENG.BD_V2.6</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-8 mono text-xs">
+      <span class="text-slate-400 hover:text-cyan-400 cursor-pointer">// 01.AUTOMATION</span>
+      <span class="text-slate-400 hover:text-amber-400 cursor-pointer">// 02.ENERGY_STORAGE</span>
+      <span class="text-slate-400 hover:text-emerald-400 cursor-pointer">// 03.CHINA_PROCUREMENT</span>
+    </div>
+    <button class="mono text-xs px-4 py-2 bg-cyan-500 text-black font-bold rounded hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+      INIT_RFQ_PORTAL [↵]
+    </button>
+  </header>
+
+  <!-- Hero Monolith HUD -->
+  <main class="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8 items-center">
+    <div class="lg:col-span-7 space-y-6">
+      <div class="mono text-xs text-cyan-400 tracking-widest flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        [DIRECT FACTORY SOURCING // VERIFIED SERIAL GUARANTEE]
+      </div>
+      <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.08] uppercase">
+        Mission-Critical <br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-400">
+          Factory Automation
+        </span> <br>
+        & 11,000-Cycle ESS
+      </h1>
+      <p class="text-sm text-slate-400 leading-relaxed max-w-xl font-light">
+        Deploy genuine Siemens S7 PLCs, Schneider switchgear, and HiTHIUM LiFePO₄ energy storage systems with on-ground factory quality control in Shenzhen & Guangdong delivered directly to Bangladesh.
+      </p>
+
+      <!-- Search Terminal -->
+      <div class="hud-box p-4 rounded-lg flex items-center gap-3">
+        <span class="mono text-xs text-cyan-400">CMD:&gt;</span>
+        <input type="text" placeholder="QUERY PART NO (e.g. 6ES7532-5HD00, HiTHIUM 16kWh)..." class="bg-transparent text-xs mono text-white w-full focus:outline-none placeholder-slate-600">
+        <button class="mono text-xs px-3 py-1.5 bg-slate-800 text-cyan-400 rounded border border-cyan-500/30 hover:bg-cyan-500/20">
+          EXECUTE
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Card -->
+    <div class="lg:col-span-5 space-y-4">
+      <div class="hud-box p-6 rounded-xl space-y-4">
+        <div class="flex justify-between items-center text-xs mono border-b border-slate-800 pb-3">
+          <span class="text-slate-400">TELEMETRY // ON-GROUND CHINA</span>
+          <span class="text-emerald-400">LIVE FEED</span>
+        </div>
+        <div class="space-y-3">
+          <div class="p-3 bg-slate-950/80 rounded border border-slate-800 flex justify-between items-center">
+            <div>
+              <div class="mono text-xs font-bold text-white">HiTHIUM HeroEE 16kWh</div>
+              <div class="text-[10px] text-slate-500 mono">51.2V 314Ah // 11,000 CYCLES</div>
+            </div>
+            <span class="text-xs mono font-bold text-amber-400">IN STOCK</span>
+          </div>
+          <div class="p-3 bg-slate-950/80 rounded border border-slate-800 flex justify-between items-center">
+            <div>
+              <div class="mono text-xs font-bold text-white">Siemens S7-1500 AQ 4xU/I</div>
+              <div class="text-[10px] text-slate-500 mono">6ES7532-5HD00 // 16-BIT</div>
+            </div>
+            <span class="text-xs mono font-bold text-cyan-400">AUTHENTIC</span>
+          </div>
+        </div>
+        <div class="pt-2 flex justify-between text-[11px] mono text-slate-400">
+          <span>AIR FREIGHT: 7-10 DAYS</span>
+          <span class="text-emerald-400">QC VERIFIED ✓</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Synapse Engineering & Supply — Industrial Automation, Solar ESS & China Sourcing',
   description:
-    'Leading engineering solutions provider in Bangladesh for Siemens & Schneider industrial automation, Tier-1 HiTHIUM 11,000-cycle LiFePO₄ solar energy storage, and direct China factory procurement with on-ground inspection.',
+    'Tier-1 engineering supply in Bangladesh: Siemens S7 PLCs, Schneider contactors, HiTHIUM 11,000-cycle LiFePO₄ battery systems, and on-ground China factory procurement with full QC.',
   keywords: [
     'Siemens PLC Bangladesh',
     'HiTHIUM Solar Battery',
@@ -55,7 +55,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
         {/* Meta Pixel Script */}
@@ -75,28 +75,8 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Schema.org Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Synapse Engineering & Supply',
-              url: 'https://synapse-engneering.com',
-              logo: 'https://synapse-engneering.com/wp-content/uploads/2026/04/Logo-Synapse-png-e1777269373737.png',
-              contactPoint: {
-                '@type': 'ContactPoint',
-                telephone: '+880-1886-113236',
-                contactType: 'Customer & Technical Support',
-                areaServed: ['BD', 'CN'],
-                availableLanguage: ['English', 'Bengali', 'Chinese'],
-              },
-            }),
-          }}
-        />
       </head>
-      <body className="antialiased bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+      <body className="antialiased bg-[#06080c] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-[#00f0ff] selection:text-black">
         {children}
       </body>
     </html>

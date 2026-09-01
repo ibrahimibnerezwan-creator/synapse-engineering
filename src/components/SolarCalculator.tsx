@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sun, BatteryCharging, Zap, Calculator, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sun, BatteryCharging, Zap, Calculator, ArrowRight, CheckCircle2, Terminal } from 'lucide-react';
 
 interface SolarCalculatorProps {
   onOpenRFQ?: (prefillNotes?: string) => void;
 }
 
 export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
-  const [loadKW, setLoadKW] = useState<number>(10);
+  const [loadKW, setLoadKW] = useState<number>(15);
   const [backupHours, setBackupHours] = useState<number>(4);
   const [efficiency] = useState<number>(0.88); // 88% system depth of discharge & inverter efficiency
 
@@ -22,39 +22,40 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
   const maxPower8Count = Math.ceil(recommendedKWh / 8);
 
   const handleRequestQuote = () => {
-    const specDetails = `Solar & ESS Calculator Sizing: ${loadKW} kW Load for ${backupHours} Hours Backup (Required Storage: ~${recommendedKWh} kWh, Inverter: ~${recommendedInverterKW} kW, HiTHIUM Battery Units: ${heroEE16Count}x 16kWh HeroEE)`;
+    const specDetails = `ESS Calculator Sizing: ${loadKW} kW Load for ${backupHours} Hours Backup (Storage: ~${recommendedKWh} kWh, Inverter: ~${recommendedInverterKW} kW, HiTHIUM Units: ${heroEE16Count}x 16kWh HeroEE)`;
     onOpenRFQ?.(specDetails);
   };
 
   return (
-    <section id="calculator" className="py-20 bg-slate-900/40 relative tech-grid-bg">
+    <section id="calculator" className="py-20 bg-[#06080c] relative tech-grid-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#0b0f17] border border-[#ffaa00]/30 text-[#ffaa00] text-xs font-bold mono uppercase tracking-wider">
             <Calculator className="w-3.5 h-3.5" />
-            Engineering Sizing Tool
+            [ENGINEERING_TOOL // SIZING_ENGINE_V2.6]
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Factory Solar & <span className="text-amber-400">LiFePO₄ Battery Sizing</span> Calculator
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight uppercase">
+            Factory Solar & <span className="text-[#ffaa00]">HiTHIUM LiFePO₄ Sizing</span> Console
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base">
-            Calculate your plant's energy storage requirements and receive an instant HiTHIUM battery configuration tailored to your load.
+          <p className="text-slate-400 text-sm sm:text-base font-light">
+            Calculate your industrial power storage requirements and configure custom HiTHIUM battery units for 15-20+ years of maintenance-free operation.
           </p>
         </div>
 
-        {/* Calculator Main Box */}
-        <div className="max-w-5xl mx-auto rounded-3xl glass-panel border border-amber-500/30 p-6 sm:p-10 shadow-2xl shadow-amber-950/20">
+        {/* Calculator Main HUD Box */}
+        <div className="max-w-5xl mx-auto rounded-2xl hud-panel border border-[#ffaa00]/30 p-6 sm:p-10 shadow-2xl">
           <div className="grid md:grid-cols-12 gap-8 items-center">
             {/* Input Controls (Left 6 cols) */}
             <div className="md:col-span-6 space-y-8">
               {/* Load Input */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-400" />
-                    Essential Plant / Load Power:
+                  <label className="text-xs font-bold text-slate-200 mono flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-[#ffaa00]" />
+                    ESSENTIAL PLANT LOAD:
                   </label>
-                  <span className="text-xl font-bold font-mono text-amber-400 bg-amber-500/10 px-3 py-0.5 rounded-lg border border-amber-500/20">
+                  <span className="text-lg font-extrabold font-mono text-[#ffaa00] bg-[#ffaa00]/10 px-3 py-0.5 rounded border border-[#ffaa00]/30">
                     {loadKW} kW
                   </span>
                 </div>
@@ -65,23 +66,23 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                   step="1"
                   value={loadKW}
                   onChange={(e) => setLoadKW(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-400"
+                  className="w-full h-2 bg-[#1a2234] rounded-lg appearance-none cursor-pointer accent-[#ffaa00]"
                 />
-                <div className="flex justify-between text-[11px] text-slate-500">
+                <div className="flex justify-between text-[10px] mono text-slate-500">
                   <span>1 kW (Small Commercial)</span>
-                  <span>50 kW (Factory Line)</span>
-                  <span>100 kW (Heavy Industrial)</span>
+                  <span>50 kW (Weaving / Line)</span>
+                  <span>100 kW (Heavy Plant)</span>
                 </div>
               </div>
 
               {/* Backup Hours Input */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                    <BatteryCharging className="w-4 h-4 text-sky-400" />
-                    Required Backup Duration:
+                  <label className="text-xs font-bold text-slate-200 mono flex items-center gap-2">
+                    <BatteryCharging className="w-4 h-4 text-[#00f0ff]" />
+                    BACKUP DURATION:
                   </label>
-                  <span className="text-xl font-bold font-mono text-sky-400 bg-sky-500/10 px-3 py-0.5 rounded-lg border border-sky-500/20">
+                  <span className="text-lg font-extrabold font-mono text-[#00f0ff] bg-[#00f0ff]/10 px-3 py-0.5 rounded border border-[#00f0ff]/30">
                     {backupHours} Hours
                   </span>
                 </div>
@@ -92,71 +93,71 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                   step="1"
                   value={backupHours}
                   onChange={(e) => setBackupHours(Number(e.target.value))}
-                  className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
+                  className="w-full h-2 bg-[#1a2234] rounded-lg appearance-none cursor-pointer accent-[#00f0ff]"
                 />
-                <div className="flex justify-between text-[11px] text-slate-500">
-                  <span>1 Hour (Load shedding surge)</span>
+                <div className="flex justify-between text-[10px] mono text-slate-500">
+                  <span>1 Hour (Load Shedding)</span>
                   <span>8 Hours (Full Shift)</span>
-                  <span>24 Hours (24/7 Off-Grid)</span>
+                  <span>24 Hours (Off-Grid)</span>
                 </div>
               </div>
 
-              {/* Quick Specs Checklist */}
-              <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 space-y-2">
-                <div className="flex items-center gap-2 text-emerald-400 font-medium">
+              {/* Hardware Specs Checklist */}
+              <div className="p-4 rounded-xl bg-[#090e17] border border-[#1a2234] text-xs mono text-slate-400 space-y-2">
+                <div className="flex items-center gap-2 text-[#00ff88]">
                   <CheckCircle2 className="w-4 h-4" />
-                  HiTHIUM Grade-A LiFePO₄ Cells (11,000+ Cycles)
+                  <span>HiTHIUM Grade-A Cells (11,000+ Cycles)</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                  Supports Deye, Growatt, Megarevo Hybrid Inverters
+                <div className="flex items-center gap-2 text-[#00f0ff]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Compatible with Deye, Growatt, Megarevo Inverters</span>
                 </div>
               </div>
             </div>
 
             {/* Calculated Output Card (Right 6 cols) */}
-            <div className="md:col-span-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 p-6 sm:p-8 border border-slate-800 shadow-inner space-y-6">
-              <div className="border-b border-slate-800 pb-4">
-                <div className="text-xs text-slate-400 font-mono uppercase tracking-wider">
-                  Recommended Energy Storage System
+            <div className="md:col-span-6 rounded-2xl bg-[#070a10] p-6 sm:p-8 border border-[#1a2234] shadow-inner space-y-6">
+              <div className="border-b border-[#1a2234] pb-4">
+                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
+                  [CALCULATED ESS SPECIFICATION]
                 </div>
                 <div className="text-3xl font-extrabold text-white mt-1 flex items-baseline gap-2">
-                  <span className="text-amber-400 font-mono">{recommendedKWh}</span>
-                  <span className="text-base font-medium text-slate-300">kWh Storage Needed</span>
+                  <span className="text-[#ffaa00] mono">{recommendedKWh}</span>
+                  <span className="text-sm font-medium text-slate-400 mono">kWh Total Storage</span>
                 </div>
               </div>
 
               {/* Specs Grid */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-xs text-slate-400">Hybrid Inverter Size</div>
-                  <div className="text-base font-bold text-sky-400 mt-0.5">≥ {recommendedInverterKW} kW</div>
+              <div className="grid grid-cols-2 gap-3 text-xs mono">
+                <div className="p-3 rounded-xl bg-[#090e17] border border-[#1a2234]">
+                  <div className="text-[10px] text-slate-500">HYBRID INVERTER</div>
+                  <div className="text-sm font-bold text-[#00f0ff] mt-0.5">≥ {recommendedInverterKW} kW</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-xs text-slate-400">Battery Option A</div>
-                  <div className="text-base font-bold text-emerald-400 mt-0.5">
+                <div className="p-3 rounded-xl bg-[#090e17] border border-[#1a2234]">
+                  <div className="text-[10px] text-slate-500">RECOMMENDED PACK</div>
+                  <div className="text-sm font-bold text-[#00ff88] mt-0.5">
                     {heroEE16Count}x HeroEE 16kWh
                   </div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-xs text-slate-400">Battery Option B</div>
-                  <div className="text-base font-bold text-white mt-0.5">
+                <div className="p-3 rounded-xl bg-[#090e17] border border-[#1a2234]">
+                  <div className="text-[10px] text-slate-500">ALTERNATIVE PACK</div>
+                  <div className="text-sm font-bold text-white mt-0.5">
                     {maxPower8Count}x MaxPower 8kWh
                   </div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="text-xs text-slate-400">Expected Lifespan</div>
-                  <div className="text-base font-bold text-amber-400 mt-0.5">15-20+ Years</div>
+                <div className="p-3 rounded-xl bg-[#090e17] border border-[#1a2234]">
+                  <div className="text-[10px] text-slate-500">CYCLE LONGEVITY</div>
+                  <div className="text-sm font-bold text-[#ffaa00] mt-0.5">15-20+ Years</div>
                 </div>
               </div>
 
               {/* Action Button */}
               <button
                 onClick={handleRequestQuote}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#ffaa00] to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-xs mono shadow-[0_0_20px_rgba(255,170,0,0.3)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
               >
-                <span>Get Official Factory Proposal (RFQ)</span>
-                <ArrowRight className="w-4 h-4" />
+                <Terminal className="w-4 h-4" />
+                <span>EXECUTE_OFFICIAL_PROPOSAL [↵]</span>
               </button>
             </div>
           </div>
