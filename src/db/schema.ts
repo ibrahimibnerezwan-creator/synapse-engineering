@@ -11,16 +11,38 @@ export const products = sqliteTable('products', {
   subCategory: text('sub_category'),
   description: text('description').notNull(),
   descriptionBn: text('description_bn'),
-  specs: text('specs'), // JSON string: { "Capacity": "16kWh", "Cycles": "11,000", ... }
+  specs: text('specs'), // JSON string
   price: integer('price').default(0), // in BDT, 0 = Request Quote
   priceType: text('price_type').default('quote'), // 'fixed' | 'quote'
   datasheetUrl: text('datasheet_url'),
   primaryImage: text('primary_image').notNull(),
-  additionalImages: text('additional_images'), // JSON array of string URLs
+  additionalImages: text('additional_images'), // JSON array
   featured: integer('featured').default(0),
-  stockStatus: text('stock_status').default('In Stock'), // 'In Stock' | 'Direct Import (7-10 Days)' | 'Pre-Order'
+  stockStatus: text('stock_status').default('In Stock'),
   originCountry: text('origin_country').default('China'),
   displayOrder: integer('display_order').default(0),
+  createdAt: text('created_at').notNull(),
+});
+
+export const orders = sqliteTable('orders', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  invoice: text('invoice').notNull().unique(),
+  customerName: text('customer_name').notNull(),
+  phone: text('phone').notNull(),
+  address: text('address').notNull(),
+  productId: integer('product_id'),
+  productTitle: text('product_title').notNull(),
+  quantity: integer('quantity').default(1),
+  productAmount: integer('product_amount').notNull(),
+  deliveryCharge: integer('delivery_charge').default(130),
+  totalAmount: integer('total_amount').notNull(),
+  deliveryZone: text('delivery_zone').default('outside'), // 'dhaka' | 'suburb' | 'outside'
+  paymentMethod: text('payment_method').default('cod'), // 'cod' | 'bkash' | 'nagad'
+  trxId: text('trx_id'),
+  status: text('status').default('pending'), // 'pending' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
+  trackingCode: text('tracking_code'), // Steadfast tracking code
+  source: text('source').default('web'), // 'web' | 'quick_order_fb' | 'whatsapp' | 'manual'
+  note: text('note'),
   createdAt: text('created_at').notNull(),
 });
 
@@ -53,7 +75,7 @@ export const sourcingInquiries = sqliteTable('sourcing_inquiries', {
   targetQuantity: integer('target_quantity'),
   sampleOrPhotoUrl: text('sample_or_photo_url'),
   targetBudget: text('target_budget'),
-  status: text('status').default('reviewing'), // 'reviewing' | 'factory_matched' | 'quote_sent' | 'sample_ordered' | 'shipping' | 'completed'
+  status: text('status').default('reviewing'),
   trackingCode: text('tracking_code'),
   adminNotes: text('admin_notes'),
   createdAt: text('created_at').notNull(),
@@ -61,5 +83,7 @@ export const sourcingInquiries = sqliteTable('sourcing_inquiries', {
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
 export type RFQ = typeof rfqs.$inferSelect;
 export type SourcingInquiry = typeof sourcingInquiries.$inferSelect;
