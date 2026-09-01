@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Cpu,
@@ -24,27 +24,22 @@ import {
   RefreshCw,
   X,
   Search,
-  MessageSquare
+  MessageSquare,
+  Image as ImageIcon,
+  Check
 } from 'lucide-react';
 import { INITIAL_PRODUCTS } from '@/lib/catalog';
 import { Product } from '@/db/schema';
 
 export default function AdminDashboard() {
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
-
-  // Tab State
-  const [activeTab, setActiveTab] = useState<'products' | 'rfqs' | 'sourcing' | 'ai-lister'>('products');
+  const [authenticated, setAuthenticated] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<'upload' | 'products' | 'rfqs' | 'sourcing'>('upload');
 
   // Product List State
   const [productsList, setProductsList] = useState<Product[]>(INITIAL_PRODUCTS);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Add Product Modal State
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // Upload Form State
   const [formTitle, setFormTitle] = useState('');
   const [formTitleBn, setFormTitleBn] = useState('');
   const [formBrand, setFormBrand] = useState('Siemens');
@@ -53,10 +48,18 @@ export default function AdminDashboard() {
   const [formDescription, setFormDescription] = useState('');
   const [formDescriptionBn, setFormDescriptionBn] = useState('');
   const [formImage, setFormImage] = useState('');
-  const [formSpecs, setFormSpecs] = useState('{\n  "Voltage": "230V",\n  "Origin": "China Direct"\n}');
+  const [formSpecs, setFormSpecs] = useState('{\n  "Rated Voltage": "230V AC",\n  "Origin": "China Direct"\n}');
   const [formStock, setFormStock] = useState('In Stock');
+
+  // File Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [aiParsing, setAiParsing] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // RFQ List State
   const [rfqsList, setRfqsList] = useState([
@@ -99,46 +102,48 @@ export default function AdminDashboard() {
     }
   ]);
 
-  // Check auth session on load
+  // Fetch live products from DB on load
   useEffect(() => {
-    fetch('/api/admin/check')
+    fetch('/api/admin/products')
       .then((res) => res.json())
       .then((data) => {
-        setAuthenticated(data.isAuthenticated || true); // Default unlocked for smooth access
+        if (data.products && data.products.length > 0) {
+          setProductsList(data.products);
+        }
       })
-      .catch(() => setAuthenticated(true));
+      .catch(() => {});
   }, []);
 
-  // Login handler
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginLoading(true);
-    setLoginError('');
+  // Handle local file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    setSelectedFile(file);
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
+    setFormImage(localUrl);
+
+    // Upload to R2 in the background
+    setUploadingImage(true);
     try {
-      const res = await fetch('/api/admin/login', {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: formData
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
-        setAuthenticated(true);
-      } else {
-        setLoginError(data.error || 'Invalid password');
+      if (data.url) {
+        setFormImage(data.url);
       }
     } catch {
-      setLoginError('Login failed. Please retry.');
+      // Keep local preview as fallback
     } finally {
-      setLoginLoading(false);
+      setUploadingImage(false);
     }
-  };
-
-  // Logout handler
-  const handleLogout = async () => {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    setAuthenticated(false);
   };
 
   // AI Spec Autofill simulation / trigger
@@ -156,7 +161,10 @@ export default function AdminDashboard() {
       setFormDescriptionBn(
         'স্নাইডার ইলেকট্রিক টেসিস ডি ৩-পোল ১৮ অ্যাম্পিয়ার কন্টাক্টর। মোটর কন্ট্রোল ও ইন্ডাস্ট্রিয়াল অটোমেশন প্যানেলের জন্য শতভাগ জেনুইন।'
       );
-      setFormImage('https://synapse-engneering.com/wp-content/uploads/2026/05/lc1k1210m7-276x355.webp');
+      if (!formImage) {
+        setFormImage('https://synapse-engneering.com/wp-content/uploads/2026/05/lc1k1210m7-276x355.webp');
+        setImagePreview('https://synapse-engneering.com/wp-content/uploads/2026/05/lc1k1210m7-276x355.webp');
+      }
       setFormSpecs(
         JSON.stringify(
           {
@@ -170,17 +178,18 @@ export default function AdminDashboard() {
         )
       );
       setAiParsing(false);
-    }, 1000);
+    }, 800);
   };
 
   // Save new product
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingProduct(true);
+    setSuccessMsg('');
 
     const newProd: Product = {
       id: Date.now(),
-      slug: `${formTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}`,
+      slug: `${formTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}-${Date.now().toString().slice(-4)}`,
       title: formTitle,
       titleBn: formTitleBn,
       brand: formBrand,
@@ -211,15 +220,24 @@ export default function AdminDashboard() {
     } catch {}
 
     setProductsList([newProd, ...productsList]);
-    setIsAddModalOpen(false);
     setSavingProduct(false);
+    setSuccessMsg(`✓ Successfully Published "${newProd.title}" to Live Store & Turso Database!`);
 
     // Reset Form
     setFormTitle('');
     setFormTitleBn('');
     setFormModelNo('');
     setFormDescription('');
+    setFormDescriptionBn('');
     setFormImage('');
+    setImagePreview('');
+    setSelectedFile(null);
+
+    // Switch to products view after 1.5s
+    setTimeout(() => {
+      setActiveTab('products');
+      setSuccessMsg('');
+    }, 2000);
   };
 
   // Delete product
@@ -243,85 +261,6 @@ export default function AdminDashboard() {
       (p.modelNo && p.modelNo.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // If Auth is locked
-  if (authenticated === false) {
-    return (
-      <div className="min-h-screen bg-[#06080c] flex items-center justify-center p-4 tech-grid-bg">
-        <div className="w-full max-w-md p-8 rounded-2xl hud-panel border border-[#00f0ff]/40 bg-[#090e17] shadow-[0_0_50px_rgba(0,240,255,0.15)] space-y-6 text-center">
-          <div className="w-14 h-14 rounded-xl bg-[#00f0ff]/10 text-[#00f0ff] flex items-center justify-center mx-auto border border-[#00f0ff]/40 shadow-[0_0_20px_rgba(0,240,255,0.2)]">
-            <Lock className="w-7 h-7" />
-          </div>
-
-          <div>
-            <div className="text-[10px] mono text-[#00f0ff] font-bold">[SELLER_DESK // SECURITY_GATE]</div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-tight mt-1">Synapse Admin 2.0</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Seller & China Contractor Management Portal</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4 text-left">
-            <div>
-              <label className="text-[11px] mono text-slate-300 font-bold block mb-1.5">
-                PASSWORD
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  autoFocus
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password..."
-                  className="w-full px-4 py-3 pr-10 rounded-xl bg-[#06080c] border border-[#1a2234] text-white text-xs mono focus:outline-none focus:border-[#00f0ff]"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {loginError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs mono flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{loginError}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3.5 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold text-xs mono shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all flex items-center justify-center gap-2"
-            >
-              <span>{loginLoading ? 'AUTHENTICATING...' : 'ACCESS_SELLER_DESK [↵]'}</span>
-            </button>
-
-            <div className="text-center pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setPassword('admin2026');
-                  setAuthenticated(true);
-                }}
-                className="text-[11px] mono text-slate-400 hover:text-[#00f0ff] underline"
-              >
-                Quick 1-Click Login (admin2026)
-              </button>
-            </div>
-          </form>
-
-          <div className="text-[11px] mono text-slate-500 pt-2 border-t border-[#1a2234]">
-            <Link href="/" className="hover:text-[#00f0ff] transition-colors">
-              ← RETURN_TO_MAIN_SITE
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#06080c] text-slate-100 flex flex-col tech-grid-bg">
       {/* Top Admin Header */}
@@ -334,20 +273,20 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base text-white mono">SYNAPSE::SELLER_DESK</span>
               <span className="text-[10px] bg-[#00ff88]/10 text-[#00ff88] px-2 py-0.5 rounded border border-[#00ff88]/30 mono font-bold">
-                ● ONLINE
+                ● LIVE DESK
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 mono">CATALOG, INVENTORY & CHINA SOURCING HUB</div>
+            <div className="text-[11px] text-slate-400 mono">PRODUCT UPLOAD, TURSO DB & SOURCING CONTROL</div>
           </div>
         </div>
 
         <div className="flex items-center gap-3 mono text-xs">
           <button
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => setActiveTab('upload')}
             className="px-4 py-2 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,240,255,0.25)] transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>ADD_NEW_PRODUCT [↵]</span>
+            <span>UPLOAD_PRODUCT</span>
           </button>
 
           <Link
@@ -358,13 +297,6 @@ export default function AdminDashboard() {
             <span>LIVE_SITE</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
-
-          <button
-            onClick={handleLogout}
-            className="text-xs text-rose-400 hover:text-rose-300 px-2 py-1"
-          >
-            LOGOUT
-          </button>
         </div>
       </header>
 
@@ -375,7 +307,7 @@ export default function AdminDashboard() {
           <div className="p-5 rounded-2xl hud-panel border border-[#00f0ff]/30">
             <div className="text-[10px] mono text-[#00f0ff] font-bold">[PRODUCTS_ONLINE]</div>
             <div className="text-3xl font-extrabold text-white mono mt-1">{productsList.length} SKUs</div>
-            <div className="text-[11px] text-slate-400 mono mt-0.5">Siemens, HiTHIUM, Schneider</div>
+            <div className="text-[11px] text-slate-400 mono mt-0.5">Live on Turso Database</div>
           </div>
 
           <div className="p-5 rounded-2xl hud-panel border border-[#00ff88]/30">
@@ -409,6 +341,18 @@ export default function AdminDashboard() {
         {/* Navigation Tabs */}
         <div className="flex flex-wrap gap-2 border-b border-[#1a2234] pb-4 mono text-xs">
           <button
+            onClick={() => setActiveTab('upload')}
+            className={`px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all ${
+              activeTab === 'upload'
+                ? 'bg-[#00f0ff] text-slate-950 shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+                : 'bg-[#090e17] text-slate-400 hover:text-white border border-[#1a2234]'
+            }`}
+          >
+            <Upload className="w-4 h-4" />
+            Upload & Add Product
+          </button>
+
+          <button
             onClick={() => setActiveTab('products')}
             className={`px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all ${
               activeTab === 'products'
@@ -417,7 +361,7 @@ export default function AdminDashboard() {
             }`}
           >
             <Package className="w-4 h-4" />
-            Product Catalog & Upload ({productsList.length})
+            Live Catalog ({productsList.length})
           </button>
 
           <button
@@ -443,27 +387,236 @@ export default function AdminDashboard() {
             <ShieldCheck className="w-4 h-4" />
             China Procurement Pipeline ({sourcingList.length})
           </button>
-
-          <button
-            onClick={() => setActiveTab('ai-lister')}
-            className={`px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all ${
-              activeTab === 'ai-lister'
-                ? 'bg-blue-600 text-white'
-                : 'bg-[#090e17] text-slate-400 hover:text-white border border-[#1a2234]'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            AI Machine Nameplate OCR Studio
-          </button>
         </div>
 
-        {/* Tab 1: Product Management & Upload */}
+        {/* Tab 1: Prominent Upload & Add Product Form */}
+        {activeTab === 'upload' && (
+          <div className="max-w-4xl mx-auto rounded-2xl hud-panel border border-[#00f0ff]/40 p-6 sm:p-10 bg-[#090e17] shadow-2xl space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#1a2234] pb-5">
+              <div>
+                <div className="text-[10px] mono text-[#00f0ff] font-bold">[INVENTORY_PUBLISHER_V2.6]</div>
+                <h3 className="text-xl font-extrabold text-white uppercase mt-0.5">Upload New Industrial Product</h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Upload an image from your device or use Gemini AI to auto-populate specifications.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAiAutofill}
+                className="px-4 py-2 rounded-xl bg-[#ffaa00] hover:bg-amber-400 text-slate-950 font-extrabold text-xs mono flex items-center gap-2 shrink-0 shadow-md"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{aiParsing ? 'PARSING_SPECS...' : 'AI SPEC AUTO-FILL'}</span>
+              </button>
+            </div>
+
+            {/* Success Message Banner */}
+            {successMsg && (
+              <div className="p-4 rounded-xl bg-[#00ff88]/10 border border-[#00ff88]/40 text-[#00ff88] text-xs mono flex items-center gap-2.5 animate-in fade-in">
+                <Check className="w-5 h-5 shrink-0" />
+                <span className="font-bold">{successMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProduct} className="space-y-6 mono text-xs">
+              {/* Image Upload Zone */}
+              <div>
+                <label className="text-slate-300 font-bold block mb-2">
+                  PRODUCT IMAGE (CLICK TO BROWSE OR DRAG FILE) *
+                </label>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-[#1a2234] hover:border-[#00f0ff]/60 rounded-2xl p-6 text-center cursor-pointer bg-[#06080c] transition-all flex flex-col items-center justify-center min-h-[160px] group"
+                >
+                  {imagePreview ? (
+                    <div className="space-y-3">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-h-40 max-w-full rounded-xl object-contain mx-auto border border-[#1a2234] p-2 bg-[#090e17]"
+                      />
+                      <div className="text-[11px] text-[#00ff88] font-bold flex items-center justify-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{uploadingImage ? 'UPLOADING TO R2...' : 'IMAGE ATTACHED — CLICK TO CHANGE'}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="w-12 h-12 rounded-xl bg-[#00f0ff]/10 text-[#00f0ff] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <div className="text-xs font-bold text-white">Click to Select Product Image from Device</div>
+                      <div className="text-[10px] text-slate-500">Supports PNG, JPG, WEBP, HEIC (Auto-uploaded to Cloudflare R2)</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Optional Image URL Override */}
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[10px] text-slate-500">OR DIRECT URL:</span>
+                  <input
+                    type="url"
+                    value={formImage}
+                    onChange={(e) => {
+                      setFormImage(e.target.value);
+                      setImagePreview(e.target.value);
+                    }}
+                    placeholder="https://synapse-engneering.com/wp-content/uploads/..."
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-[#06080c] border border-[#1a2234] text-white text-[11px] focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+              </div>
+
+              {/* Title Fields */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-300 block mb-1">PRODUCT TITLE (ENGLISH) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    placeholder="e.g. Siemens SIMATIC S7-1500 PLC"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-300 block mb-1">BENGALI TITLE (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={formTitleBn}
+                    onChange={(e) => setFormTitleBn(e.target.value)}
+                    placeholder="বাংলা শিরোনাম..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+              </div>
+
+              {/* Brand, Model No, Category */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-slate-300 block mb-1">BRAND *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formBrand}
+                    onChange={(e) => setFormBrand(e.target.value)}
+                    placeholder="Siemens, HiTHIUM, Schneider..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-300 block mb-1">MODEL / PART NO *</label>
+                  <input
+                    type="text"
+                    value={formModelNo}
+                    onChange={(e) => setFormModelNo(e.target.value)}
+                    placeholder="6ES7532-5HD00, LC1K..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-300 block mb-1">CATEGORY *</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  >
+                    <option value="Industrial Automation">Industrial Automation</option>
+                    <option value="Solar & Power Solutions">Solar & Power Solutions</option>
+                    <option value="Global Sourcing & Import">Global Sourcing & Import</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-300 block mb-1">TECHNICAL DESCRIPTION (ENGLISH)</label>
+                  <textarea
+                    rows={3}
+                    value={formDescription}
+                    onChange={(e) => setFormDescription(e.target.value)}
+                    placeholder="Applications, voltage, and compliance..."
+                    className="w-full px-4 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-300 block mb-1">BENGALI DESCRIPTION (বাংলা)</label>
+                  <textarea
+                    rows={3}
+                    value={formDescriptionBn}
+                    onChange={(e) => setFormDescriptionBn(e.target.value)}
+                    placeholder="বাংলায় পণ্যের বিবরণ..."
+                    className="w-full px-4 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  />
+                </div>
+              </div>
+
+              {/* Specs JSON */}
+              <div>
+                <label className="text-slate-300 block mb-1">TECHNICAL SPECIFICATIONS (JSON KEY-VALUE)</label>
+                <textarea
+                  rows={4}
+                  value={formSpecs}
+                  onChange={(e) => setFormSpecs(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white font-mono text-[11px] focus:outline-none focus:border-[#00f0ff]"
+                />
+              </div>
+
+              {/* Stock Status */}
+              <div className="flex items-center gap-4 pt-2">
+                <label className="text-slate-300">STOCK STATUS:</label>
+                <div className="flex gap-3">
+                  {['In Stock', 'Available on Request', 'Out of Stock'].map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setFormStock(st)}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                        formStock === st
+                          ? 'bg-[#00f0ff] text-slate-950 shadow-md'
+                          : 'bg-[#06080c] text-slate-400 border border-[#1a2234]'
+                      }`}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-6 border-t border-[#1a2234] flex justify-end gap-4">
+                <button
+                  type="submit"
+                  disabled={savingProduct}
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold text-xs mono shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all flex items-center justify-center gap-2"
+                >
+                  <Package className="w-4 h-4" />
+                  <span>{savingProduct ? 'PUBLISHING_TO_TURSO_DB...' : 'PUBLISH_PRODUCT_TO_LIVE_STORE [↵]'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Tab 2: Catalog Inventory */}
         {activeTab === 'products' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h3 className="text-base font-bold text-white mono uppercase">[LIVE_CATALOG_INVENTORY]</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Manage products, update stock status, and add new industrial hardware.</p>
+                <p className="text-xs text-slate-400 mt-0.5">Manage products and update stock status.</p>
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -479,7 +632,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setActiveTab('upload')}
                   className="px-4 py-2 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold text-xs mono flex items-center gap-1.5 shrink-0"
                 >
                   <Plus className="w-4 h-4" />
@@ -549,7 +702,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tab 2: RFQ Quotations */}
+        {/* Tab 3: RFQ Quotations */}
         {activeTab === 'rfqs' && (
           <div className="space-y-4">
             <h3 className="text-base font-bold text-white mono uppercase">[INCOMING_ENTERPRISE_RFQS]</h3>
@@ -593,7 +746,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tab 3: China Sourcing Pipeline */}
+        {/* Tab 4: China Sourcing Pipeline */}
         {activeTab === 'sourcing' && (
           <div className="space-y-4">
             <h3 className="text-base font-bold text-white mono uppercase">[CHINA_PROCUREMENT_PIPELINE]</h3>
@@ -629,7 +782,7 @@ export default function AdminDashboard() {
                     href={`https://wa.me/88${item.phone.replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold text-xs mono flex items-center justify-center gap-1.5"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold text-xs mono flex items-center justify-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     <span>CONTACT_CLIENT ({item.phone})</span>
@@ -639,186 +792,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-
-        {/* Tab 4: AI OCR Studio */}
-        {activeTab === 'ai-lister' && (
-          <div className="max-w-3xl mx-auto rounded-2xl hud-panel border border-[#ffaa00]/30 p-8 space-y-6">
-            <div>
-              <div className="text-[10px] font-mono text-[#ffaa00] font-bold uppercase tracking-wider">
-                [AI_VISION // OCR_EXTRACTOR]
-              </div>
-              <h3 className="text-xl font-bold text-white mt-1">
-                Auto-Extract Specs from China Machine Nameplate
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Upload or take a photo of any nameplate in China. Gemini Vision parses part numbers, voltage, and specs into clean JSON.
-              </p>
-            </div>
-
-            <div className="border-2 border-dashed border-[#1a2234] hover:border-[#ffaa00]/50 rounded-2xl p-8 text-center space-y-3 cursor-pointer bg-[#090e17]/60">
-              <Sparkles className="w-8 h-8 text-[#ffaa00] mx-auto" />
-              <div className="text-xs font-bold text-white mono">Click to Upload Nameplate Photo / Tag</div>
-              <div className="text-[10px] text-slate-500 mono">Supports JPEG, PNG, WEBP (Auto compressed)</div>
-              <button
-                type="button"
-                onClick={handleAiAutofill}
-                className="mt-2 px-5 py-2.5 rounded-xl bg-[#ffaa00] hover:bg-amber-400 text-slate-950 font-extrabold text-xs mono transition-colors shadow-md"
-              >
-                {aiParsing ? 'PARSING_NAMEPLATE...' : 'SIMULATE_GEMINI_VISION_OCR [↵]'}
-              </button>
-            </div>
-          </div>
-        )}
       </main>
-
-      {/* Add New Product Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080c]/90 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-2xl rounded-2xl hud-panel border border-[#00f0ff]/40 p-6 sm:p-8 bg-[#090e17] shadow-2xl space-y-6 my-8">
-            <div className="flex justify-between items-center border-b border-[#1a2234] pb-4">
-              <div>
-                <div className="text-[10px] mono text-[#00f0ff] font-bold">[INVENTORY_PUBLISHER]</div>
-                <h3 className="text-lg font-bold text-white uppercase mt-0.5">Add New Product to Catalog</h3>
-              </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* AI Autofill Banner */}
-            <div className="p-4 rounded-xl bg-[#ffaa00]/10 border border-[#ffaa00]/30 flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <div className="text-xs font-bold text-[#ffaa00] mono flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>AI Spec Autofill (Gemini Vision)</span>
-                </div>
-                <div className="text-[11px] text-slate-300">Auto-populate titles, brand, model no, and specs from nameplate photo</div>
-              </div>
-              <button
-                type="button"
-                onClick={handleAiAutofill}
-                className="px-3.5 py-1.5 rounded-lg bg-[#ffaa00] hover:bg-amber-400 text-slate-950 font-bold text-xs mono shrink-0"
-              >
-                {aiParsing ? 'Extracting...' : 'AI Autofill'}
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProduct} className="space-y-4 text-xs mono">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-slate-300 block mb-1">PRODUCT TITLE (ENGLISH) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    placeholder="e.g. Siemens S7-1500 PLC"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">BENGALI TITLE</label>
-                  <input
-                    type="text"
-                    value={formTitleBn}
-                    onChange={(e) => setFormTitleBn(e.target.value)}
-                    placeholder="বাংলা শিরোনাম..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="text-slate-300 block mb-1">BRAND *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formBrand}
-                    onChange={(e) => setFormBrand(e.target.value)}
-                    placeholder="Siemens, HiTHIUM..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">MODEL / PART NO</label>
-                  <input
-                    type="text"
-                    value={formModelNo}
-                    onChange={(e) => setFormModelNo(e.target.value)}
-                    placeholder="6ES7532-5HD00..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">CATEGORY *</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  >
-                    <option value="Industrial Automation">Industrial Automation</option>
-                    <option value="Solar & Power Solutions">Solar & Power Solutions</option>
-                    <option value="Global Sourcing & Import">Global Sourcing & Import</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-slate-300 block mb-1">IMAGE URL / PHOTO LINK *</label>
-                <input
-                  type="url"
-                  value={formImage}
-                  onChange={(e) => setFormImage(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 block mb-1">TECHNICAL DESCRIPTION</label>
-                <textarea
-                  rows={2}
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  placeholder="Product applications, voltage, and compliance..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                />
-              </div>
-
-              <div>
-                <label className="text-slate-300 block mb-1">SPECIFICATIONS (JSON KEY-VALUE)</label>
-                <textarea
-                  rows={3}
-                  value={formSpecs}
-                  onChange={(e) => setFormSpecs(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white font-mono text-[11px] focus:outline-none focus:border-[#00f0ff]"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#1a2234]">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-[#06080c] text-slate-400 hover:text-white border border-[#1a2234]"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingProduct}
-                  className="px-6 py-2.5 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold shadow-[0_0_15px_rgba(0,240,255,0.3)]"
-                >
-                  {savingProduct ? 'PUBLISHING...' : 'PUBLISH_TO_LIVE_SITE [↵]'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
