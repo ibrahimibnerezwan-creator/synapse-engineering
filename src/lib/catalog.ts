@@ -1,11 +1,12 @@
 import { Product } from '@/db/schema';
 
-// Curated authentic initial products for Synapse Engineering & Supply
+// Curated authentic products for Synapse Engineering & Supply (Industrial B2B + Direct Consumer Gadgets)
 export const INITIAL_PRODUCTS: Product[] = [
+  // 1. Industrial Solar & Energy Storage
   {
     id: 1,
     slug: 'hithium-heroee-16-16kwh-lifepo4-battery-pack',
-    title: 'HiTHIUM HeroEE 16 — 16kWh LiFePO₄ Portable Battery Pack',
+    title: 'HiTHIUM HeroEE 16 — 16kWh LiFePO₄ Portable Industrial Battery',
     titleBn: 'হাইথিয়াম হিরো-ইই ১৬ — ১৬ কিলোওয়াট-আওয়ার লিথিয়াম আয়ন ব্যাটারি',
     modelNo: 'HeroEE-16-51.2V-314Ah',
     brand: 'HiTHIUM',
@@ -16,10 +17,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     specs: JSON.stringify({
       'Rated Capacity': '16.08 kWh (51.2V 314Ah)',
       'Battery Chemistry': 'Grade-A LiFePO₄ (Lithium Iron Phosphate)',
-      'Cycle Life': '≥ 11,000 Cycles @ 80% DOD',
-      'Max Charge / Discharge': '150A / 200A Continuous',
-      'Communication': 'CAN / RS485 / RS232 (Supports Deye, Growatt, Megarevo, Sungrow)',
-      'Operating Temp': '-10°C to 55°C',
+      'Cycle Life': '≥ 11,000 Cycles @ 80% DOD (15-20 Years Duty)',
+      'Max Current': '150A Continuous Charge / 200A Discharge',
+      'Communication': 'CAN / RS485 / RS232 (Deye, Growatt, Megarevo)',
       'Warranty': '10 Years Manufacturer Warranty',
       'Origin': 'Xiamen, China (Direct Factory Dispatch)'
     }),
@@ -36,45 +36,106 @@ export const INITIAL_PRODUCTS: Product[] = [
     displayOrder: 1,
     createdAt: '2026-09-01T00:00:00.000Z'
   },
+  // 2. Consumer Tech: High-Capacity Portable Power Station
   {
     id: 2,
-    slug: 'hithium-heroee-maxpower-8-aio-8kwh-solar-system',
-    title: 'HiTHIUM MaxPower 8 AIO — 8kWh All-in-One Solar + Battery Backup System',
-    titleBn: 'হাইথিয়াম ম্যাক্সপাওয়ার ৮ — অল-ইন-ওয়ান ৮ কিলোওয়াট-আওয়ার সোলার ও ব্যাটারি সিস্টেম',
-    modelNo: 'MaxPower-AIO-8k-9000W',
-    brand: 'HiTHIUM',
-    category: 'Solar & Power Solutions',
-    subCategory: 'All-In-One Solar ESS',
-    description: 'Integrated 8kWh LiFePO₄ energy storage system with built-in 9000W dual MPPT hybrid inverter. Seamless switchover in <10ms for unnoticeable UPS backup during grid failure. Plug-and-play installation with smartphone app telemetry.',
-    descriptionBn: 'বিল্ট-ইন ৯০০০ ওয়াট ডুয়াল MPPT হাইব্রিড ইনভার্টার ও ৮ কিলোওয়াট-আওয়ার লিথিয়াম ব্যাটারি সমন্বিত সম্পূর্ণ কমপ্যাক্ট পাওয়ার সলিউশন। মাত্র ১০ মিলিসেকেন্ডে অটোমেটিক ব্যাকআপ ট্রানজিশন।',
+    slug: 'synapse-powerhub-600w-portable-lifepo4-power-station',
+    title: 'Synapse PowerHub 600W — Portable LiFePO₄ Power Station (Camping & Home Backup)',
+    titleBn: 'সিন্যাপ্স পাওয়ারহাব ৬০০ ওয়াট — পোর্টেবল লিথিয়াম পাওয়ার স্টেশন',
+    modelNo: 'SYN-PH600-LFP',
+    brand: 'Synapse Tech Direct',
+    category: 'Consumer Tech & Gadgets',
+    subCategory: 'Portable Power & Chargers',
+    description: 'High-density 512Wh LiFePO₄ portable power station with 600W pure sine wave AC output (1200W surge), 100W USB-C PD fast charging, and integrated LED light bar. Ideal for home load shedding, photography shoots, outdoor camping, and running laptops, TVs, and medical equipment.',
+    descriptionBn: '৫১২ ওয়াট-আওয়ার পোর্টেবল লিথিয়াম ব্যাটারি পাওয়ার স্টেশন। লোডশেডিং, ট্রাভেল এবং আউটডোর কাজের জন্য ল্যাপটপ, ফ্যান ও জরুরি গ্যাজেট নিরবচ্ছিন্নভাবে চালানোর সম্পূর্ণ সমাধান।',
     specs: JSON.stringify({
-      'Battery Storage': '8.04 kWh LiFePO₄',
-      'Inverter Power': '9000W Pure Sine Wave',
-      'MPPT Input': 'Dual MPPT (120V - 500V DC)',
-      'Transfer Time': '< 10ms (True UPS Grade)',
-      'Parallel Capability': 'Up to 6 units in parallel',
-      'Protection': 'IP65 Weatherproof Enclosure',
-      'Warranty': '5 Years System Warranty'
+      'Battery Capacity': '512Wh Grade-A LiFePO₄ (3,000+ Cycles to 80%)',
+      'AC Output': '600W Pure Sine Wave (1200W Peak Surge, 230V 50Hz)',
+      'USB-C Port': '100W Power Delivery (PD 3.0) Fast Charge',
+      'Solar Charging Input': '12V-28V DC (Up to 200W MPPT Solar)',
+      'Recharge Time': '0 to 80% in 55 minutes via Wall AC',
+      'Weight': '6.2 kg with Ergonomic Carrying Handle',
+      'Warranty': '2 Years Replacement Warranty'
     }),
-    price: 0,
-    priceType: 'quote',
+    price: 34500,
+    priceType: 'fixed',
     datasheetUrl: 'https://synapse-engneering.com/wp-content/uploads/2026/04/Synapse-Engineering-Company-Profile.pdf',
-    primaryImage: 'https://synapse-engneering.com/wp-content/uploads/2026/03/HiTHIUM-MaxPower-AIO-8-–-Home-Solar-ESS-with-9000W-MPPT-8kWh-Lithium-Battery-2.png',
-    additionalImages: JSON.stringify([
-      'https://synapse-engneering.com/wp-content/uploads/2026/03/HiTHIUM-MaxPower-8-AIO-–-All-in-One-8kWh-LiFePO₄-Energy-Storage-System-Solar-Grid.png'
-    ]),
+    primaryImage: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop&q=80',
+    additionalImages: JSON.stringify([]),
     featured: 1,
     stockStatus: 'In Stock',
     originCountry: 'China',
     displayOrder: 2,
     createdAt: '2026-09-01T00:00:00.000Z'
   },
+  // 3. Consumer Tech: 140W GaN Pro Multi-Port Desktop Charger
   {
     id: 3,
+    slug: 'synapse-gan-140w-4port-fast-charger-pd31',
+    title: 'Synapse 140W GaN Pro — 4-Port Ultra Fast Charger (MacBook Pro & Multi-Device)',
+    titleBn: 'সিন্যাপ্স ১৪০ ওয়াট গ্যালিয়াম নাইট্রাইড (GaN) ৪-পোর্ট ফাস্ট চার্জার',
+    modelNo: 'SYN-GAN140-PRO',
+    brand: 'Synapse Tech Direct',
+    category: 'Consumer Tech & Gadgets',
+    subCategory: 'Charging & Cables',
+    description: 'Next-generation Gallium Nitride (GaN III) 140W desktop fast charger with 3x USB-C and 1x USB-A ports. Features PD 3.1 protocol capable of charging a 16-inch MacBook Pro from 0 to 50% in just 28 minutes while simultaneously powering an iPhone, tablet, and earbuds.',
+    descriptionBn: 'লেটেস্ট GaN ৩ প্রযুক্তিযুক্ত ১৪০ ওয়াট সুপারফাস্ট মাল্টি-পোর্ট চার্জার। একসাথে ম্যাকবুক, ল্যাপটপ, আইফোন ও অন্যান্য গ্যাজেট সম্পূর্ণ হিটিং ছাড়া দ্রুত চার্জ করার নিশ্চয়তা।',
+    specs: JSON.stringify({
+      'Total Output': '140W Max with Intelligent Power Allocation',
+      'Ports': '3x USB-C (PD 3.1 / PPS), 1x USB-A (QC 4.0+)',
+      'Single Port Max': 'USB-C1: Up to 140W (28V/5A)',
+      'Protection': 'Over-temperature, Over-voltage, Short-circuit protection',
+      'Compatibility': 'Apple M1/M2/M3 MacBook, Dell XPS, Samsung S24 Ultra, iPhone 15/16',
+      'Size & Weight': '40% smaller than standard 140W brick (240g)'
+    }),
+    price: 4200,
+    priceType: 'fixed',
+    datasheetUrl: '',
+    primaryImage: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=800&auto=format&fit=crop&q=80',
+    additionalImages: JSON.stringify([]),
+    featured: 1,
+    stockStatus: 'In Stock',
+    originCountry: 'China (Shenzhen Direct)',
+    displayOrder: 3,
+    createdAt: '2026-09-01T00:00:00.000Z'
+  },
+  // 4. Consumer Tech: Smart Home Zigbee 3.0 Energy Monitoring Gateway & Relay
+  {
+    id: 4,
+    slug: 'tuya-zigbee3-smart-home-automation-hub-relay',
+    title: 'Tuya Zigbee 3.0 Smart Home Gateway & 16A Energy Monitoring Relay Set',
+    titleBn: 'তুয়া জিগবি ৩.০ স্মার্ট হোম গেটওয়ে ও পাওয়ার মনিটরিং রিলে কিট',
+    modelNo: 'TY-ZIG3-HUB-KIT',
+    brand: 'Tuya Smart Direct',
+    category: 'Consumer Tech & Gadgets',
+    subCategory: 'Smart Home & Automation',
+    description: 'Complete DIY smart home starter kit including 1x Zigbee 3.0 Universal Mesh Gateway and 3x 16A Mini Relays with real-time kWh power measurement. Control lights, ACs, water pumps, and appliances from anywhere using Smart Life app, Google Assistant, or Alexa with zero lag.',
+    descriptionBn: 'স্মার্ট হোম অটোমেশন গেটওয়ে ও ১৬ অ্যাম্পিয়ার পাওয়ার মনিটরিং রিলে। মোবাইল অ্যাপ দিয়ে বাসার লাইট, এসি, ও ওয়াটার পাম্প কন্ট্রোল এবং বিদ্যুৎ খরচের রিয়েল-টাইম হিসাব দেখুন।',
+    specs: JSON.stringify({
+      'Protocol': 'Zigbee 3.0 + Wi-Fi 2.4GHz Mesh (Up to 128 devices)',
+      'Max Load per Relay': '16A / 3680W (AC 100-240V 50/60Hz)',
+      'Features': 'App Scheduling, Voice Control, Real-Time kWh Metering, Power-off Memory',
+      'App Support': 'Smart Life / Tuya Smart (iOS & Android)',
+      'Voice Assistants': 'Amazon Alexa, Google Home Assistant, Siri Shortcuts'
+    }),
+    price: 3850,
+    priceType: 'fixed',
+    datasheetUrl: '',
+    primaryImage: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=800&auto=format&fit=crop&q=80',
+    additionalImages: JSON.stringify([]),
+    featured: 1,
+    stockStatus: 'In Stock',
+    originCountry: 'China',
+    displayOrder: 4,
+    createdAt: '2026-09-01T00:00:00.000Z'
+  },
+  // 5. Industrial Automation: Siemens SIMATIC S7-1500 Analog Output Module
+  {
+    id: 5,
     slug: 'siemens-s7-1500-6es7532-5hd00-0ab0-analog-output',
     title: 'Siemens SIMATIC S7-1500 6ES7532-5HD00-0AB0 Analog Output Module',
     titleBn: 'সিমেন্স এস৭-১৫০০ অ্যানালগ আউটপুট মডিউল',
-    modelNo: '6ES7532-5HD00-0AB0 (AQ 4xU/I ST)',
+    modelNo: '6ES7532-5HD00-0AB0',
     brand: 'Siemens',
     category: 'Industrial Automation',
     subCategory: 'PLC Systems & I/O Modules',
@@ -96,12 +157,13 @@ export const INITIAL_PRODUCTS: Product[] = [
     additionalImages: JSON.stringify([]),
     featured: 1,
     stockStatus: 'In Stock',
-    originCountry: 'Germany / China Sourced',
-    displayOrder: 3,
+    originCountry: 'Germany / China Direct',
+    displayOrder: 5,
     createdAt: '2026-09-01T00:00:00.000Z'
   },
+  // 6. Industrial Automation: Schneider Electric TeSys K LC1K06105P7 Contactor
   {
-    id: 4,
+    id: 6,
     slug: 'schneider-lc1k06105p7-contactor-6a-230v',
     title: 'Schneider Electric TeSys K LC1K06105P7 Contactor 6A 230V',
     titleBn: 'স্নাইডার ইলেকট্রিক টেসিস কে কন্টাক্টর ৬ অ্যাম্পিয়ার ২৩০ ভোল্ট',
@@ -127,36 +189,36 @@ export const INITIAL_PRODUCTS: Product[] = [
     featured: 1,
     stockStatus: 'In Stock',
     originCountry: 'France / China Sourced',
-    displayOrder: 4,
+    displayOrder: 6,
     createdAt: '2026-09-01T00:00:00.000Z'
   },
+  // 7. Direct China Procurement & QC Concierge Service
   {
-    id: 5,
+    id: 7,
     slug: 'china-direct-custom-industrial-sourcing',
-    title: 'China Direct Sourcing & Personal Procurement Service',
-    titleBn: 'চীন থেকে সরাসরি ইন্ডাস্ট্রিয়াল পার্টস ও মেশিন সোর্সিং সার্ভিস',
-    modelNo: 'SYN-PROCURE-B2B',
-    brand: 'Synapse Global Supply',
+    title: 'Personal China Sourcing Concierge (Factory Visit, Video QC & Direct Import)',
+    titleBn: 'চীন থেকে সরাসরি পার্সোনাল সোর্সিং ও ফ্যাক্টরি পরিদর্শন সার্ভিস',
+    modelNo: 'SYN-SOURCING-CONCIERGE',
+    brand: 'Synapse Global Desk',
     category: 'Global Sourcing & Import',
     subCategory: 'Turnkey Procurement & QC',
-    description: 'Dedicated on-ground technical procurement contractor based in China. We personally visit factories in Guangdong, Jiangsu, and Zhejiang to inspect quality, verify tolerances, negotiate direct manufacturer rates, and deliver machinery and obsolete components directly to your factory in Bangladesh.',
-    descriptionBn: 'চীন থেকে বিশ্বস্ত ও মানসম্পন্ন ইন্ডাস্ট্রিয়াল মেশিনারি, রিপ্লেসমেন্ট পার্টস এবং ইলেকট্রিক্যাল ইকুইপমেন্ট সরাসরি ফ্যাক্টরি পরিদর্শনের মাধ্যমে দ্রুত ও নিরাপদে বাংলাদেশে আমদানির পূর্ণাঙ্গ সেবা।',
+    description: 'Have a specific machine, production line, or bulk consumer gadget you need from China? Our on-ground team in Guangdong personally visits the manufacturing plant, sends you live video verification, negotiates direct wholesale rates, and handles complete customs and air/sea delivery to Bangladesh.',
+    descriptionBn: 'চীন থেকে নির্দিষ্ট কোনো মেশিনারি বা গ্যাজেট আমদানির জন্য আমাদের অন-গ্রাউন্ড প্রতিনিধি সরাসরি ফ্যাক্টরি পরিদর্শন করে ভিডিও পাঠিয়ে কোয়ালিটি নিশ্চিত করে বাংলাদেশে ডেলিভারির ব্যবস্থা করে।',
     specs: JSON.stringify({
-      'Sourcing Hubs': 'Shenzhen, Dongguan, Ningbo, Wenzhou, Shanghai',
-      'Services Included': 'Supplier Audit, Lab Inspection, Sample Testing, Customs & Freight',
-      'Delivery Timeline': 'Air Cargo: 7-10 Days | Sea Freight: 25-35 Days',
-      'Custom Solutions': 'Obsolete Parts Reproduction, Reverse Engineering, Bulk BOM Sourcing',
-      'Doorstep Delivery': 'All Industrial Zones (Dhaka, Chittagong, Gazipur, Narayanganj, Bogura)'
+      'On-Ground Hubs': 'Shenzhen, Guangzhou, Dongguan, Yiwu, Ningbo',
+      'Services Included': 'Physical Factory Inspection, Video QC, Sample Testing, Customs Clearance',
+      'Transit Options': 'Air Cargo (7-10 Days) | Sea Container (25-35 Days)',
+      'Assistance': '1-on-1 WhatsApp Support with English & Bengali translation'
     }),
     price: 0,
     priceType: 'quote',
     datasheetUrl: 'https://synapse-engneering.com/wp-content/uploads/2026/04/Synapse-Engineering-Company-Profile.pdf',
-    primaryImage: 'https://synapse-engneering.com/wp-content/uploads/2026/04/automation.png',
+    primaryImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=80',
     additionalImages: JSON.stringify([]),
     featured: 1,
     stockStatus: 'Available on Request',
     originCountry: 'China / Global',
-    displayOrder: 5,
+    displayOrder: 7,
     createdAt: '2026-09-01T00:00:00.000Z'
   }
 ];

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import BrandsMarquee from '@/components/BrandsMarquee';
+import ConsumerPicks from '@/components/ConsumerPicks';
+import FounderStory from '@/components/FounderStory';
 import CorePillars from '@/components/CorePillars';
 import SolarCalculator from '@/components/SolarCalculator';
 import PartSearchGrid from '@/components/PartSearchGrid';
@@ -36,26 +38,32 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
       <Navbar onOpenRFQ={() => handleOpenRFQ()} />
 
       <main className="flex-1">
-        {/* 1. High-Impact Hero with Quick Search & Value Proposition */}
+        {/* 1. Value-First Hero with Universal Search & Trust Highlights */}
         <HeroSection onOpenRFQ={handleOpenRFQ} onSearch={handleSearchFromHero} />
 
-        {/* 2. Global Industrial Brands Marquee */}
+        {/* 2. Global Industrial & Tech Brands Matrix */}
         <BrandsMarquee />
 
-        {/* 3. Three Core Pillars (Automation, Solar ESS, China Sourcing) */}
+        {/* 3. Daily Consumer Tech Gadgets & Electronics Showcase (NEW) */}
+        <ConsumerPicks products={initialProducts} onOpenRFQ={handleOpenRFQ} />
+
+        {/* 4. The Human Advantage: Sohel & On-Ground Video QC in China (NEW) */}
+        <FounderStory />
+
+        {/* 5. Three Core Engineering Divisions */}
         <CorePillars onOpenRFQ={handleOpenRFQ} />
 
-        {/* 4. Interactive Solar & LiFePO4 Energy Sizing Calculator */}
+        {/* 6. Interactive Solar & LiFePO4 Energy Sizing Calculator */}
         <SolarCalculator onOpenRFQ={handleOpenRFQ} />
 
-        {/* 5. Instant Part Number Search & Catalog Grid */}
+        {/* 7. Full Product Catalog with Universal Filtering */}
         <PartSearchGrid
           initialProducts={initialProducts}
           onOpenRFQ={handleOpenRFQ}
           filterTerm={filterTerm}
         />
 
-        {/* 6. China Direct Sourcing & Personal QC Verification Workflow */}
+        {/* 8. China Direct Sourcing & Turnkey Logistics Workflow */}
         <ChinaSourcingSection />
       </main>
 
@@ -68,7 +76,7 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
         initialProduct={selectedProductForRFQ}
       />
 
-      {/* Floating Gemini AI Technical Advisor */}
+      {/* Floating Multilingual Gemini AI Technical Consultant */}
       <ChatWidget />
     </>
   );

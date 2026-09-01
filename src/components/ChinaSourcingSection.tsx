@@ -1,211 +1,156 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, Search, Video, Truck, CheckCircle2, ArrowRight, Upload, Phone, Terminal } from 'lucide-react';
+import { Plane, ShieldCheck, Video, PhoneCall, CheckCircle2, MessageSquare, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function ChinaSourcingSection() {
-  const [itemName, setItemName] = useState('');
-  const [specs, setSpecs] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [phone, setPhone] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [partName, setPartName] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [notes, setNotes] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSourcingWhatsApp = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/sourcing-inquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientName: 'Website Client',
-          phone,
-          itemName,
-          specification: specs,
-          targetQuantity: Number(quantity) || 1
-        })
-      });
-
-      if (res.ok) {
-        setSubmitted(true);
-      }
-    } catch {
-      // Fallback
-      setSubmitted(true);
-    } finally {
-      setLoading(false);
-    }
+    const text = `Hello Synapse China Sourcing Desk,\n\nI need a quote for:\n• Part/Item: ${partName}\n• Quantity: ${quantity}\n• Notes: ${notes || 'Standard factory quote'}\n\nPlease check availability and factory pricing.`;
+    window.open(`https://wa.me/8801886113236?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const steps = [
-    {
-      number: '01',
-      coord: 'LOC: BD-DAC',
-      title: 'Submit Spec or Nameplate',
-      description:
-        'Provide your part number, machinery model, CAD drawing, or photo of an obsolete component.'
-    },
-    {
-      number: '02',
-      coord: 'LOC: CN-SZX',
-      title: 'On-Ground Factory Visit',
-      description:
-        'Our personal contractor in China visits trusted factories in Guangdong & Jiangsu to audit specs and negotiate direct factory rates.'
-    },
-    {
-      number: '03',
-      coord: 'LOC: CN-CAN',
-      title: 'Pre-Shipment Video QC',
-      description:
-        'We test electrical tolerances and share live high-definition test video & calibration reports before dispatch.'
-    },
-    {
-      number: '04',
-      coord: 'LOC: BD-CGP',
-      title: 'Customs & Factory Delivery',
-      description:
-        'Delivered straight to your factory in Bangladesh via 7-10 day Air Express or consolidated Sea Freight.'
-    }
-  ];
-
   return (
-    <section id="sourcing" className="py-20 bg-[#06080c] relative tech-grid-bg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#0b0f17] border border-[#00ff88]/30 text-[#00ff88] text-xs font-bold mono uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            [PROCUREMENT_RADAR // CHINA ON-GROUND DIRECT DESK]
+    <section id="china-sourcing" className="py-16 md:py-24 border-t border-white/[0.06] bg-[#0b0d11]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        {/* Section Heading */}
+        <div className="max-w-3xl text-left space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+            <Plane className="w-3.5 h-3.5" />
+            <span>Turnkey Global Procurement</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight uppercase">
-            Personal Factory Touch & <span className="text-[#00ff88]">On-Ground Video QC</span> in China
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            How Our Direct China Sourcing Works
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base font-light">
-            Never risk sub-standard machinery or fake parts. We act as your on-ground engineering eyes and hands in China.
+          <p className="text-slate-400 text-sm sm:text-base leading-relaxed font-light">
+            From single obsolete PLC modules to full industrial production lines and bulk consumer gadget imports.
           </p>
         </div>
 
-        {/* 4 Steps Row */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {steps.map((step, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl hud-panel p-6 border border-[#1a2234] hover:border-[#00ff88]/40 transition-all space-y-3 relative"
-            >
-              <div className="flex justify-between items-center text-xs mono">
-                <span className="text-xl font-extrabold text-[#00ff88]">{step.number}</span>
-                <span className="text-[10px] text-slate-500">{step.coord}</span>
-              </div>
-              <h3 className="text-sm font-bold text-white tracking-tight">{step.title}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed font-light">{step.description}</p>
+        {/* 4-Step Journey Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+          {/* Step 1 */}
+          <div className="craft-card p-6 space-y-4 border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm">
+              01
             </div>
-          ))}
+            <h3 className="text-base font-bold text-white">Send Part Spec or Photo</h3>
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
+              Send us a photo of the nameplate, machine tag, datasheet, or Taobao/1688 link via WhatsApp or our web form.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="craft-card p-6 space-y-4 border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-sm">
+              02
+            </div>
+            <h3 className="text-base font-bold text-white">Factory Matching & Pricing</h3>
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
+              Our team in China visits verified manufacturing hubs in Guangdong, Jiangsu, or Zhejiang and secures wholesale direct pricing.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="craft-card p-6 space-y-4 border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm">
+              03
+            </div>
+            <h3 className="text-base font-bold text-white">Live On-Ground Video QC</h3>
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
+              We physically test voltages, inspect seals, and send you unboxing video proof before packaging for international transit.
+            </p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="craft-card p-6 space-y-4 border-white/[0.06]">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-sm">
+              04
+            </div>
+            <h3 className="text-base font-bold text-white">Customs & Door Delivery</h3>
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
+              We handle complete customs clearance. Express Air Cargo takes 7-10 days; cost-effective Sea Freight takes 25-35 days.
+            </p>
+          </div>
         </div>
 
-        {/* Sourcing Form Card */}
-        <div className="max-w-4xl mx-auto rounded-3xl hud-panel border border-[#00ff88]/30 p-8 sm:p-12 shadow-2xl">
-          <div className="grid md:grid-cols-12 gap-8 items-center">
-            <div className="md:col-span-5 space-y-4">
-              <div className="text-[10px] mono text-[#00ff88] font-bold">[CUSTOM_SOURCING_PORTAL]</div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">
-                Need a Custom Machine or Obsolete Part?
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed font-light">
-                Send us the part name or model. Our China team will immediately source direct factory availability, price, and lead time.
-              </p>
-              <div className="pt-2 space-y-2 text-xs mono text-slate-400">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#00ff88]" />
-                  <span>Direct WhatsApp Video Updates</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#00ff88]" />
-                  <span>Complete Customs Clearance Handled</span>
-                </div>
+        {/* Interactive Direct Sourcing Box */}
+        <div className="craft-card p-8 sm:p-12 border-emerald-500/20 bg-[#12151c] flex flex-col lg:flex-row gap-10 items-center justify-between text-left">
+          <div className="space-y-4 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Instant WhatsApp Concierge</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white">
+              Request a Custom Sourcing Quote Right Now
+            </h3>
+            <p className="text-slate-400 text-xs sm:text-sm font-light leading-relaxed">
+              Tell us what item or machinery you need. Sohel will check Chinese factory inventory and reply with a complete price breakdown including freight and customs.
+            </p>
+
+            <div className="flex flex-wrap gap-4 text-xs text-slate-300 pt-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Zero obligation inquiry</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Fast response on WhatsApp</span>
               </div>
             </div>
-
-            {/* Form */}
-            <div className="md:col-span-7">
-              {submitted ? (
-                <div className="p-8 rounded-2xl bg-[#070b12] border border-[#00ff88]/40 text-center space-y-3 mono">
-                  <CheckCircle2 className="w-10 h-10 text-[#00ff88] mx-auto" />
-                  <h4 className="text-base font-bold text-white">SOURCING_DISPATCH_CONFIRMED</h4>
-                  <p className="text-xs text-slate-400">
-                    Our China team has been notified. We will contact you via WhatsApp / Phone shortly with pricing & availability.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4 mono text-xs">
-                  <div>
-                    <label className="text-slate-300 block mb-1">
-                      PART / MACHINE NAME OR MODEL *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
-                      placeholder="e.g. Siemens S7-1200 CPU, Loom Sensor..."
-                      className="w-full px-4 py-2.5 rounded-xl bg-[#090e17] border border-[#1a2234] text-white focus:outline-none focus:border-[#00ff88]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-slate-300 block mb-1">
-                        QTY REQUIRED
-                      </label>
-                      <input
-                        type="number"
-                        value={quantity}
-                        onChange={(e) => setQuantity(e.target.value)}
-                        placeholder="e.g. 5"
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#090e17] border border-[#1a2234] text-white focus:outline-none focus:border-[#00ff88]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-slate-300 block mb-1">
-                        PHONE / WHATSAPP *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="01XXXXXXXXX"
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#090e17] border border-[#1a2234] text-white focus:outline-none focus:border-[#00ff88]"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-slate-300 block mb-1">
-                      TECHNICAL SPECS / NOTES (OPTIONAL)
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={specs}
-                      onChange={(e) => setSpecs(e.target.value)}
-                      placeholder="Voltage, dimensions, OEM part number, or urgent delivery date..."
-                      className="w-full px-4 py-2.5 rounded-xl bg-[#090e17] border border-[#1a2234] text-white focus:outline-none focus:border-[#00ff88]"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold shadow-[0_0_20px_rgba(0,255,136,0.3)] transition-all flex items-center justify-center gap-2"
-                  >
-                    <Terminal className="w-4 h-4" />
-                    <span>{loading ? 'DISPATCHING...' : 'DISPATCH_SOURCING_INQUIRY [↵]'}</span>
-                  </button>
-                </form>
-              )}
-            </div>
           </div>
+
+          {/* Fast Sourcing Form */}
+          <form
+            onSubmit={handleSourcingWhatsApp}
+            className="w-full lg:w-96 space-y-4 p-6 rounded-2xl bg-[#0b0d11] border border-white/10"
+          >
+            <div>
+              <label className="text-xs text-slate-300 font-medium block mb-1.5">PART NAME / GADGET MODEL *</label>
+              <input
+                type="text"
+                required
+                value={partName}
+                onChange={(e) => setPartName(e.target.value)}
+                placeholder="e.g. Siemens S7-1200 or 140W GaN Charger"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-300 font-medium block mb-1.5">QUANTITY REQUIRED</label>
+              <input
+                type="text"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="e.g. 1 unit / 10 pcs / 1 batch"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-300 font-medium block mb-1.5">ADDITIONAL REQUIREMENTS</label>
+              <textarea
+                rows={2}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Air cargo urgency, brand preference, etc..."
+                className="w-full px-3.5 py-2 rounded-xl bg-[#181d26] border border-white/10 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Send Sourcing Request on WhatsApp</span>
+            </button>
+          </form>
         </div>
       </div>
     </section>

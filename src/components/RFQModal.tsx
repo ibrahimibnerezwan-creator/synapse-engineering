@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, FileText, ArrowRight, MessageSquare, Phone, Terminal } from 'lucide-react';
+import { X, CheckCircle2, FileText, ArrowRight, MessageSquare, Phone } from 'lucide-react';
 
 interface RFQModalProps {
   isOpen: boolean;
@@ -35,8 +35,8 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
     const generatedNumber = `SYN-${Date.now().toString().slice(-6)}`;
 
     try {
-      // 1. Submit RFQ to API (DB + Server-Side Meta CAPI)
-      const res = await fetch('/api/rfq', {
+      // 1. Submit RFQ to API
+      await fetch('/api/rfq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -51,7 +51,7 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
         })
       });
 
-      // 2. Fire client-side Meta Pixel Lead event if available
+      // 2. Fire client-side Meta Pixel Lead event
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'Lead', {
           content_name: productName,
@@ -62,177 +62,180 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
 
       setRfqNumber(generatedNumber);
     } catch {
-      // Fallback display
       setRfqNumber(generatedNumber);
     } finally {
       setLoading(false);
     }
   };
 
-  const whatsappMessage = encodeURIComponent(
-    `Hello Synapse Engineering, I submitted RFQ #${rfqNumber || ''} for: ${productName}. Name: ${name}, Company: ${company}, Phone: ${phone}. Please share price & lead time.`
-  );
+  const handleWhatsAppInstant = () => {
+    const text = `Hello Synapse Engineering,\n\nI need an official quote for:\n• Item: ${productName}\n• Quantity: ${quantity}\n• Name: ${name}\n• Company/Project: ${company || 'Individual / Factory'}\n• Phone: ${phone}\n• Notes: ${requirement || 'N/A'}`;
+    window.open(`https://wa.me/8801886113236?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080c]/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg rounded-2xl hud-panel border border-[#00f0ff]/40 p-6 sm:p-8 bg-[#090e17] shadow-2xl shadow-[#00f0ff]/10 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#06080c]/85 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-2xl craft-card p-6 sm:p-8 bg-[#0e1117] border border-white/10 shadow-2xl space-y-6 text-left my-8">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {rfqNumber ? (
-          /* Success Screen */
-          <div className="text-center py-6 space-y-4 mono">
-            <div className="w-16 h-16 rounded-full bg-[#00ff88]/20 text-[#00ff88] flex items-center justify-center mx-auto border border-[#00ff88]/40">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-            <div>
-              <div className="text-xs text-[#00ff88] uppercase font-bold tracking-wider">
-                [RFQ_DISPATCH_CONFIRMED]
-              </div>
-              <h3 className="text-2xl font-bold text-white mt-1">Proposal Registered!</h3>
-              <p className="text-xs text-[#ffaa00] mt-1 bg-[#ffaa00]/10 py-1 px-3 rounded inline-block border border-[#ffaa00]/30">
-                REF_ID: {rfqNumber}
+        {!rfqNumber ? (
+          <>
+            {/* Header */}
+            <div className="space-y-1.5 border-b border-white/[0.08] pb-4">
+              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+                OFFICIAL INQUIRY & RFQ DESK
+              </span>
+              <h3 className="text-xl font-bold text-white">Request Factory Quotation</h3>
+              <p className="text-xs text-slate-400 font-light">
+                Direct wholesale pricing from China manufacturers with full warranty in Bangladesh.
               </p>
             </div>
 
-            <p className="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed font-sans">
-              Our engineering & sourcing desk has received your request for <strong>{productName}</strong>. We will review availability and contact you within 1-2 hours.
-            </p>
-
-            {/* Instant WhatsApp Direct Escalation */}
-            <div className="pt-4 space-y-2">
-              <a
-                href={`https://wa.me/8801886113236?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,136,0.3)] transition-all"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>INSTANT_WHATSAPP_CONFIRMATION [↵]</span>
-              </a>
-              <button
-                onClick={onClose}
-                className="w-full py-2.5 rounded-xl text-xs text-slate-400 hover:text-white transition-colors"
-              >
-                CLOSE_WINDOW
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* Form Screen */
-          <div className="space-y-5">
-            <div>
-              <div className="text-[10px] font-mono text-[#00f0ff] font-bold uppercase tracking-wider">
-                [CMD: GENERATE_OFFICIAL_RFQ]
-              </div>
-              <h3 className="text-xl font-bold text-white mt-1 uppercase tracking-tight">Request Part Quotation</h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Direct factory pricing & express delivery from China and Dhaka stock.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-3.5 mono text-xs">
-              {/* Product / Spec Title */}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="text-slate-300 block mb-1">
-                  REQUIRED COMPONENT / PART NUMBER *
-                </label>
+                <label className="text-slate-300 font-medium block mb-1">PRODUCT / PART REQUESTED *</label>
                 <input
                   type="text"
                   required
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  placeholder="e.g. Siemens S7-1500, HiTHIUM 16kWh Battery, LC1K Contactor..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  placeholder="e.g. HiTHIUM HeroEE 16 or Siemens S7-1500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
-              {/* Name & Company */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-slate-300 block mb-1">
-                    YOUR NAME *
-                  </label>
+                  <label className="text-slate-300 font-medium block mb-1">YOUR NAME *</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Engr. Name..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                    placeholder="Engr. / Mr. Name"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="text-slate-300 block mb-1">
-                    COMPANY / PLANT
-                  </label>
-                  <input
-                    type="text"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Factory Name..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
-                  />
-                </div>
-              </div>
-
-              {/* Phone & Qty */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-slate-300 block mb-1">
-                    PHONE / WHATSAPP *
-                  </label>
+                  <label className="text-slate-300 font-medium block mb-1">PHONE / WHATSAPP *</label>
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="01XXXXXXXXX"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                    placeholder="017xxxxxxxx"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-slate-300 font-medium block mb-1">COMPANY / FACTORY</label>
+                  <input
+                    type="text"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Mill / Factory name"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="text-slate-300 block mb-1">
-                    QUANTITY
-                  </label>
+                  <label className="text-slate-300 font-medium block mb-1">QUANTITY REQUIRED</label>
                   <input
                     type="number"
                     min="1"
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
 
-              {/* Notes */}
               <div>
-                <label className="text-slate-300 block mb-1">
-                  PROJECT SPECIFICATIONS / TIMELINE (OPTIONAL)
-                </label>
+                <label className="text-slate-300 font-medium block mb-1">PROJECT REQUIREMENT / NOTES</label>
                 <textarea
                   rows={2}
                   value={requirement}
                   onChange={(e) => setRequirement(e.target.value)}
-                  placeholder="Need 7-day urgent air shipment / technical support required..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#06080c] border border-[#1a2234] text-white focus:outline-none focus:border-[#00f0ff]"
+                  placeholder="Voltage specifications, target delivery timeline..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#181d26] border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500"
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all flex items-center justify-center gap-2"
-              >
-                <Terminal className="w-4 h-4" />
-                <span>{loading ? 'TRANSMITTING...' : 'TRANSMIT_OFFICIAL_RFQ [↵]'}</span>
-              </button>
+              <div className="flex flex-col gap-2.5 pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>{loading ? 'SUBMITTING...' : 'SUBMIT OFFICIAL RFQ'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleWhatsAppInstant}
+                  className="w-full py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Send via 1-Tap WhatsApp Instead</span>
+                </button>
+              </div>
             </form>
+          </>
+        ) : (
+          /* Success Screen */
+          <div className="py-6 text-center space-y-5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs text-amber-400 font-bold">RFQ #{rfqNumber} SUBMITTED</div>
+              <h3 className="text-xl font-bold text-white">Quotation Request Received</h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto font-light leading-relaxed">
+                Our procurement engineering desk is reviewing factory availability. We will contact you via WhatsApp with the official quote.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#181d26] border border-white/[0.06] text-xs text-left space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Product:</span>
+                <span className="text-white font-medium truncate max-w-[60%]">{productName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Quantity:</span>
+                <span className="text-white font-medium">{quantity} Unit(s)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Direct Contact:</span>
+                <span className="text-emerald-400 font-medium">+880 1886-113236</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleWhatsAppInstant}
+                className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Follow up on WhatsApp</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="px-5 py-3 rounded-xl bg-[#181d26] hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs"
+              >
+                Done
+              </button>
+            </div>
           </div>
         )}
       </div>

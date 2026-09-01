@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Cpu, Sun, ShieldCheck, Phone, FileText, Menu, X, MessageSquare, Terminal } from 'lucide-react';
+import { Cpu, Phone, MessageSquare, Menu, X, Sparkles, ShieldCheck, Sun, Layers, ArrowRight } from 'lucide-react';
 
 interface NavbarProps {
   onOpenRFQ?: (productName?: string) => void;
@@ -12,107 +12,71 @@ export default function Navbar({ onOpenRFQ }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 hud-panel bg-[#06080c]/90 border-b border-[#1a2234] backdrop-blur-xl">
-      {/* Top Telemetry Strip */}
-      <div className="border-b border-[#1a2234]/80 px-4 py-1.5 text-[11px] mono text-slate-400 bg-[#090d15]/90">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-[#00ff88] font-bold">
-              <span className="w-2 h-2 rounded-full bg-[#00ff88] live-telemetry-dot" />
-              [SYS: ACTIVE // CHINA ON-GROUND QC DESK]
-            </span>
-            <span className="hidden md:inline text-slate-600">•</span>
-            <span className="hidden md:inline text-slate-400">
-              SIEMENS • SCHNEIDER • HiTHIUM 11,000-CYCLE LiFePO₄
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://wa.me/8801886113236?text=Hello%20Synapse%20Engineering,%20I%20need%20a%20quotation%20for%20industrial%20products."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#00ff88] hover:text-emerald-300 font-semibold transition-colors"
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>WA: +880 1886-113236</span>
-            </a>
-            <a
-              href="tel:+8801886113236"
-              className="flex items-center gap-1 text-[#00f0ff] hover:text-cyan-300 transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>DESK</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navbar */}
+    <header className="sticky top-0 z-40 bg-[#0b0d11]/90 backdrop-blur-md border-b border-white/[0.08]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Brand Logo */}
+        <div className="flex justify-between items-center h-16 md:h-20">
+          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#00f0ff]/20 via-[#0b0f17] to-slate-900 border border-[#00f0ff]/40 flex items-center justify-center p-2.5 shadow-[0_0_15px_rgba(0,240,255,0.2)] group-hover:border-[#00f0ff] transition-all">
-              <Cpu className="w-full h-full text-[#00f0ff]" />
+            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black shadow-md group-hover:scale-105 transition-transform">
+              <Cpu className="w-6 h-6" />
             </div>
-            <div>
-              <div className="font-extrabold text-xl tracking-wider text-white mono flex items-center gap-1.5">
-                SYNAPSE<span className="text-[#00f0ff]">::ENG</span>
+            <div className="text-left">
+              <div className="font-extrabold text-lg text-white tracking-tight flex items-center gap-1.5">
+                <span>SYNAPSE</span>
+                <span className="text-xs text-amber-400 font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+                  ENGINEERING
+                </span>
               </div>
-              <div className="text-[10px] text-slate-400 tracking-widest uppercase mono">
-                AUT.SYS // ENERGY ESS // CHINA QC
-              </div>
+              <div className="text-[11px] text-slate-400 font-medium">Supply & Direct China Procurement</div>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 mono text-xs">
-            <Link
-              href="/#automation"
-              className="text-slate-300 hover:text-[#00f0ff] transition-colors flex items-center gap-1.5 group"
-            >
-              <span className="text-[#00f0ff] opacity-70 group-hover:opacity-100">// 01</span>
-              <span>AUTOMATION & PLCs</span>
+          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a href="#catalog-section" className="hover:text-white transition-colors">
+              Industrial Spares
+            </a>
+            <a href="#consumer-gadgets" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Tech Gadgets</span>
+            </a>
+            <Link href="/calculator" className="hover:text-white transition-colors">
+              Solar & Battery Sizing
             </Link>
-            <Link
-              href="/#solar"
-              className="text-slate-300 hover:text-[#ffaa00] transition-colors flex items-center gap-1.5 group"
-            >
-              <span className="text-[#ffaa00] opacity-70 group-hover:opacity-100">// 02</span>
-              <span>SOLAR & LiFePO₄ ESS</span>
+            <Link href="/sourcing" className="hover:text-white transition-colors">
+              China Sourcing
             </Link>
-            <Link
-              href="/#sourcing"
-              className="text-slate-300 hover:text-[#00ff88] transition-colors flex items-center gap-1.5 group"
-            >
-              <span className="text-[#00ff88] opacity-70 group-hover:opacity-100">// 03</span>
-              <span>CHINA SOURCING</span>
-            </Link>
-            <Link
-              href="/calculator"
-              className="px-3 py-1.5 rounded bg-[#ffaa00]/10 text-[#ffaa00] border border-[#ffaa00]/30 hover:bg-[#ffaa00]/20 transition-all flex items-center gap-1 font-bold"
-            >
-              <span>⚡ ESS SIZER</span>
+            <Link href="/admin" className="hover:text-slate-400 transition-colors text-xs text-slate-500">
+              Seller Portal
             </Link>
           </nav>
 
-          {/* Right Action Button */}
+          {/* Right Action Buttons */}
           <div className="hidden sm:flex items-center gap-3">
-            <button
-              onClick={() => onOpenRFQ?.()}
-              className="mono text-xs px-5 py-2.5 rounded bg-[#00f0ff] hover:bg-[#38bdf8] text-slate-950 font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.35)] transition-all hover:scale-[1.03] active:scale-[0.98] flex items-center gap-2"
+            <a
+              href="https://wa.me/8801886113236"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 rounded-xl bg-[#181d26] hover:bg-slate-800 text-slate-200 hover:text-white border border-white/[0.08] text-xs font-semibold flex items-center gap-2 transition-colors"
             >
-              <Terminal className="w-4 h-4" />
-              <span>REQUEST_RFQ [↵]</span>
+              <Phone className="w-3.5 h-3.5 text-amber-400" />
+              <span>+880 1886-113236</span>
+            </a>
+
+            <button
+              onClick={() => onOpenRFQ && onOpenRFQ()}
+              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+            >
+              <span>Get a Quote</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex lg:hidden">
+          <div className="flex sm:hidden items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900 focus:outline-none"
-              aria-label="Toggle menu"
+              className="p-2 rounded-xl bg-[#12151c] text-slate-300 hover:text-white border border-white/10"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -120,48 +84,55 @@ export default function Navbar({ onOpenRFQ }: NavbarProps) {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#1a2234] bg-[#06080c]/98 px-6 pt-4 pb-8 space-y-4 mono text-xs">
-          <Link
-            href="/#automation"
+        <div className="sm:hidden border-t border-white/[0.08] bg-[#0b0d11] px-4 pt-3 pb-6 space-y-3 text-left">
+          <a
+            href="#catalog-section"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-slate-300 hover:text-[#00f0ff]"
+            className="block py-2 text-sm font-medium text-slate-200"
           >
-            // 01. INDUSTRIAL AUTOMATION & PLCs
-          </Link>
-          <Link
-            href="/#solar"
+            Industrial Spares & Automation
+          </a>
+          <a
+            href="#consumer-gadgets"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-slate-300 hover:text-[#ffaa00]"
+            className="block py-2 text-sm font-medium text-amber-400"
           >
-            // 02. HiTHIUM 11,000-CYCLE LiFePO₄ ESS
-          </Link>
-          <Link
-            href="/#sourcing"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-slate-300 hover:text-[#00ff88]"
-          >
-            // 03. CHINA SOURCING & QC DESK
-          </Link>
+            Daily Tech Gadgets & Electronics
+          </a>
           <Link
             href="/calculator"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-[#ffaa00] font-bold"
+            className="block py-2 text-sm font-medium text-slate-200"
           >
-            ⚡ INTERACTIVE ESS SIZER
+            Solar Battery Sizing Calculator
           </Link>
-          <div className="pt-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenRFQ?.();
-              }}
-              className="w-full py-3 rounded bg-[#00f0ff] text-slate-950 font-extrabold text-center flex items-center justify-center gap-2"
+          <Link
+            href="/sourcing"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-sm font-medium text-slate-200"
+          >
+            China Sourcing & Video QC
+          </Link>
+          <Link
+            href="/admin"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-xs font-medium text-slate-500"
+          >
+            Seller Portal
+          </Link>
+
+          <div className="pt-3 border-t border-white/[0.08] flex flex-col gap-2">
+            <a
+              href="https://wa.me/8801886113236"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2"
             >
-              <Terminal className="w-4 h-4" />
-              <span>REQUEST_RFQ [↵]</span>
-            </button>
+              <MessageSquare className="w-4 h-4" />
+              <span>WhatsApp (+880 1886-113236)</span>
+            </a>
           </div>
         </div>
       )}

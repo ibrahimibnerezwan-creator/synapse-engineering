@@ -2,144 +2,78 @@
 
 @layer base {
   :root {
-    --bg-base: #06080c;
-    --bg-panel: #0b0f17;
-    --bg-panel-elevated: #111827;
-    --border-hud: rgba(0, 240, 255, 0.15);
-    --border-glow: rgba(0, 240, 255, 0.4);
-    --text-primary: #f8fafc;
-    --text-muted: #8492a6;
-    --text-dim: #475569;
-    --laser-cyan: #00f0ff;
-    --solar-amber: #ffaa00;
-    --verified-emerald: #00ff88;
-    --hazard-crimson: #ff3366;
-  }
-
-  body {
-    background-color: var(--bg-base);
-    color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', var(--font-sans), sans-serif;
-    overflow-x: hidden;
+    --bg-base: #0b0d11;
+    --surface-card: #12151c;
+    --surface-subtle: #181d26;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(245, 158, 11, 0.3);
+    --accent-gold: #f59e0b;
+    --accent-sky: #38bdf8;
+    --accent-emerald: #10b981;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
   }
 }
 
+body {
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Monospace numerals & technical part codes only */
 .mono {
-  font-family: 'JetBrains Mono', monospace;
-  font-variant-numeric: tabular-nums lining-nums;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* Cyber-Industrial HUD Grid Background */
-.tech-grid-bg {
-  background-image: 
-    linear-gradient(to right, rgba(0, 240, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
-  background-size: 36px 36px;
+/* Elegant card container */
+.craft-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tech-dots-bg {
-  background-image: radial-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Precision HUD Panels */
-.hud-panel {
-  background: linear-gradient(135deg, rgba(11, 15, 23, 0.85), rgba(6, 8, 12, 0.95));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-hud);
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.hud-panel::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 12px;
-  width: 20px;
-  height: 2px;
-  background: var(--laser-cyan);
-  box-shadow: 0 0 8px var(--laser-cyan);
-  opacity: 0.8;
-  transition: width 0.3s ease;
-}
-
-.hud-panel::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  right: 12px;
-  width: 20px;
-  height: 2px;
-  background: var(--solar-amber);
-  opacity: 0.8;
-  transition: width 0.3s ease;
-}
-
-.hud-panel:hover::before {
-  width: 40px;
-}
-
-.hud-panel:hover::after {
-  width: 40px;
-}
-
-.hud-panel-hover:hover {
-  background: linear-gradient(135deg, rgba(14, 20, 32, 0.92), rgba(8, 12, 18, 0.98));
-  border-color: rgba(0, 240, 255, 0.35);
-  box-shadow: 0 16px 40px -10px rgba(0, 240, 255, 0.15);
+.craft-card:hover {
+  border-color: var(--border-hover);
   transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(245, 158, 11, 0.05);
 }
 
-/* Laser & Solar Glow Effects */
-.glow-cyan {
-  box-shadow: 0 0 25px -4px rgba(0, 240, 255, 0.35);
+/* Subtle warm background texture */
+.craft-bg {
+  background-color: #0b0d11;
+  background-image: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.04) 0%, transparent 70%),
+                    radial-gradient(circle at 100% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 60%);
 }
 
-.glow-amber {
-  box-shadow: 0 0 25px -4px rgba(255, 170, 0, 0.35);
+/* Live verification pulse */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.15); }
 }
 
-.glow-emerald {
-  box-shadow: 0 0 25px -4px rgba(0, 255, 136, 0.35);
+.live-dot {
+  animation: status-pulse 2.5s infinite ease-in-out;
 }
 
-/* Telemetry Status Dots */
-.live-telemetry-dot {
-  position: relative;
-}
-
-.live-telemetry-dot::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 9999px;
-  background: var(--verified-emerald);
-  opacity: 0.4;
-  animation: telemetryPulse 2s infinite ease-out;
-}
-
-@keyframes telemetryPulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-/* Custom Scrollbar */
+/* Clean custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #06080c;
+  background: #0b0d11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a2234;
-  border-radius: 3px;
+  background: #1e2430;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: #334155;
 }

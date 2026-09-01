@@ -2,155 +2,135 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Cpu, Phone, Mail, MapPin, Download, ShieldCheck, MessageSquare, Terminal } from 'lucide-react';
+import { Cpu, Phone, MessageSquare, Mail, MapPin, ShieldCheck, ArrowUpRight } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#06080c] border-t border-[#1a2234] text-slate-400 text-xs">
-      {/* Top Banner */}
-      <div className="border-b border-[#1a2234] py-8 px-4 bg-[#090e17]/80">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <div>
-            <div className="text-[10px] mono text-[#00f0ff] font-bold">[FACTORY_UPGRADE_HOTLINE]</div>
-            <h4 className="text-base font-bold text-white tracking-tight mt-1">
-              Ready to Upgrade Factory Automation or Eliminate Power Outages?
-            </h4>
-            <p className="text-xs text-slate-400 mt-1">
-              Connect directly with our engineering team in Dhaka or our procurement desk in Guangdong & Shenzhen.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="https://wa.me/8801886113236?text=Hello%20Synapse,%20I%20want%20to%20discuss%20an%20engineering%20requirement."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-[#00ff88] hover:bg-emerald-300 text-slate-950 font-extrabold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(0,255,136,0.2)] mono text-xs"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>WHATSAPP_DESK [↵]</span>
-            </a>
-            <a
-              href="https://synapse-engneering.com/wp-content/uploads/2026/04/Synapse-Engineering-Company-Profile.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-[#090e17] hover:bg-slate-900 text-slate-200 border border-[#1a2234] flex items-center gap-2 transition-all mono text-xs"
-            >
-              <Download className="w-4 h-4 text-[#00f0ff]" />
-              <span>DOWNLOAD_PROFILE.PDF</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Col 1: About */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded bg-[#00f0ff] flex items-center justify-center text-slate-950 font-bold mono">
+    <footer className="border-t border-white/[0.08] bg-[#08090d] text-slate-400 text-xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* Col 1: Brand & Identity */}
+          <div className="lg:col-span-2 space-y-4">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black">
                 <Cpu className="w-5 h-5" />
               </div>
-              <span className="font-extrabold text-base text-white tracking-tight mono">
-                SYNAPSE<span className="text-[#00f0ff]">::ENG</span>
-              </span>
-            </div>
-            <p className="text-xs leading-relaxed text-slate-400 font-light">
-              Engineering solutions provider specializing in industrial automation systems, Tier-1 HiTHIUM LiFePO₄ energy storage, and turnkey direct procurement from China.
+              <div>
+                <span className="font-extrabold text-base text-white tracking-tight">SYNAPSE ENGINEERING</span>
+                <div className="text-[10px] text-amber-400 font-semibold">Direct China Sourcing & Industrial Supply</div>
+              </div>
+            </Link>
+
+            <p className="text-slate-400 font-light leading-relaxed max-w-sm">
+              Your direct personal bridge to China’s manufacturing heartlands. We supply authentic Siemens PLCs, HiTHIUM 11,000-cycle battery packs, and curated tech gadgets with on-ground video inspection before shipment.
             </p>
-            <div className="pt-2 text-slate-500 font-mono text-[11px]">
-              [TRADE_LIC & IMPORT_REG: CERTIFIED]
+
+            <div className="flex items-center gap-3 pt-2">
+              <a
+                href="https://wa.me/8801886113236"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5 hover:bg-emerald-500/20 transition-colors"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>WhatsApp: +880 1886-113236</span>
+              </a>
             </div>
           </div>
 
-          {/* Col 2: Solutions */}
-          <div className="space-y-3 mono">
-            <h5 className="font-bold text-white uppercase tracking-wider text-xs">// SOLUTIONS</h5>
-            <ul className="space-y-2 text-xs">
+          {/* Col 2: Divisions */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">Divisions</h4>
+            <ul className="space-y-2 font-light">
               <li>
-                <Link href="/#automation" className="hover:text-[#00f0ff] transition-colors">
-                  Siemens S7-1500 & S7-1200 PLCs
-                </Link>
+                <a href="#catalog-section" className="hover:text-white transition-colors">
+                  Siemens S7 PLCs & I/O
+                </a>
               </li>
               <li>
-                <Link href="/#automation" className="hover:text-[#00f0ff] transition-colors">
-                  Schneider Contactors & VFDs
-                </Link>
+                <a href="#catalog-section" className="hover:text-white transition-colors">
+                  Schneider Electric Switchgear
+                </a>
               </li>
               <li>
-                <Link href="/#solar" className="hover:text-[#ffaa00] transition-colors">
-                  HiTHIUM 16kWh LiFePO₄ Battery Storage
-                </Link>
+                <a href="#catalog-section" className="hover:text-white transition-colors">
+                  HiTHIUM LiFePO₄ Energy Storage
+                </a>
               </li>
               <li>
-                <Link href="/#solar" className="hover:text-[#ffaa00] transition-colors">
-                  Deye Hybrid Solar Inverters
-                </Link>
+                <a href="#consumer-gadgets" className="hover:text-amber-400 transition-colors">
+                  Daily Tech Gadgets & GaN
+                </a>
               </li>
               <li>
-                <Link href="/#sourcing" className="hover:text-[#00ff88] transition-colors">
-                  Direct China Machine Sourcing
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 3: Engineering Sizing */}
-          <div className="space-y-3 mono">
-            <h5 className="font-bold text-white uppercase tracking-wider text-xs">// TOOLS & PORTALS</h5>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <Link href="/calculator" className="hover:text-[#ffaa00] transition-colors flex items-center gap-1.5">
-                  <span>⚡ Solar Load & Battery Sizing Tool</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/#sourcing" className="hover:text-[#00ff88] transition-colors">
-                  China QC Video Inspection Process
-                </Link>
-              </li>
-              <li>
-                <Link href="/#catalog-section" className="hover:text-[#00f0ff] transition-colors">
-                  Part Number Cross-Reference
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin" className="hover:text-slate-200 transition-colors font-mono text-[11px]">
-                  Internal Portal
+                <Link href="/calculator" className="hover:text-white transition-colors">
+                  Solar Battery Sizing Tool
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Contact & Locations */}
-          <div className="space-y-3 mono">
-            <h5 className="font-bold text-white uppercase tracking-wider text-xs">// HUBS & DISPATCH</h5>
-            <ul className="space-y-2.5 text-xs">
-              <li className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-[#00f0ff] shrink-0 mt-0.5" />
-                <span>+880 1886-113236 (Hotline / WA)</span>
+          {/* Col 3: China Sourcing */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">China Sourcing</h4>
+            <ul className="space-y-2 font-light">
+              <li>
+                <Link href="/sourcing" className="hover:text-white transition-colors">
+                  On-Ground Factory Visits
+                </Link>
               </li>
-              <li className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-[#00f0ff] shrink-0 mt-0.5" />
-                <span>sales@synapse-engneering.com</span>
+              <li>
+                <Link href="/sourcing" className="hover:text-white transition-colors">
+                  Live Video QC Inspection
+                </Link>
               </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#00f0ff] shrink-0 mt-0.5" />
-                <span>Dhaka Hub: Bangladesh | China: Guangdong & Shenzhen</span>
+              <li>
+                <Link href="/sourcing" className="hover:text-white transition-colors">
+                  Air Cargo Express (7-10 Days)
+                </Link>
+              </li>
+              <li>
+                <Link href="/sourcing" className="hover:text-white transition-colors">
+                  Sea Freight Container (25-35d)
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="hover:text-slate-400 text-slate-500">
+                  Seller Portal Login
+                </Link>
               </li>
             </ul>
+          </div>
+
+          {/* Col 4: On-Ground Hubs */}
+          <div className="space-y-3">
+            <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">Operations Hubs</h4>
+            <div className="space-y-3 font-light text-slate-400">
+              <div>
+                <div className="font-medium text-slate-200">Dhaka Desk (Bangladesh)</div>
+                <p className="text-[11px]">Commercial Supply & Delivery Desk</p>
+              </div>
+
+              <div>
+                <div className="font-medium text-slate-200">Guangdong Desk (China)</div>
+                <p className="text-[11px]">Shenzhen, Dongguan & Ningbo Factory Inspection Hub</p>
+              </div>
+
+              <div className="text-[11px] text-slate-400">
+                Email: <strong className="text-white">synapseengneering@gmail.com</strong>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="mt-12 pt-6 border-t border-[#1a2234] flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] mono text-slate-500">
+        {/* Bottom Strip */}
+        <div className="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-400 font-light">
           <div>
-            © {new Date().getFullYear()} SYNAPSE ENGINEERING & SUPPLY. ALL RIGHTS RESERVED.
+            © {new Date().getFullYear()} Synapse Engineering & Supply. All Rights Reserved.
           </div>
-          <div className="flex gap-4">
-            <span className="text-[#00ff88]">GENUINE SERIALS GUARANTEED</span>
-            <span>•</span>
-            <span className="text-[#00f0ff]">CHINA ON-GROUND QC</span>
+          <div className="flex items-center gap-6">
+            <span>Direct China Factory Procurement</span>
+            <span>100% Genuine Guaranteed</span>
           </div>
         </div>
       </div>

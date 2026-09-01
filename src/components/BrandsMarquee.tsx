@@ -2,40 +2,39 @@
 
 import React from 'react';
 
-export default function BrandsMarquee() {
-  const brands = [
-    { name: 'Siemens', country: 'Germany', category: 'Automation & PLCs' },
-    { name: 'HiTHIUM', country: 'Tier-1', category: '11,000-Cycle LiFePO₄' },
-    { name: 'Schneider Electric', country: 'France', category: 'TeSys Switchgear' },
-    { name: 'Deye', country: 'China', category: 'Hybrid Inverters' },
-    { name: 'Omron', country: 'Japan', category: 'Sensors & Relays' },
-    { name: 'Delta Electronics', country: 'Taiwan', category: 'VFDs & Servo' },
-    { name: 'ABB', country: 'Switzerland', category: 'Power Electrics' },
-    { name: 'Growatt', country: 'China', category: 'Solar Inverters' }
-  ];
+const BRANDS = [
+  { name: 'Siemens SIMATIC', category: 'Automation & PLCs', origin: 'Germany' },
+  { name: 'HiTHIUM Energy', category: '11,000-Cycle LiFePO₄', origin: 'Xiamen' },
+  { name: 'Schneider Electric', category: 'Switchgear & VFDs', origin: 'France' },
+  { name: 'Deye Solar', category: 'Hybrid Inverters', origin: 'Ningbo' },
+  { name: 'Omron Automation', category: 'Sensors & Relays', origin: 'Japan' },
+  { name: 'Tuya Smart', category: 'Smart Home & IoT', origin: 'Hangzhou' },
+  { name: 'Delta Electronics', category: 'Power & Servo Drives', origin: 'Taiwan' },
+  { name: 'ABB Power', category: 'Industrial Switchgear', origin: 'Switzerland' }
+];
 
+export default function BrandsMarquee() {
   return (
-    <div className="py-10 bg-[#06080c] border-t border-b border-[#1a2234]">
-      <div className="max-w-7xl mx-auto px-4 text-center mb-6">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-slate-500">
-          [DIRECT SUPPLY MATRIX // AUTHENTIC GLOBAL INDUSTRIAL BRANDS]
-        </span>
-      </div>
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 items-center">
-          {brands.map((b, idx) => (
+    <section className="py-10 border-y border-white/[0.06] bg-[#0c0e14]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-center">
+        <p className="text-[11px] uppercase tracking-widest text-slate-500 font-bold">
+          DIRECT FACTORY SUPPLY & AUTHORIZED DISTRIBUTOR NETWORKS
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          {BRANDS.map((b) => (
             <div
-              key={idx}
-              className="p-3 rounded-xl hud-panel text-center hover:border-[#00f0ff]/40 transition-all group"
+              key={b.name}
+              className="p-3 rounded-xl bg-[#12151c] border border-white/[0.06] hover:border-amber-500/30 transition-all flex flex-col items-center justify-center text-center group"
             >
-              <div className="font-bold text-xs text-slate-200 group-hover:text-[#00f0ff] transition-colors mono">
+              <div className="text-xs font-bold text-slate-200 group-hover:text-white transition-colors truncate w-full">
                 {b.name}
               </div>
-              <div className="text-[9px] text-slate-500 mt-0.5 mono">{b.category}</div>
+              <div className="text-[10px] text-amber-400/80 truncate w-full">{b.category}</div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
