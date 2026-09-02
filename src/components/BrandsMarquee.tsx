@@ -3,30 +3,35 @@
 import React from 'react';
 
 const BRANDS = [
-  { name: 'Siemens SIMATIC', category: 'Automation & PLCs' },
-  { name: 'HiTHIUM Energy', category: '11,000-Cycle LiFePO₄' },
-  { name: 'Schneider Electric', category: 'Switchgear & VFDs' },
-  { name: 'Deye Solar', category: 'Hybrid Inverters' },
-  { name: 'Omron Automation', category: 'Sensors & Relays' },
-  { name: 'Tuya Smart', category: 'Smart Home & IoT' },
-  { name: 'Delta Electronics', category: 'Power & Servo Drives' },
-  { name: 'ABB Power', category: 'Industrial Switchgear' }
+  { name: 'Siemens SIMATIC', category: 'Automation' },
+  { name: 'HiTHIUM Energy', category: '11,000-cycle LiFePO₄' },
+  { name: 'Schneider Electric', category: 'Switchgear' },
+  { name: 'Deye Solar', category: 'Hybrid inverters' },
+  { name: 'Omron', category: 'Sensors' },
+  { name: 'Tuya Smart', category: 'Home IoT' },
+  { name: 'Delta Electronics', category: 'Drives' },
+  { name: 'ABB', category: 'Power' }
 ];
 
 export default function BrandsMarquee() {
+  const loop = [...BRANDS, ...BRANDS];
+
   return (
-    <section className="py-10 border-y border-black/[0.06] bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-center">
-        <p className="text-[11px] uppercase tracking-widest text-[#a0aec0] font-bold">
-          DIRECT FACTORY SUPPLY & AUTHORIZED DISTRIBUTOR NETWORKS
+    <section className="border-y border-[rgba(28,22,18,0.12)] bg-[#fffdf8] overflow-hidden" aria-label="Factory brands on the corridor">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-6">
+        <p className="kicker shrink-0 hidden sm:block">On the corridor</p>
+        <p className="sr-only">
+          Siemens SIMATIC, HiTHIUM Energy, Schneider Electric, Deye Solar, Omron, Tuya Smart, Delta Electronics, ABB
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          {BRANDS.map((b) => (
-            <div key={b.name} className="p-3 rounded-xl bg-[#fafaf8] border border-black/[0.06] hover:border-[#e85d04]/30 transition-all flex flex-col items-center justify-center text-center group">
-              <div className="text-xs font-bold text-[#1a1a1a] group-hover:text-[#e85d04] transition-colors truncate w-full">{b.name}</div>
-              <div className="text-[10px] text-[#718096] truncate w-full">{b.category}</div>
-            </div>
-          ))}
+        <div className="overflow-hidden flex-1">
+          <div className="marquee-track gap-10 pr-10" aria-hidden="true">
+            {loop.map((b, i) => (
+              <div key={`${b.name}-${i}`} className="flex items-baseline gap-2 whitespace-nowrap">
+                <span className="text-sm font-medium text-[#1c1612]">{b.name}</span>
+                <span className="text-[11px] text-[#8a7e72]">{b.category}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

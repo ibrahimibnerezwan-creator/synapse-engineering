@@ -1,25 +1,31 @@
-# Design Language — "The Workshop" (Warm Industrial Craft & Direct Commerce)
+# Design Language — Dual Desk
 
-## Aesthetic Direction
-A human-centric, high-end commerce design combining the craft precision of Teenage Engineering with the approachable elegance of modern consumer tech. 
+A private trading house between Dhaka and Guangdong. Two squares on a copper line.
 
-## Tokens & Colors
+**Memorable thing:** after three seconds you remember Sohel is standing in a Chinese plant so you are not gambling on Alibaba.
+
+## Aesthetic
+Night poster for the first viewport. Kiln paper for the rest. Tight corners. Serif headlines. Bangla as a first-class face.
+
+## Tokens
 
 | Token | Value | Purpose |
-|:---|:---|:---|
-| `--bg-base` | `#0b0d11` | Deep warm obsidian background |
-| `--surface-card` | `#12151c` | Elevated card surfaces |
-| `--surface-subtle` | `#181d26` | Hover states and inputs |
-| `--border-subtle` | `rgba(255, 255, 255, 0.08)` | Clean 1px card separators |
-| `--accent-gold` | `#f59e0b` | Primary warm amber accent (energy, trust, focus) |
-| `--accent-sky` | `#38bdf8` | Secondary clean cyan accent (telemetry, tech) |
-| `--accent-emerald`| `#10b981` | Verified QC, in-stock badges, WhatsApp triggers |
-| `--text-main` | `#f1f5f9` | Primary crisp high-contrast body & title text |
-| `--text-muted` | `#94a3b8` | Sub-labels, secondary specifications |
+|---|---|---|
+| `--paper` | `#f3ece3` | Page ground |
+| `--ink` | `#1c1612` | Type and primary actions |
+| `--copper` | `#b85c38` | Corridor, money, emphasis |
+| `--jade` | `#1f6b4a` | Live QC, WhatsApp, in-stock |
+| `--night` | `#16120f` | Hero and workshop boards |
+| Display | Instrument Serif | Headlines only |
+| UI | Outfit | Navigation, body, buttons |
+| Bangla | Noto Sans Bengali | বাংলা copy |
+| Specs | IBM Plex Mono | Part numbers, ৳, kWh |
 
-## Anti-Pattern Rules (Impeccable Compliance)
-1. **NO decorative corner HUD notches or brackets**: Clean rounded corners (`rounded-2xl`, `rounded-xl`).
-2. **NO text gradients on primary headings**: High-contrast crisp white typography with intentional warm gold highlights.
-3. **NO unnecessary monospace**: `JetBrains Mono` is restricted strictly to actual Part Numbers, Voltages, and Pricing numerals. All narrative text is clean `Plus Jakarta Sans`.
-4. **NO cards nested inside decorative cards**: Flat, structured hierarchy with generous padding and breathable whitespace.
-5. **Real Human & Video Elements**: Prominent founder story, video QC tags, and 1-tap WhatsApp consultation with real personal photos.
+## Rules
+1. No HUD notches, cyan glows, or Palantir theatre.
+2. No text gradients on headings.
+3. No Plus Jakarta / Inter / JetBrains as the public face.
+4. No 3-up lucide-icon sermons. Facts sit on a letter or a ledger line.
+5. No fake founder photograph. The field card uses a designed mark until a real portrait is supplied.
+6. Search is an instrument, not the hero.
+7. Sohel’s letter comes before the gadget floor.

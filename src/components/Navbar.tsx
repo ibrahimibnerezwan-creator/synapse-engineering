@@ -1,103 +1,142 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Cpu, Phone, MessageSquare, Menu, X, Sparkles, ArrowRight } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import BrandMark from './BrandMark';
 
 interface NavbarProps {
   onOpenRFQ?: (productName?: string) => void;
+  tone?: 'night' | 'paper';
 }
 
-export default function Navbar({ onOpenRFQ }: NavbarProps) {
+const LINKS = [
+  { href: '/#catalog-section', label: 'Spares' },
+  { href: '/#consumer-gadgets', label: 'Gadgets' },
+  { href: '/calculator', label: 'ESS' },
+  { href: '/sourcing', label: 'Sourcing' },
+];
+
+export default function Navbar({ onOpenRFQ, tone = 'paper' }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [overHero, setOverHero] = useState(tone === 'night');
+
+  useEffect(() => {
+    if (tone !== 'night') {
+      setOverHero(false);
+      return;
+    }
+    const hero = document.getElementById('hero');
+    if (!hero) {
+      setOverHero(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => setOverHero(entry.isIntersecting),
+      { threshold: 0, rootMargin: '-72px 0px 0px 0px' }
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [tone]);
+
+  const night = tone === 'night' && overHero;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-black/[0.06]">
+    <header
+      className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-300 ${
+        night
+          ? 'bg-[#16120f]/90 border-[rgba(243,236,227,0.12)] text-[#f3ece3]'
+          : 'bg-[#f3ece3]/90 border-[rgba(28,22,18,0.12)] text-[#1c1612]'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-[#1a3a5c] flex items-center justify-center text-white font-black shadow-md group-hover:scale-105 transition-transform">
-              <Cpu className="w-6 h-6" />
-            </div>
-            <div className="text-left">
-              <div className="font-extrabold text-lg text-[#1a1a1a] tracking-tight flex items-center gap-1.5">
-                <span>SYNAPSE</span>
-                <span className="text-[11px] text-[#e85d04] font-bold px-2 py-0.5 rounded-full bg-orange-50 border border-orange-200">
-                  ENGINEERING
-                </span>
-              </div>
-              <div className="text-[11px] text-[#718096] font-medium">Supply & Direct China Procurement</div>
-            </div>
+        <div className="flex justify-between items-center h-16 md:h-[4.25rem]">
+          <Link href="/" className="flex items-center gap-3">
+            <BrandMark className="w-8 h-8" variant={night ? 'paper' : 'ink'} />
+            <span className="text-left leading-tight">
+              <span className="block text-[11px] font-semibold tracking-[0.22em] uppercase">
+                Synapse
+              </span>
+              <span className={`block text-[10px] tracking-[0.16em] uppercase ${night ? 'text-[#c9bdb0]' : 'text-[#8a7e72]'}`}>
+                Engineering & Supply
+              </span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[#4a5568]">
-            <a href="#catalog-section" className="hover:text-[#1a1a1a] transition-colors">
-              Industrial Spares
-            </a>
-            <a href="#consumer-gadgets" className="hover:text-[#e85d04] transition-colors flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#e85d04]" />
-              <span>Tech Gadgets</span>
-            </a>
-            <Link href="/calculator" className="hover:text-[#1a1a1a] transition-colors">
-              Solar & Battery
-            </Link>
-            <Link href="/sourcing" className="hover:text-[#1a1a1a] transition-colors">
-              China Sourcing
-            </Link>
-            <Link href="/admin" className="hover:text-[#718096] transition-colors text-xs text-[#a0aec0]">
-              Seller Portal
+          <nav className={`hidden lg:flex items-center gap-8 text-[11px] font-medium tracking-[0.14em] uppercase ${night ? 'text-[#c9bdb0]' : 'text-[#4a4038]'}`}>
+            {LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className={night ? 'hover:text-[#f3ece3]' : 'hover:text-[#1c1612]'}>
+                {link.label}
+              </Link>
+            ))}
+            <Link href="/admin" className={night ? 'text-[#8a7e72] hover:text-[#c9bdb0]' : 'text-[#8a7e72] hover:text-[#4a4038]'}>
+              Seller
             </Link>
           </nav>
 
-          {/* Right Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2">
             <a
               href="https://wa.me/8801886113236"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-[#f5f5f2] hover:bg-[#eeeee8] text-[#4a5568] hover:text-[#1a1a1a] border border-black/[0.06] text-xs font-semibold flex items-center gap-2 transition-colors"
+              className="btn-jade px-3 py-2.5"
             >
-              <Phone className="w-3.5 h-3.5 text-[#e85d04]" />
-              <span>+880 1886-113236</span>
+              WhatsApp
             </a>
-
             <button
-              onClick={() => onOpenRFQ && onOpenRFQ()}
-              className="px-5 py-2.5 rounded-xl bg-[#1a3a5c] hover:bg-[#0f2a45] text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+              type="button"
+              onClick={() => onOpenRFQ?.()}
+              className={night ? 'btn-paper px-4 py-2.5' : 'btn-ink px-4 py-2.5'}
             >
-              <span>Get a Quote</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              Quote
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex sm:hidden items-center gap-2">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-[#f5f5f2] text-[#4a5568] hover:text-[#1a1a1a] border border-black/[0.06]"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="sm:hidden p-2"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-black/[0.06] bg-white px-4 pt-3 pb-6 space-y-3 text-left">
-          <a href="#catalog-section" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-[#4a5568]">Industrial Spares & Automation</a>
-          <a href="#consumer-gadgets" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-[#e85d04]">Daily Tech Gadgets & Electronics</a>
-          <Link href="/calculator" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-[#4a5568]">Solar Battery Sizing Calculator</Link>
-          <Link href="/sourcing" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm font-medium text-[#4a5568]">China Sourcing & Video QC</Link>
-          <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs font-medium text-[#a0aec0]">Seller Portal</Link>
-          <div className="pt-3 border-t border-black/[0.06] flex flex-col gap-2">
-            <a href="https://wa.me/8801886113236" target="_blank" rel="noopener noreferrer" className="w-full py-2.5 rounded-xl bg-[#059669] text-white font-bold text-xs flex items-center justify-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              <span>WhatsApp (+880 1886-113236)</span>
-            </a>
-          </div>
+        <div className={`sm:hidden border-t px-4 pt-3 pb-5 space-y-1 ${night ? 'border-[rgba(243,236,227,0.12)] bg-[#16120f]' : 'border-[rgba(28,22,18,0.12)] bg-[#f3ece3]'}`}>
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm tracking-wide"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-sm text-[#8a7e72]">
+            Seller desk
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenRFQ?.();
+            }}
+            className="btn-ink w-full py-3 mt-3"
+          >
+            Quote
+          </button>
+          <a
+            href="https://wa.me/8801886113236"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-jade w-full py-3 mt-2"
+          >
+            WhatsApp the desk
+          </a>
         </div>
       )}
     </header>

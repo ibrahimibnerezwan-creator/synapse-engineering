@@ -51,19 +51,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#16120f" />
       </head>
-      <body className="antialiased bg-[#fafaf8] text-[#1a1a1a] min-h-screen flex flex-col justify-between selection:bg-orange-100 selection:text-[#e85d04]">
+      <body className="grain min-h-screen flex flex-col antialiased">
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
         {children}
 
-        {/* Meta Pixel Script */}
         <Script
           id="fb-pixel"
           strategy="afterInteractive"

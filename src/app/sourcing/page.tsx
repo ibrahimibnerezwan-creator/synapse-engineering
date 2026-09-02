@@ -14,7 +14,7 @@ export default function SourcingPage() {
     <>
       <Navbar onOpenRFQ={() => setRfqOpen(true)} />
 
-      <main className="flex-1 py-8">
+      <main id="main" className="flex-1 py-8">
         <ChinaSourcingSection />
       </main>
 

@@ -31,71 +31,42 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
     setRfqOpen(true);
   };
 
-  const handleOpenCheckout = (product: Product) => {
-    setCheckoutProduct(product);
-  };
-
-  const handleSearchFromHero = (term: string) => {
-    setFilterTerm(term);
-  };
-
   return (
     <>
-      <Navbar onOpenRFQ={() => handleOpenRFQ()} />
+      <Navbar onOpenRFQ={() => handleOpenRFQ()} tone="night" />
 
-      <main className="flex-1">
-        {/* 1. Value-First Hero with Universal Search */}
-        <HeroSection onOpenRFQ={handleOpenRFQ} onSearch={handleSearchFromHero} />
-
-        {/* 2. Global Industrial & Tech Brands Matrix */}
+      <main id="main" className="flex-1">
+        <HeroSection onOpenRFQ={handleOpenRFQ} onSearch={setFilterTerm} />
         <BrandsMarquee />
-
-        {/* 3. Daily Consumer Tech Gadgets with 1-Click Order */}
+        <FounderStory />
+        <CorePillars onOpenRFQ={handleOpenRFQ} />
         <ConsumerPicks
           products={initialProducts}
-          onOpenCheckout={handleOpenCheckout}
+          onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
         />
-
-        {/* 4. The Human Advantage: Sohel & On-Ground Video QC in China */}
-        <FounderStory />
-
-        {/* 5. Three Core Engineering Divisions */}
-        <CorePillars onOpenRFQ={handleOpenRFQ} />
-
-        {/* 6. Interactive Solar & LiFePO4 Energy Sizing Calculator */}
         <SolarCalculator onOpenRFQ={handleOpenRFQ} />
-
-        {/* 7. Full Product Catalog with Universal Filtering */}
         <PartSearchGrid
           initialProducts={initialProducts}
-          onOpenCheckout={handleOpenCheckout}
+          onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
           filterTerm={filterTerm}
         />
-
-        {/* 8. China Direct Sourcing & Turnkey Logistics Workflow */}
         <ChinaSourcingSection />
       </main>
 
       <Footer />
 
-      {/* 1-Click Bangladeshi Checkout Modal */}
       {checkoutProduct && (
-        <CheckoutModal
-          product={checkoutProduct}
-          onClose={() => setCheckoutProduct(null)}
-        />
+        <CheckoutModal product={checkoutProduct} onClose={() => setCheckoutProduct(null)} />
       )}
 
-      {/* Reusable RFQ Quotation Modal */}
       <RFQModal
         isOpen={rfqOpen}
         onClose={() => setRfqOpen(false)}
         initialProduct={selectedProductForRFQ}
       />
 
-      {/* Floating Multilingual Gemini AI Technical Consultant */}
       <ChatWidget />
     </>
   );

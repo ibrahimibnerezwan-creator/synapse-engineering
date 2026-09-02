@@ -20,7 +20,7 @@ export default function CalculatorPage() {
     <>
       <Navbar onOpenRFQ={() => handleOpenRFQ()} />
 
-      <main className="flex-1 py-8">
+      <main id="main" className="flex-1 py-8">
         <SolarCalculator onOpenRFQ={handleOpenRFQ} />
       </main>
 

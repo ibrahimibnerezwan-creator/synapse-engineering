@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, MessageSquare, Sparkles, ShoppingBag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Product } from '@/db/schema';
+import { CONSUMER_FILTERS, groupTone } from '@/lib/productGroups';
+import { GroupChip } from './GroupChip';
 
 interface ConsumerPicksProps {
   products: Product[];
@@ -16,7 +18,7 @@ export default function ConsumerPicks({ products, onOpenCheckout, onOpenRFQ }: C
     (p) => p.category === 'Consumer Tech & Gadgets' || (p.price != null && p.price > 0)
   );
 
-  const [activeCategory, setActiveCategory] = useState<'All' | 'Power' | 'Charging' | 'Smart Home'>('All');
+  const [activeCategory, setActiveCategory] = useState<(typeof CONSUMER_FILTERS)[number]['id']>('All');
 
   const filtered = consumerItems.filter((item) => {
     const subCat = (item.subCategory || '').toLowerCase();
@@ -28,131 +30,94 @@ export default function ConsumerPicks({ products, onOpenCheckout, onOpenRFQ }: C
     return true;
   });
 
+  const gadgetsTone = groupTone('Consumer Tech & Gadgets');
+
   return (
-    <section id="consumer-gadgets" className="py-16 md:py-24 border-t border-black/[0.06] bg-[#fafaf8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <section id="consumer-gadgets" className="scroll-mt-24 py-16 md:py-20 border-t border-[rgba(28,22,18,0.12)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-3 max-w-2xl text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-[#e85d04] text-xs font-semibold border border-orange-200">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Direct From Shenzhen Tech Hubs</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1a1a1a] tracking-tight">
-              Daily Tech Gadgets & Personal Electronics
-            </h2>
-            <p className="text-[#718096] text-sm sm:text-base leading-relaxed">
-              Curated everyday technology sourced directly from Tier-1 Chinese manufacturers with authentic warranty and direct door delivery across Bangladesh.
-            </p>
+          <div className="space-y-3">
+            <p className="kicker">Home desk</p>
+            <h2 className="display text-4xl sm:text-5xl leading-[1.05]">Gadgets. COD.</h2>
           </div>
-          <div className="flex flex-wrap gap-2 p-1.5 rounded-xl bg-white border border-black/[0.06]">
-            {(['All', 'Power', 'Charging', 'Smart Home'] as const).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  activeCategory === cat ? 'bg-[#1a3a5c] text-white shadow-sm' : 'text-[#718096] hover:text-[#1a1a1a]'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Gadget groups">
+            {CONSUMER_FILTERS.map((cat) => {
+              const selected = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={selected ? `chip ${cat.chip}` : cat.tab}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={`${gadgetsTone.wrap} p-3`}>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((item) => {
-            let parsedSpecs: Record<string, string> = {};
-            try {
-              parsedSpecs = JSON.parse(item.specs || '{}');
-            } catch {}
             const priceVal = Number(item.price) || 0;
+            const tone = groupTone(item.category);
 
             return (
-              <div key={item.id} className="craft-card flex flex-col justify-between p-6 group relative overflow-hidden">
-                <div className="space-y-5">
-                  <div className="h-52 rounded-xl bg-[#f5f5f2] border border-black/[0.04] p-4 flex items-center justify-center relative overflow-hidden">
-                    <img
-                      src={item.primaryImage}
-                      alt={item.title}
-                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-[#1a1a1a] text-[11px] font-medium px-2.5 py-1 rounded-md border border-black/[0.08]">
-                      {item.brand}
-                    </div>
-                    {item.originCountry && (
-                      <div className="absolute top-3 right-3 bg-orange-50 text-[#e85d04] text-[11px] font-medium px-2.5 py-1 rounded-md border border-orange-200">
-                        {item.originCountry}
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-2 text-left">
-                    <div className="text-xs text-[#e85d04] font-medium">{item.subCategory || 'Direct Import'}</div>
-                    <h3 className="text-base font-bold text-[#1a1a1a] group-hover:text-[#e85d04] transition-colors line-clamp-2">
-                      {item.title}
+              <article key={item.id} className={`desk desk-hover flex flex-col ${tone.bar} ${tone.wash}`}>
+                <div className="h-52 studio p-6 flex items-center justify-center relative">
+                  <img src={item.primaryImage} alt="" className="max-h-full max-w-full object-contain" />
+                  <span className="absolute top-3 left-3 text-[10px] tracking-[0.12em] uppercase bg-[#fffdf8] px-2 py-1 border border-[rgba(28,22,18,0.12)]">
+                    {item.brand}
+                  </span>
+                </div>
+                <div className="p-5 flex flex-col flex-1 gap-4">
+                  <div className="space-y-2">
+                    <GroupChip category={item.category} subCategory={item.subCategory} />
+                    <h3 className="text-base font-medium leading-snug">
+                      <Link href={`/products/${item.slug}`} className="hover:text-[#b85c38]">
+                        {item.title}
+                      </Link>
                     </h3>
-                    <p className="text-xs text-[#718096] line-clamp-2 font-light leading-relaxed">{item.description}</p>
                   </div>
-                  <div className="space-y-1.5 pt-2 border-t border-black/[0.06] text-left">
-                    {Object.entries(parsedSpecs).slice(0, 3).map(([key, val]) => (
-                      <div key={key} className="flex justify-between items-center text-[11px]">
-                        <span className="text-[#a0aec0]">{key}</span>
-                        <span className="text-[#4a5568] font-medium truncate max-w-[60%] text-right">{val}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-5 mt-5 border-t border-black/[0.06] flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] uppercase text-[#a0aec0] font-semibold tracking-wider">Direct Price</div>
-                    <div className="text-lg font-bold text-[#1a1a1a] mono">
-                      {priceVal > 0 ? `৳${priceVal.toLocaleString()}` : 'Factory Quote'}
+                  <div className="mt-auto pt-4 border-t border-[rgba(28,22,18,0.12)] flex items-center justify-between gap-2">
+                    <p className="mono text-lg">{priceVal > 0 ? `৳${priceVal.toLocaleString()}` : 'RFQ'}</p>
+                    <div className="flex items-center gap-1.5">
+                      {priceVal > 0 ? (
+                        <button type="button" onClick={() => onOpenCheckout?.(item)} className="btn-copper px-3 py-2">
+                          <span className="bn">অর্ডার</span>
+                        </button>
+                      ) : (
+                        <button type="button" onClick={() => onOpenRFQ?.(item.title)} className="btn-ink px-3 py-2">
+                          Quote
+                        </button>
+                      )}
+                      <Link href={`/products/${item.slug}`} className="p-2 border border-[rgba(28,22,18,0.18)]" aria-label={`View ${item.title}`}>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {priceVal > 0 ? (
-                      <button
-                        onClick={() => onOpenCheckout && onOpenCheckout(item)}
-                        className="px-3.5 py-2 rounded-xl bg-[#e85d04] hover:bg-[#d45403] text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>অর্ডার করুন (Order)</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onOpenRFQ && onOpenRFQ(item.title)}
-                        className="px-3.5 py-2 rounded-xl bg-[#1a3a5c] hover:bg-[#0f2a45] text-white font-bold text-xs"
-                      >
-                        Request Quote
-                      </button>
-                    )}
-                    <Link
-                      href={`/products/${item.slug}`}
-                      className="p-2 rounded-xl bg-[#f5f5f2] hover:bg-[#eeeee8] text-[#4a5568] hover:text-[#1a1a1a] border border-black/[0.06] transition-colors"
-                      title="View Specs"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
+        </div>
 
-        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-orange-50 via-white to-[#f5f5f2] border border-orange-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-left">
-          <div className="space-y-1">
-            <h4 className="text-base font-bold text-[#1a1a1a]">Looking for a specific gadget or electronics item from China?</h4>
-            <p className="text-xs text-[#718096]">Send us a photo or link from Taobao/1688 — Sohel will personally check the factory and deliver it to your doorstep.</p>
+        <div className={`desk p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 ${gadgetsTone.bar}`}>
+          <div>
+            <h3 className="display text-2xl mb-1">Not on the floor?</h3>
+            <p className="text-sm text-[#4a4038]">Photo or 1688 link. Sohel checks the plant.</p>
           </div>
           <a
-            href="https://wa.me/8801886113236?text=Hi%20Sohel,%20I%20am%20looking%20for%20a%20custom%20gadget/item%20from%20China"
+            href="https://wa.me/8801886113236?text=Hi%20Sohel,%20I%20am%20looking%20for%20a%20custom%20gadget%20from%20China"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-xl bg-[#e85d04] hover:bg-[#d45403] text-white font-bold text-xs shrink-0 flex items-center gap-2 transition-all shadow-md"
+            className="btn-ink px-5 py-3 shrink-0"
           >
-            <MessageSquare className="w-4 h-4" />
-            <span>Request Custom Gadget</span>
+            Custom gadget
           </a>
         </div>
       </div>
