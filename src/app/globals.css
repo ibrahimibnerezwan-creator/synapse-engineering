@@ -314,6 +314,33 @@ button.chip {
   color: var(--paper);
 }
 
+.door-factory {
+  background-color: var(--night);
+  color: var(--paper);
+  background-image:
+    linear-gradient(rgba(243, 236, 227, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 236, 227, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  box-shadow: inset 0 -6px 0 var(--paper);
+}
+
+.door-home {
+  background:
+    radial-gradient(ellipse at 85% 10%, rgba(255, 248, 243, 0.16), transparent 42%),
+    var(--copper);
+  color: #fff8f3;
+}
+
+.door-home :focus-visible {
+  outline-color: #fff8f3;
+}
+
+@media (min-width: 1024px) {
+  .door-factory {
+    box-shadow: none;
+  }
+}
+
 @keyframes status-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(1.2); }

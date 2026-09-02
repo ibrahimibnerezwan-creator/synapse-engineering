@@ -5,7 +5,7 @@ A private trading house between Dhaka and Guangdong. Two squares on a copper lin
 **Memorable thing:** after three seconds you remember Sohel is standing in a Chinese plant so you are not gambling on Alibaba.
 
 ## Aesthetic
-Night poster for the first viewport. Kiln paper for the rest. Tight corners. Serif headlines. Bangla as a first-class face.
+First viewport is the two desks: night Factory left, copper Home right, paper join. Kiln paper for the rest. Tight corners. Serif headlines. Bangla as a first-class face. Sohel’s field card does not sit in the first screen.
 
 ## Tokens
 
@@ -13,9 +13,9 @@ Night poster for the first viewport. Kiln paper for the rest. Tight corners. Ser
 |---|---|---|
 | `--paper` | `#f3ece3` | Page ground |
 | `--ink` | `#1c1612` | Type and primary actions |
-| `--copper` | `#b85c38` | Corridor, money, emphasis |
+| `--copper` | `#b85c38` | Home desk fill, money, emphasis |
 | `--jade` | `#1f6b4a` | Live QC, WhatsApp, in-stock |
-| `--night` | `#16120f` | Hero and workshop boards |
+| `--night` | `#16120f` | Factory desk fill, workshop boards |
 | Display | Instrument Serif | Headlines only |
 | UI | Outfit | Navigation, body, buttons |
 | Bangla | Noto Sans Bengali | বাংলা copy |
@@ -26,6 +26,7 @@ Night poster for the first viewport. Kiln paper for the rest. Tight corners. Ser
 2. No text gradients on headings.
 3. No Plus Jakarta / Inter / JetBrains as the public face.
 4. No 3-up lucide-icon sermons. Facts sit on a letter or a ledger line.
-5. No fake founder photograph. The field card uses a designed mark until a real portrait is supplied.
-6. Search is an instrument, not the hero.
+5. No fake founder photograph. Identity is the letter below the fold until a real portrait is supplied.
+6. Search is an instrument on the Factory door, not the hero.
 7. Sohel’s letter comes before the gadget floor.
+8. Factory and Home both occupy the first viewport. Do not auto-rotate them.
