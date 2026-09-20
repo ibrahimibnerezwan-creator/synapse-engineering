@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { Product } from '@/db/schema';
+import Modal from './Modal';
+import ProductImage from './ProductImage';
 
 interface CheckoutModalProps {
   product: Product;
@@ -32,18 +34,6 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invoice, setInvoice] = useState<string | null>(null);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [onClose]);
 
   const baseDelivery = deliveryZone === 'dhaka' ? 70 : deliveryZone === 'suburb' ? 100 : 130;
   const productPrice = Number(product.price) || 0;
@@ -101,15 +91,9 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
   )}`;
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#16120f]/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="checkout-title"
-    >
-      <div className="bg-[#fffdf8] w-full max-w-2xl relative my-auto overflow-hidden border border-[rgba(28,22,18,0.16)]" onClick={(e) => e.stopPropagation()}>
-        <div className="night px-6 py-4 flex justify-between items-center">
+    <Modal onClose={onClose} labelledBy="checkout-title" wide>
+      <div className="bg-[#fffdf8] w-full relative" onClick={(e) => e.stopPropagation()}>
+        <div className="night px-6 py-5 flex justify-between items-center">
           <h2 id="checkout-title" className="display text-2xl text-[#f3ece3]">
             Complete the order
           </h2>
@@ -124,7 +108,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
               <h3 className="kicker">Slip</h3>
               <div className="flex gap-3.5">
                 <div className="w-16 h-16 bg-[#f3ece3] p-1.5 shrink-0 flex items-center justify-center">
-                  <img src={product.primaryImage} alt="" className="max-h-full max-w-full object-contain" />
+                  <ProductImage product={product} />
                 </div>
                 <div>
                   <h4 className="text-xs font-medium line-clamp-2">{product.title}</h4>
@@ -158,6 +142,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
                     <button
                       key={z.key}
                       type="button"
+                      aria-pressed={deliveryZone === z.key}
                       onClick={() => setDeliveryZone(z.key)}
                       className={`flex flex-col items-center py-2 bn ${
                         deliveryZone === z.key ? 'bg-[#1c1612] text-[#f3ece3]' : 'hover:bg-[#f3ece3]'
@@ -191,26 +176,26 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
 
             <div className="w-full md:w-1/2 space-y-3">
               <h3 className="kicker">Customer</h3>
-              {error && <div className="p-2.5 bg-red-50 text-red-800 text-xs">{error}</div>}
+              {error && <div role="alert" className="p-2.5 bg-red-50 text-red-800 text-xs">{error}</div>}
               <form onSubmit={handleSubmit} className="space-y-3 text-xs">
                 <input type="text" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
                 <div>
                   <label htmlFor="co-name" className="bn block mb-1 text-[#4a4038]">
                     আপনার নাম *
                   </label>
-                  <input id="co-name" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="field" />
+                  <input id="co-name" autoComplete="name" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="field" />
                 </div>
                 <div>
                   <label htmlFor="co-phone" className="bn block mb-1 text-[#4a4038]">
                     মোবাইল *
                   </label>
-                  <input id="co-phone" type="tel" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="01XXXXXXXXX" className="field" />
+                  <input id="co-phone" autoComplete="tel" type="tel" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="01XXXXXXXXX" className="field" />
                 </div>
                 <div>
                   <label htmlFor="co-addr" className="bn block mb-1 text-[#4a4038]">
                     সম্পূর্ণ ঠিকানা *
                   </label>
-                  <textarea id="co-addr" rows={2} required value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="field" />
+                  <textarea id="co-addr" autoComplete="street-address" rows={2} required value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="field" />
                 </div>
                 <div>
                   <p className="bn mb-1.5 text-[#4a4038]">পেমেন্ট</p>
@@ -223,6 +208,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
                       <button
                         key={p.key}
                         type="button"
+                        aria-pressed={formData.paymentMethod === p.key}
                         onClick={() => setFormData({ ...formData, paymentMethod: p.key })}
                         className={`py-2 text-[11px] border ${
                           formData.paymentMethod === p.key
@@ -301,6 +287,6 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 }

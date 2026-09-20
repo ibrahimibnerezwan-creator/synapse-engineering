@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import Modal from './Modal';
 
 interface RFQModalProps {
   isOpen: boolean;
@@ -10,80 +11,57 @@ interface RFQModalProps {
 }
 
 export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQModalProps) {
+  return isOpen ? <QuotationForm onClose={onClose} initialProduct={initialProduct} /> : null;
+}
+
+function QuotationForm({ onClose, initialProduct = '' }: Omit<RFQModalProps, 'isOpen'>) {
   const [productName, setProductName] = useState(initialProduct);
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [requirement, setRequirement] = useState('');
   const [loading, setLoading] = useState(false);
   const [rfqNumber, setRfqNumber] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (initialProduct) setProductName(initialProduct);
-  }, [initialProduct]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const generatedNumber = `SYN-${Date.now().toString().slice(-6)}`;
+    setError('');
     try {
-      await fetch('/api/rfq', {
+      const response = await fetch('/api/rfq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          rfqNumber: generatedNumber,
           contactName: name,
           companyName: company,
           phone,
-          email,
           productTitle: productName || 'General Quotation Request',
           quantity: Number(quantity) || 1,
           projectRequirement: requirement
         })
       });
-      if (typeof window !== 'undefined' && (window as unknown as { fbq?: Function }).fbq) {
-        (window as unknown as { fbq: Function }).fbq('track', 'Lead', {
-          content_name: productName,
-          currency: 'BDT',
-          value: 0
-        });
-      }
-      setRfqNumber(generatedNumber);
-    } catch {
-      setRfqNumber(generatedNumber);
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.rfqNumber) throw new Error(data.error || 'Your request could not be saved. Please try again.');
+      const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
+      try { fbq?.('track', 'Lead', { content_name: productName, currency: 'BDT', value: 0 }); } catch { /* Analytics must not affect the receipt. */ }
+      setRfqNumber(data.rfqNumber);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Your request could not be saved. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleWhatsAppInstant = () => {
-    const text = `Hello Synapse Engineering,\n\nI need an official quote for:\n• Item: ${productName}\n• Quantity: ${quantity}\n• Name: ${name}\n• Company/Project: ${company || 'Individual / Factory'}\n• Phone: ${phone}\n• Notes: ${requirement || 'N/A'}`;
-    window.open(`https://wa.me/8801886113236?text=${encodeURIComponent(text)}`, '_blank');
-  };
+  const whatsappText = `Hello Synapse Engineering,\n\nI need an official quote for:\n• Item: ${productName}\n• Quantity: ${quantity}\n• Name: ${name}\n• Company/Project: ${company || 'Individual / Factory'}\n• Phone: ${phone}\n• Notes: ${requirement || 'N/A'}${rfqNumber ? `\n• RFQ: ${rfqNumber}` : ''}`;
+  const whatsappUrl = `https://wa.me/8801886113236?text=${encodeURIComponent(whatsappText)}`;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#16120f]/50 backdrop-blur-sm overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="rfq-title"
-      onClick={onClose}
-    >
+    <Modal onClose={onClose} labelledBy="rfq-title">
       <div
-        className="relative w-full max-w-lg desk p-6 sm:p-8 space-y-6 my-8 bg-[#fffdf8]"
+        className="relative w-full p-6 sm:p-8 space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
         <button type="button" onClick={onClose} className="absolute top-4 right-4 p-2 text-[#8a7e72] hover:text-[#1c1612]" aria-label="Close quotation form">
@@ -95,8 +73,9 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
             <div className="space-y-1 border-b border-[rgba(28,22,18,0.12)] pb-4 pr-8">
               <p className="kicker">RFQ desk</p>
               <h2 id="rfq-title" className="display text-3xl">Factory quotation</h2>
-              <p className="text-xs text-[#4a4038]">Wholesale from the plant. Warranty in Bangladesh.</p>
+              <p className="text-xs text-[#4a4038]">Share your requirement. Sohel will confirm availability, pricing and delivery.</p>
             </div>
+            {error && <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
                 <label htmlFor="rfq-product" className="block mb-1 text-[#4a4038]">
@@ -141,15 +120,15 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
               <button type="submit" disabled={loading} className="btn-ink w-full py-3">
                 {loading ? 'Submitting…' : 'Submit RFQ'}
               </button>
-              <button type="button" onClick={handleWhatsAppInstant} className="btn-ghost w-full py-3">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost w-full py-3">
                 WhatsApp instead
-              </button>
+              </a>
             </form>
           </>
         ) : (
           <div className="py-4 space-y-5">
             <p className="kicker">RFQ #{rfqNumber}</p>
-            <h2 className="display text-3xl">Received.</h2>
+            <h2 id="rfq-title" className="display text-3xl" role="status">Request received.</h2>
             <p className="text-sm text-[#4a4038]">The procurement desk will reply on WhatsApp with factory availability.</p>
             <dl className="p-4 bg-[#f3ece3] text-xs space-y-2">
               <div className="flex justify-between gap-4">
@@ -162,9 +141,9 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
               </div>
             </dl>
             <div className="flex gap-2">
-              <button type="button" onClick={handleWhatsAppInstant} className="btn-jade flex-1 py-3">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-jade flex-1 py-3">
                 Follow on WhatsApp
-              </button>
+              </a>
               <button type="button" onClick={onClose} className="btn-ghost px-5 py-3">
                 Done
               </button>
@@ -172,6 +151,6 @@ export default function RFQModal({ isOpen, onClose, initialProduct = '' }: RFQMo
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -11,6 +11,7 @@ import { Product } from '@/db/schema';
 import { ChevronRight, Share2 } from 'lucide-react';
 import { GroupChip } from '@/components/GroupChip';
 import { groupTone } from '@/lib/productGroups';
+import ProductImage from '@/components/ProductImage';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -33,7 +34,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     `Hello Synapse Engineering, I am interested in: ${product.title} (${product.modelNo || product.brand}). Please share current pricing and delivery lead time.`
   );
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (navigator.share) {
       navigator
         .share({
@@ -43,9 +44,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         })
         .catch(() => {});
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch { /* Keep the page usable if clipboard permission is unavailable. */ }
     }
   };
 
@@ -53,7 +56,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     <>
       <Navbar onOpenRFQ={() => setRfqOpen(true)} />
 
-      <main id="main" className="flex-1 py-10">
+      <main id="main" className="product-detail flex-1 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-xs text-[#8a7e72] mb-10 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-[#1c1612]">
@@ -69,8 +72,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
           <div className="grid lg:grid-cols-12 gap-12 items-start mb-16">
             <div className="lg:col-span-5 space-y-3">
-              <div className="desk studio p-8 flex items-center justify-center min-h-[380px] relative">
-                <img src={product.primaryImage} alt={product.title} className="max-h-[340px] max-w-full object-contain" />
+              <div className="desk studio flex items-center justify-center h-[420px] relative overflow-hidden rounded-lg">
+                <ProductImage product={product} priority />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   <GroupChip category={product.category} />
                   <span className="text-[10px] tracking-[0.12em] uppercase bg-[#fffdf8] px-2 py-1 border border-[rgba(28,22,18,0.12)]">
@@ -148,7 +151,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     {Object.entries(parsedSpecs).map(([key, val]) => (
                       <div key={key} className="bg-[#fffdf8] p-3 flex justify-between gap-3 text-xs">
                         <dt className="text-[#8a7e72]">{key}</dt>
-                        <dd className="mono text-right truncate max-w-[60%]">{val}</dd>
+                        <dd className="text-right max-w-[65%] break-words">{val}</dd>
                       </div>
                     ))}
                   </dl>
@@ -165,7 +168,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <li key={rel.id} className="desk desk-hover">
                     <Link href={`/products/${rel.slug}`} className="block p-4">
                       <div className="h-28 studio mb-3 flex items-center justify-center p-3">
-                        <img src={rel.primaryImage} alt="" className="max-h-full object-contain" />
+                        <ProductImage product={rel} />
                       </div>
                       <p className="mb-2">
                         <GroupChip category={rel.category} subCategory={rel.subCategory} />

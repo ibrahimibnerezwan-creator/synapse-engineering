@@ -2,12 +2,13 @@
 
 @layer base {
   :root {
+    --surface: #fffdf8;
     --paper: #f3ece3;
     --paper-2: #ebe2d4;
     --paper-3: #e3d8c8;
     --ink: #1c1612;
     --ink-soft: #4a4038;
-    --ink-faint: #8a7e72;
+    --ink-faint: #6c6157;
     --copper: #b85c38;
     --copper-deep: #8f3f22;
     --copper-soft: #d4a28a;
@@ -35,8 +36,7 @@
     background-color: var(--paper);
     color: var(--ink);
     font-family: var(--font-ui);
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
+      -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
@@ -96,11 +96,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 2px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  border-radius: 4px;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
@@ -114,7 +114,7 @@
 }
 
 .btn-copper {
-  background: var(--copper);
+  background: var(--copper-deep);
   color: #fff8f3;
 }
 
@@ -156,8 +156,9 @@
   border: 1px solid var(--line);
   background: #fffdf8;
   color: var(--ink);
-  font-size: 0.8125rem;
-  padding: 0.65rem 0.85rem;
+  min-height: 44px;
+  font-size: 1rem;
+  padding: 0.7rem 0.85rem;
   outline: none;
 }
 
@@ -247,7 +248,7 @@ button.chip {
 .tab-ink { color: var(--ink); }
 .tab-jade { color: var(--jade); }
 .tab-copper { color: var(--copper); }
-.tab-kiln { color: var(--kiln); }
+.tab-kiln { color: #765715; }
 
 .band-ink,
 .band-jade,
@@ -296,13 +297,7 @@ button.chip {
 .desk.wash-copper { background: #fbf1eb; }
 .desk.wash-kiln { background: #fbf6e8; }
 
-.grain {
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(rgba(28, 22, 18, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(28, 22, 18, 0.018) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
+.grain { background-color: var(--paper); }
 
 .studio {
   background:
@@ -403,3 +398,20 @@ button.chip {
 ::-webkit-scrollbar-track { background: var(--paper); }
 ::-webkit-scrollbar-thumb { background: #c9bdb0; }
 ::-webkit-scrollbar-thumb:hover { background: #a89888; }
+
+button:not(:disabled), a { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled) { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .6; }
+.field:focus-visible { outline: 2px solid var(--copper-deep); outline-offset: 2px; }
+
+.energy-section { background: #edf1e8; }
+.energy-section .desk { border-radius: 8px; border: 0; background: #fffdf8; }
+.energy-result { border-radius: 8px; background: #183f30; color: #fffdf8; }
+.energy-result .kicker { color: #dceade; }
+.energy-result .btn-copper { background: #f3ece3; color: #183f30; }
+.energy-section input[type="range"] { min-height: 36px; accent-color: #1f6b4a; }
+
+.sourcing-section { background: #fffdf8; }
+.sourcing-steps { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.field.sourcing-field { background: #282a25; color: #fffdf8; border-color: #72766b; }
+.field.sourcing-field::placeholder { color: #b9c0b4; }

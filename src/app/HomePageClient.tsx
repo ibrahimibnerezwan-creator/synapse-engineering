@@ -24,7 +24,7 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
   const [rfqOpen, setRfqOpen] = useState(false);
   const [selectedProductForRFQ, setSelectedProductForRFQ] = useState('');
   const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
-  const [filterTerm, setFilterTerm] = useState('');
+  const [searchRequest, setSearchRequest] = useState({ term: '', revision: 0 });
 
   const handleOpenRFQ = (productName = '') => {
     setSelectedProductForRFQ(productName);
@@ -36,22 +36,23 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
       <Navbar onOpenRFQ={() => handleOpenRFQ()} tone="night" />
 
       <main id="main" className="flex-1">
-        <HeroSection onOpenRFQ={handleOpenRFQ} onSearch={setFilterTerm} />
+        <HeroSection onOpenRFQ={handleOpenRFQ} onSearch={term => setSearchRequest(previous => ({ term, revision: previous.revision + 1 }))} />
         <BrandsMarquee />
-        <FounderStory />
         <CorePillars onOpenRFQ={handleOpenRFQ} />
         <ConsumerPicks
           products={initialProducts}
           onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
         />
-        <SolarCalculator onOpenRFQ={handleOpenRFQ} />
         <PartSearchGrid
+          key={searchRequest.revision}
           initialProducts={initialProducts}
           onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
-          filterTerm={filterTerm}
+          searchRequest={searchRequest}
         />
+        <SolarCalculator onOpenRFQ={handleOpenRFQ} />
+        <FounderStory />
         <ChinaSourcingSection />
       </main>
 

@@ -1,85 +1,66 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { Pause, Play } from 'lucide-react';
+import styles from './storefront.module.css';
+import Image from 'next/image';
 
-export type HeroSlide = {
-  src: string;
-  alt: string;
-  label: string;
-  note: string;
-};
+export type HeroSlide = { src: string; alt: string; label: string; note: string };
 
-type HeroSlideshowProps = {
+type Props = {
   slides: HeroSlide[];
   tone: 'night' | 'copper';
   label: string;
   intervalMs?: number;
+  children: React.ReactNode;
 };
 
-export default function HeroSlideshow({ slides, tone, label, intervalMs = 5200 }: HeroSlideshowProps) {
+export default function HeroSlideshow({ slides, tone, label, intervalMs = 6000, children }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-
+  const [interacting, setInteracting] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(true);
   useEffect(() => {
-    if (paused || slides.length < 2) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % slides.length), intervalMs);
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  useEffect(() => {
+    if (paused || interacting || reducedMotion || slides.length < 2) return;
+    const id = window.setInterval(() => {
+      if (!document.hidden) setIndex(i => (i + 1) % slides.length);
+    }, intervalMs);
     return () => window.clearInterval(id);
-  }, [paused, slides.length, intervalMs]);
-
-  const night = tone === 'night';
-  const frame = night ? 'border-[rgba(243,236,227,0.22)]' : 'border-[rgba(255,248,243,0.30)]';
-  const caption = night ? 'bg-[rgba(22,18,15,0.72)] text-[#f3ece3]' : 'bg-[rgba(28,22,18,0.74)] text-[#fff8f3]';
-  const dotIdle = night ? 'bg-[rgba(243,236,227,0.4)]' : 'bg-[rgba(255,248,243,0.45)]';
-  const dotOn = night ? 'bg-[#f3ece3]' : 'bg-[#fff8f3]';
-  const current = slides[index];
+  }, [paused, interacting, reducedMotion, slides.length, intervalMs]);
 
   return (
-    <div
-      className={`relative w-full flex-1 min-h-[112px] overflow-hidden border ${frame}`}
-      role="group"
-      aria-label={label}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-    >
+    <article className={`${styles.heroPanel} ${tone === 'copper' ? styles.heroPanelHome : ''}`}
+      onMouseEnter={() => setInteracting(true)} onMouseLeave={() => setInteracting(false)}
+      onFocusCapture={() => setInteracting(true)}
+      onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setInteracting(false); }}>
       {slides.map((slide, i) => (
-        <img
-          key={slide.src}
-          src={slide.src}
-          alt={i === index ? slide.alt : ''}
-          decoding="async"
+        <Image key={slide.src} src={slide.src} alt={i === index ? slide.alt : ''}
+          aria-hidden={i !== index} width={960} height={600} sizes="(max-width: 767px) 100vw, 50vw" loading="eager" decoding="async"
           fetchPriority={i === 0 ? 'high' : 'auto'}
-          aria-hidden={i === index ? undefined : true}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
-            i === index ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
+          className={`${styles.heroPhoto} ${i !== index ? styles.heroPhotoHidden : ''}`} />
       ))}
-
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/25 to-transparent" aria-hidden />
-
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-2 sm:p-3">
-        <div className={`${caption} px-2.5 py-1.5 max-w-[80%]`}>
-          <p className="mono text-[9px] sm:text-[10px] tracking-[0.14em] uppercase opacity-90">{current.label}</p>
-          <p className="bn text-[11px] sm:text-[13px] leading-snug mt-0.5">{current.note}</p>
-        </div>
-        <div className="flex shrink-0">
+      {children}
+      <div className={styles.heroControls} role="group" aria-label={label}>
+        <p className={`${styles.heroCaption} bn`} lang="bn">{slides[index].label}</p>
+        <div className={styles.slideControls}>
           {slides.map((slide, i) => (
-            <button
-              key={slide.src}
-              type="button"
-              onClick={() => setIndex(i)}
-              aria-label={`ছবি ${i + 1}: ${slide.label}`}
-              aria-current={i === index}
-              className="w-6 h-6 flex items-center justify-center"
-            >
-              <span className={`block w-2 h-2 ${i === index ? dotOn : dotIdle}`} />
+            <button key={slide.src} type="button" aria-label={`Show image ${i + 1}: ${slide.label}`}
+              aria-pressed={i === index} onClick={() => { setIndex(i); setPaused(true); }}>
+              <span className={styles.slideDot} />
             </button>
           ))}
+          {!reducedMotion && <button type="button" onClick={() => setPaused(value => !value)} aria-label={paused ? `Play ${label}` : `Pause ${label}`}>
+            {paused ? <Play size={14} aria-hidden /> : <Pause size={14} aria-hidden />}
+          </button>}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

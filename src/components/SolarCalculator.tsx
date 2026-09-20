@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import styles from './storefront.module.css';
 
 interface SolarCalculatorProps {
   onOpenRFQ?: (productName?: string) => void;
@@ -37,11 +38,10 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
   }, [dailyLoadKWh, backupHours, autonomyDays, sunlightHours]);
 
   return (
-    <section id="calculator" className="scroll-mt-24 py-16 md:py-20 border-t border-[rgba(28,22,18,0.12)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <section id="calculator" className={`${styles.section} energy-section`}>
+      <div className={`${styles.shell} space-y-10`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="display text-4xl sm:text-5xl leading-[1.05]">Size the mill battery.</h2>
-          <p className="kicker">ESS</p>
+          <div><p className={styles.sectionLabel}>Solar & energy storage</p><h2 className={styles.sectionTitle}>Keep your world running.</h2></div><p className={styles.sectionNote}>Explore a starting size for your battery and solar system.</p>
         </div>
 
         <div className="grid lg:grid-cols-12 gap-6 items-start">
@@ -53,6 +53,8 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                 onClick={() => {
                   setDailyLoadKWh(45);
                   setBackupHours(6);
+                  setAutonomyDays(1);
+                  setSunlightHours(4.5);
                 }}
                 className="text-[11px] tracking-[0.1em] uppercase text-[#8a7e72] hover:text-[#1c1612]"
               >
@@ -81,7 +83,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <label htmlFor="backup">Zero-grid hours</label>
+                <label htmlFor="backup">Backup hours</label>
                 <span className="mono text-[#b85c38]">{backupHours} h</span>
               </div>
               <input
@@ -128,9 +130,9 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
             </div>
           </div>
 
-          <div className="lg:col-span-6 night p-6 sm:p-8 space-y-6">
+          <div className="lg:col-span-6 energy-result p-6 sm:p-8 space-y-6">
             <div className="border-b border-[rgba(243,236,227,0.12)] pb-4">
-              <p className="kicker">Recommended board</p>
+              <p className="kicker">Your estimated system</p>
               <h3 className="display text-2xl text-[#f3ece3] mt-1">HiTHIUM LiFePO₄ setup</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -159,6 +161,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                 </span>
               </p>
             </div>
+            <p className="text-xs leading-relaxed text-[#dceade]">Planning estimate based on average load, 85% battery depth of discharge and 80% solar efficiency. Savings assume ৳12/kWh and 70% offset. Confirm peak load and installation requirements with an engineer.</p>
             <button
               type="button"
               onClick={() =>

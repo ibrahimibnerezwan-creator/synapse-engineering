@@ -1,0 +1,6 @@
+.modal { width: min(560px, calc(100% - 32px)); max-width: none; max-height: calc(100svh - 32px); padding: 0; margin: auto; border: 0; border-radius: 12px; color: var(--ink); background: var(--surface); box-shadow: 0 24px 100px rgba(0,0,0,.3); overflow-y: auto; }
+.modal::backdrop { background: rgba(16,21,18,.68); backdrop-filter: blur(6px); }
+.wide { width: min(820px, calc(100% - 32px)); }
+.modal input, .modal textarea { font-size: 16px; }
+.modal button { min-height: 44px; }
+.modal h2 { scroll-margin-top: 20px; }
