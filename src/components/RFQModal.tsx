@@ -64,7 +64,7 @@ function QuotationForm({ onClose, initialProduct = '' }: Omit<RFQModalProps, 'is
         className="relative w-full p-6 sm:p-8 space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <button type="button" onClick={onClose} className="absolute top-4 right-4 p-2 text-[#8a7e72] hover:text-[#1c1612]" aria-label="Close quotation form">
+        <button type="button" onClick={onClose} className="absolute top-4 right-4 p-2 text-[#71665b] hover:text-[#1c1612]" aria-label="Close quotation form">
           <X className="w-5 h-5" />
         </button>
 
@@ -132,11 +132,11 @@ function QuotationForm({ onClose, initialProduct = '' }: Omit<RFQModalProps, 'is
             <p className="text-sm text-[#4a4038]">The procurement desk will reply on WhatsApp with factory availability.</p>
             <dl className="p-4 bg-[#f3ece3] text-xs space-y-2">
               <div className="flex justify-between gap-4">
-                <dt className="text-[#8a7e72]">Product</dt>
+                <dt className="text-[#71665b]">Product</dt>
                 <dd className="truncate max-w-[60%]">{productName}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[#8a7e72]">Qty</dt>
+                <dt className="text-[#71665b]">Qty</dt>
                 <dd>{quantity}</dd>
               </div>
             </dl>

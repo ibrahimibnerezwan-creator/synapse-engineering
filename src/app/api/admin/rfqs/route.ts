@@ -16,7 +16,7 @@ export async function GET() {
     const list = await db.select().from(rfqs).orderBy(desc(rfqs.id));
     return NextResponse.json({ rfqs: list });
   } catch {
-    return NextResponse.json({ rfqs: [] });
+    return NextResponse.json({ error: 'Could not load quotation requests. Please try again.' }, { status: 503 });
   }
 }
 
@@ -30,12 +30,10 @@ export async function PATCH(req: NextRequest) {
     const { id, status, adminNotes } = await req.json();
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
-    try {
-      await db.update(rfqs).set({ status, adminNotes }).where(eq(rfqs.id, Number(id)));
-    } catch {}
+    await db.update(rfqs).set({ status, adminNotes }).where(eq(rfqs.id, Number(id)));
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Could not update this quotation request.' }, { status: 503 });
   }
 }

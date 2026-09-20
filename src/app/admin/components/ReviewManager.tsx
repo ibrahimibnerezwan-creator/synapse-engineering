@@ -1,29 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, MessageSquare, Phone, RefreshCw, FileText } from 'lucide-react';
+import { Loader2, MessageSquare, RefreshCw } from 'lucide-react';
 import { RFQ } from '@/db/schema';
 
 export default function ReviewManager() {
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const fetchRfqs = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/rfq');
-      const data = await res.json();
-      if (Array.isArray(data)) setRfqs(data);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
-    fetchRfqs();
-  }, []);
+    const controller = new AbortController();
+    fetch('/api/admin/rfqs', { signal: controller.signal })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok || !Array.isArray(data.rfqs)) throw new Error(data.error || 'Could not load quotation requests.');
+        return data.rfqs as RFQ[];
+      })
+      .then(data => { if (!controller.signal.aborted) { setRfqs(data); setError(''); } })
+      .catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Could not load quotation requests. Try refreshing.'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [revision]);
 
   return (
     <div className="space-y-6 text-left">
@@ -33,7 +32,7 @@ export default function ReviewManager() {
           <p className="text-xs text-gray-500">Incoming B2B factory inquiries and quotation submissions.</p>
         </div>
         <button
-          onClick={fetchRfqs}
+          onClick={() => { setLoading(true); setError(''); setRevision(value => value + 1); }}
           className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition"
         >
           <RefreshCw size={14} />
@@ -47,6 +46,8 @@ export default function ReviewManager() {
             <Loader2 className="animate-spin" size={18} />
             <span>Loading quotation requests...</span>
           </div>
+        ) : error ? (
+          <p role="alert" className="p-6 text-sm text-red-700">{error}</p>
         ) : rfqs.length === 0 ? (
           <div className="p-12 text-center text-gray-400 text-xs">No RFQ requests received yet.</div>
         ) : (
@@ -76,7 +77,7 @@ export default function ReviewManager() {
                     <td className="p-3.5 text-gray-600 max-w-xs truncate">{r.projectRequirement || 'N/A'}</td>
                     <td className="p-3.5 text-right">
                       <a
-                        href={`https://wa.me/${r.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                        href={`https://wa.me/${r.phone.replace(/[^0-9]/g, '').replace(/^01/, '8801')}?text=${encodeURIComponent(
                           `Hello ${r.contactName}, regarding your quotation request #${r.rfqNumber} for ${r.productTitle}...`
                         )}`}
                         target="_blank"

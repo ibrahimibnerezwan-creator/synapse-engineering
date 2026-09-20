@@ -58,7 +58,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
       <main id="main" className="product-detail flex-1 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs text-[#8a7e72] mb-10 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-2 text-xs text-[#71665b] mb-10 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-[#1c1612]">
               Home
             </Link>
@@ -85,15 +85,15 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               <div className="desk p-4 grid grid-cols-3 text-center text-[11px] text-[#4a4038]">
                 <div>
                   <p className="font-medium text-[#1c1612]">Genuine</p>
-                  <p className="text-[#8a7e72]">Serial verified</p>
+                  <p className="text-[#71665b]">Serial verified</p>
                 </div>
                 <div className="border-x border-[rgba(28,22,18,0.12)]">
                   <p className="font-medium text-[#1f6b4a]">Video QC</p>
-                  <p className="text-[#8a7e72]">Pre-dispatch</p>
+                  <p className="text-[#71665b]">Pre-dispatch</p>
                 </div>
                 <div>
                   <p className="font-medium text-[#1c1612]">Transit</p>
-                  <p className="text-[#8a7e72]">Air & sea</p>
+                  <p className="text-[#71665b]">Air & sea</p>
                 </div>
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <GroupChip category={product.category} subCategory={product.subCategory} />
                 <h1 className="display text-3xl sm:text-4xl leading-tight">{product.title}</h1>
                 {product.modelNo && (
-                  <p className="mono text-xs text-[#8a7e72]">
+                  <p className="mono text-xs text-[#71665b]">
                     PN <span className="text-[#1c1612]">{product.modelNo}</span>
                   </p>
                 )}
@@ -150,7 +150,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <dl className="grid sm:grid-cols-2 gap-px bg-[rgba(28,22,18,0.12)] border border-[rgba(28,22,18,0.12)]">
                     {Object.entries(parsedSpecs).map(([key, val]) => (
                       <div key={key} className="bg-[#fffdf8] p-3 flex justify-between gap-3 text-xs">
-                        <dt className="text-[#8a7e72]">{key}</dt>
+                        <dt className="text-[#71665b]">{key}</dt>
                         <dd className="text-right max-w-[65%] break-words">{val}</dd>
                       </div>
                     ))}

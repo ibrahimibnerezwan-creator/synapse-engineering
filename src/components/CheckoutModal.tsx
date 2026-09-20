@@ -149,7 +149,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
                       }`}
                     >
                       <span className="text-[11px]">{z.label}</span>
-                      <span className={`mono text-[10px] ${deliveryZone === z.key ? 'text-[#d4a28a]' : 'text-[#8a7e72]'}`}>
+                      <span className={`mono text-[10px] ${deliveryZone === z.key ? 'text-[#d4a28a]' : 'text-[#71665b]'}`}>
                         ৳{z.charge}
                       </span>
                     </button>
@@ -230,7 +230,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
                       {PAYMENT_NUMBERS[formData.paymentMethod as 'bkash' | 'nagad']}
                     </p>
                     <p className="bn text-[11px] font-medium">পরিমাণ: ৳{orderTotal.toLocaleString()}</p>
-                    <p className="bn text-[11px] text-[#8a7e72]">
+                    <p className="bn text-[11px] text-[#71665b]">
                       টাকা পাঠিয়ে ট্রানজেকশন আইডি নিচে বসান।
                     </p>
                   </div>
@@ -263,11 +263,11 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
             <p className="text-sm text-[#4a4038]">Steadfast কুরিয়ারের মাধ্যমে পাঠানো হবে। ডেলিভারি টিম শীঘ্রই যোগাযোগ করবে।</p>
             <dl className="p-4 bg-[#f3ece3] text-xs space-y-2">
               <div className="flex justify-between gap-4">
-                <dt className="text-[#8a7e72] bn">পণ্য</dt>
+                <dt className="text-[#71665b] bn">পণ্য</dt>
                 <dd className="truncate max-w-[65%]">{product.title} (×{qty})</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[#8a7e72] bn">সর্বমোট</dt>
+                <dt className="text-[#71665b] bn">সর্বমোট</dt>
                 <dd className="mono text-[#b85c38]">৳{orderTotal.toLocaleString()}</dd>
               </div>
             </dl>

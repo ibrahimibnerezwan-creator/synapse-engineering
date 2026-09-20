@@ -56,7 +56,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                   setAutonomyDays(1);
                   setSunlightHours(4.5);
                 }}
-                className="text-[11px] tracking-[0.1em] uppercase text-[#8a7e72] hover:text-[#1c1612]"
+                className="text-[11px] tracking-[0.1em] uppercase text-[#71665b] hover:text-[#1c1612]"
               >
                 Reset
               </button>
@@ -76,7 +76,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                 onChange={(e) => setDailyLoadKWh(Number(e.target.value))}
                 className="w-full accent-[#b85c38]"
               />
-              <div className="flex justify-between text-[10px] text-[#8a7e72]">
+              <div className="flex justify-between text-[10px] text-[#71665b]">
                 <span>Workshop 10</span>
                 <span>Mill 500</span>
               </div>
@@ -99,7 +99,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label htmlFor="sun" className="text-xs text-[#8a7e72]">
+                <label htmlFor="sun" className="text-xs text-[#71665b]">
                   Peak sun hours (BD)
                 </label>
                 <select
@@ -114,7 +114,7 @@ export default function SolarCalculator({ onOpenRFQ }: SolarCalculatorProps) {
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label htmlFor="auto" className="text-xs text-[#8a7e72]">
+                <label htmlFor="auto" className="text-xs text-[#71665b]">
                   Autonomy
                 </label>
                 <select
