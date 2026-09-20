@@ -15,6 +15,42 @@ Analyze this component / machine nameplate photo and return a JSON object with:
 
 Respond ONLY with valid JSON. No markdown backticks.`;
 
+// Gemini Flash models go 503 under load and get retired without warning, so the route
+// walks a chain instead of trusting one name. Override in an emergency with AI_MODEL_CHAIN.
+const MODEL_CHAIN =
+  process.env.AI_MODEL_CHAIN?.split(',').map((m) => m.trim()).filter(Boolean) || [
+    'gemini-3.6-flash',
+    'gemini-flash-latest',
+    'gemini-3.5-flash-lite',
+  ];
+
+const TRANSIENT_AI = /503|429|high demand|overloaded|service unavailable|temporarily/i;
+
+async function extractSpecs(genAI: GoogleGenerativeAI, parts: { text: string }[] | unknown[]) {
+  let lastError: unknown;
+
+  for (const modelName of MODEL_CHAIN) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: { responseMimeType: 'application/json' },
+        });
+        const result = await model.generateContent(parts as never);
+        return JSON.parse(result.response.text());
+      } catch (error: any) {
+        lastError = error;
+        const message = String(error?.message || '');
+        // A retired/unknown model or bad image will fail everywhere: don't retry it.
+        if (!TRANSIENT_AI.test(message)) break;
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 800));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export async function POST(req: NextRequest) {
   const isAdmin = await isAuthenticatedAdmin();
   if (!isAdmin) {
@@ -33,18 +69,24 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-3.6-flash',
-      generationConfig: { responseMimeType: 'application/json' },
-    });
-
-    const result = await model.generateContent([
+    const parts = [
       { text: PROMPT },
       { inlineData: { mimeType, data: imageBase64 } },
-    ]);
+    ];
 
-    const parsed = JSON.parse(result.response.text());
-    return NextResponse.json({ success: true, data: parsed });
+    try {
+      const parsed = await extractSpecs(genAI, parts);
+      return NextResponse.json({ success: true, data: parsed });
+    } catch (error: any) {
+      const message = String(error?.message || 'AI parsing error');
+      if (TRANSIENT_AI.test(message)) {
+        return NextResponse.json(
+          { error: 'The AI is busy right now. Please try again in a moment.' },
+          { status: 503 }
+        );
+      }
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'AI parsing error' }, { status: 500 });
   }
