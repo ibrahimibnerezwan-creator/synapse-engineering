@@ -49,7 +49,8 @@ export default function HeroSlideshow({ slides, tone, label, intervalMs = 5200 }
           key={slide.src}
           src={slide.src}
           alt={i === index ? slide.alt : ''}
-          loading={i === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={i === 0 ? 'high' : 'auto'}
           aria-hidden={i === index ? undefined : true}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
             i === index ? 'opacity-100' : 'opacity-0'
