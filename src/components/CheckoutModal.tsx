@@ -9,6 +9,14 @@ interface CheckoutModalProps {
   onClose: () => void;
 }
 
+// Send-money numbers the customer pays into. Change them here.
+const PAYMENT_NUMBERS: Record<'bkash' | 'nagad', string> = {
+  bkash: '01319103840',
+  nagad: '01319103840'
+};
+
+const WHATSAPP_NUMBER = '8801886113236';
+
 export default function CheckoutModal({ product, onClose }: CheckoutModalProps) {
   const [qty, setQty] = useState(1);
   const [deliveryZone, setDeliveryZone] = useState<'dhaka' | 'suburb' | 'outside'>('outside');
@@ -88,10 +96,9 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
     }
   };
 
-  const handleWhatsAppConfirm = () => {
-    const text = `Hello Synapse Engineering,\n\nI just placed order *#${invoice}*:\n• Product: ${product.title} (Qty: ${qty})\n• Total Amount: ৳${orderTotal.toLocaleString()}\n• Delivery: ${deliveryZone.toUpperCase()} (৳${baseDelivery})\n• Name: ${formData.name}\n• Phone: ${formData.phone}\n• Address: ${formData.address}\n• Payment: ${formData.paymentMethod.toUpperCase()}${formData.trxId ? ` (TrxID: ${formData.trxId})` : ''}\n\nPlease confirm dispatch!`;
-    window.open(`https://wa.me/8801886113236?text=${encodeURIComponent(text)}`, '_blank');
-  };
+  const waConfirmUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    `Hello Synapse Engineering,\n\nI just placed order *#${invoice ?? ''}*:\n• Product: ${product.title} (Qty: ${qty})\n• Total Amount: ৳${orderTotal.toLocaleString()}\n• Delivery: ${deliveryZone.toUpperCase()} (৳${baseDelivery})\n• Name: ${formData.name}\n• Phone: ${formData.phone}\n• Address: ${formData.address}\n• Payment: ${formData.paymentMethod.toUpperCase()}${formData.trxId ? ` (TrxID: ${formData.trxId})` : ''}\n\nPlease confirm dispatch!`
+  )}`;
 
   return (
     <div
@@ -229,11 +236,25 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
                   </div>
                 </div>
                 {formData.paymentMethod !== 'cod' && (
+                  <div className="border border-[rgba(184,92,56,0.4)] bg-[#fbf1eb] p-3 space-y-1.5">
+                    <p className="bn text-[11px] text-[#4a4038]">
+                      {formData.paymentMethod === 'bkash' ? 'bKash' : 'Nagad'} <strong>Send Money</strong> করুন এই নম্বরে
+                    </p>
+                    <p className="mono text-lg text-[#1c1612]">
+                      {PAYMENT_NUMBERS[formData.paymentMethod as 'bkash' | 'nagad']}
+                    </p>
+                    <p className="bn text-[11px] font-medium">পরিমাণ: ৳{orderTotal.toLocaleString()}</p>
+                    <p className="bn text-[11px] text-[#8a7e72]">
+                      টাকা পাঠিয়ে ট্রানজেকশন আইডি নিচে বসান।
+                    </p>
+                  </div>
+                )}
+                {formData.paymentMethod !== 'cod' && (
                   <div>
                     <label htmlFor="co-trx" className="block mb-1 text-[#4a4038]">
-                      TrxID (optional)
+                      TrxID *
                     </label>
-                    <input id="co-trx" value={formData.trxId} onChange={(e) => setFormData({ ...formData, trxId: e.target.value })} className="field" />
+                    <input id="co-trx" required value={formData.trxId} onChange={(e) => setFormData({ ...formData, trxId: e.target.value })} placeholder="যেমন 8N7A2K9L1M" className="field" />
                   </div>
                 )}
                 <button type="submit" disabled={loading} className="btn-copper w-full py-3.5 disabled:opacity-50">
@@ -265,9 +286,14 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
               </div>
             </dl>
             <div className="flex flex-col sm:flex-row gap-2">
-              <button type="button" onClick={handleWhatsAppConfirm} className="btn-jade flex-1 py-3">
+              <a
+                href={waConfirmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-jade flex-1 py-3"
+              >
                 WhatsApp কনফার্মেশন
-              </button>
+              </a>
               <button type="button" onClick={onClose} className="btn-ghost px-6 py-3">
                 বন্ধ
               </button>
