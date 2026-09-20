@@ -2,11 +2,61 @@
 
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import DeskClocks from './DeskClocks';
+import HeroSlideshow, { type HeroSlide } from './HeroSlideshow';
 
 interface HeroSectionProps {
   onOpenRFQ?: (productName?: string) => void;
   onSearch?: (term: string) => void;
 }
+
+const FACTORY_SLIDES: HeroSlide[] = [
+  {
+    src: '/hero/factory-panel.jpg',
+    alt: 'ইন্ডাস্ট্রিয়াল কন্ট্রোল প্যানেলের ভেতরে মডিউল ও ওয়্যারিং',
+    label: 'প্যানেল ও PLC',
+    note: 'Siemens · Schneider অরিজিনাল',
+  },
+  {
+    src: '/hero/factory-ess.jpg',
+    alt: 'সোলার প্যানেলের পাশে কন্টেইনার এনার্জি স্টোরেজ',
+    label: 'সোলার ও ESS',
+    note: 'HiTHIUM · ১১,০০০+ সাইকেল',
+  },
+  {
+    src: '/hero/factory-floor.jpg',
+    alt: 'কারখানার প্রোডাকশন লাইনে কর্মীরা',
+    label: 'কারখানা পরিদর্শন',
+    note: 'লাইভ ভিডিও QC',
+  },
+];
+
+const HOME_SLIDES: HeroSlide[] = [
+  {
+    src: '/hero/home-power.jpg',
+    alt: 'ক্যাম্পিং টেবিলে পোর্টেবল পাওয়ার স্টেশন',
+    label: 'পোর্টেবল পাওয়ার',
+    note: 'লোডশেডিং · ক্যাম্পিং',
+  },
+  {
+    src: '/hero/home-gan.jpg',
+    alt: 'GaN ফাস্ট চার্জার',
+    label: 'ফাস্ট চার্জিং',
+    note: 'GaN ১৪০W · ল্যাপটপ ও ফোন',
+  },
+  {
+    src: '/hero/home-smart.jpg',
+    alt: 'স্মার্ট স্পিকার ও ফোনে হোম অ্যাপ',
+    label: 'স্মার্ট হোম',
+    note: 'অ্যাপেই লাইট ও এসি',
+  },
+  {
+    src: '/hero/home-cod.jpg',
+    alt: 'কুরিয়ার পার্সেল হস্তান্তর',
+    label: 'ক্যাশ অন ডেলিভারি',
+    note: 'দেখে তারপর টাকা',
+  },
+];
 
 export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,12 +77,15 @@ export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
       <h1 className="sr-only">Factory desk and Home desk — Synapse Engineering</h1>
 
       <div className="grid flex-1 min-h-0 grid-rows-2 lg:grid-rows-1 lg:grid-cols-[1fr_6px_1fr]">
-        <article className="door-factory flex flex-col justify-between gap-3 sm:gap-4 px-5 py-4 sm:px-8 sm:py-7 lg:px-10 lg:py-10 min-h-0 overflow-y-auto">
+        <article className="door-factory flex flex-col gap-3 sm:gap-4 px-5 py-4 sm:px-8 sm:py-7 lg:px-10 lg:py-10 min-h-0 overflow-y-auto">
           <div>
             <p className="kicker flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-[#1f6b4a] live-dot" aria-hidden />
               Factory desk · mill floor
             </p>
+            <div className="mt-2">
+              <DeskClocks tone="night" />
+            </div>
             <h2 className="display mt-2 sm:mt-3 text-[clamp(2.15rem,7vw,5.2rem)] leading-[0.88] text-[#f3ece3]">
               Factory
               <br />
@@ -41,12 +94,12 @@ export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
             <p className="bn mt-3 sm:mt-4 text-[1.05rem] sm:text-lg text-[#f3ece3]">
               কারখানার ডেস্ক। জেনুইন PLC, ESS ও খুচরা যন্ত্রাংশ।
             </p>
-            <ul className="mt-3 sm:mt-4 space-y-1.5 text-[1.05rem] sm:text-lg font-semibold leading-snug text-[#f3ece3]">
-              <li>Genuine Siemens · Schneider · HiTHIUM</li>
-              <li>Video QC from Shenzhen / Dongguan</li>
-              <li className="hidden sm:list-item">Quote a mill part. Seek a part number.</li>
-            </ul>
+            <p className="bn mt-2 hidden sm:block text-[0.98rem] sm:text-base font-medium text-[#c9bdb0]">
+              নামপ্লেটের ছবি পাঠান, ভিডিও টেস্ট দেখে কনফার্ম করুন।
+            </p>
           </div>
+
+          <HeroSlideshow slides={FACTORY_SLIDES} tone="night" label="Factory desk — product use cases" />
 
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
@@ -75,18 +128,21 @@ export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
               </button>
             </form>
             <p className="hidden sm:block mono text-[10px] tracking-[0.14em] uppercase text-[#c9bdb0]">
-              স Sohel · Guangdong · Video QC
+              স Sohel · Guangdong · Air 7–10d · Sea 25–35d
             </p>
           </div>
         </article>
 
         <div className="hidden lg:block bg-[#f3ece3]" aria-hidden />
 
-        <article className="door-home flex flex-col justify-between gap-3 sm:gap-4 px-5 py-4 pb-16 sm:px-8 sm:py-7 lg:px-10 lg:py-10 lg:pb-10 min-h-0 overflow-y-auto">
+        <article className="door-home flex flex-col gap-3 sm:gap-4 px-5 py-4 pb-16 sm:px-8 sm:py-7 lg:px-10 lg:py-10 lg:pb-10 min-h-0 overflow-y-auto">
           <div>
             <p className="inline-block bg-[#f3ece3] text-[#1c1612] mono text-[10px] tracking-[0.16em] uppercase px-2 py-1">
               Home desk · doorstep COD
             </p>
+            <div className="mt-2 inline-block bg-[#f3ece3] px-2 py-1">
+              <DeskClocks tone="copper" />
+            </div>
             <h2 className="display mt-2 sm:mt-3 text-[clamp(2.15rem,7vw,5.2rem)] leading-[0.88] text-[#fff8f3]">
               Home
               <br />
@@ -95,25 +151,30 @@ export default function HeroSection({ onOpenRFQ, onSearch }: HeroSectionProps) {
             <p className="bn mt-3 sm:mt-4 text-[1.05rem] sm:text-lg text-[#fff8f3] font-semibold">
               ঘরের ডেস্ক। গ্যাজেট, ক্যাশ অন ডেলিভারি।
             </p>
-            <ul className="mt-3 sm:mt-4 space-y-1.5 text-[1.05rem] sm:text-lg font-semibold leading-snug text-[#fff8f3]">
-              <li>GaN, power stations, smart home</li>
-              <li>Cash on delivery in Bangladesh</li>
-              <li className="hidden sm:list-item">Same house as the mill — different door</li>
-            </ul>
+            <p className="bn mt-2 hidden sm:block text-[0.98rem] sm:text-base font-semibold text-[#fff8f3]">
+              দেখে তারপর টাকা দেবেন, Steadfast ঘরে পৌঁছে দেবে।
+            </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <a href="#consumer-gadgets" className="btn-ink px-5 py-3.5">
-              See gadgets · COD
-            </a>
-            <a
-              href="https://wa.me/8801886113236"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-paper px-5 py-3.5"
-            >
-              WhatsApp
-            </a>
+          <HeroSlideshow slides={HOME_SLIDES} tone="copper" label="Home desk — product use cases" />
+
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              <a href="#consumer-gadgets" className="btn-ink px-5 py-3.5">
+                See gadgets · COD
+              </a>
+              <a
+                href="https://wa.me/8801886113236"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-paper px-5 py-3.5"
+              >
+                WhatsApp
+              </a>
+            </div>
+            <p className="mono text-[10px] tracking-[0.14em] uppercase text-[#fff8f3] opacity-90">
+              ঢাকা · সারা দেশ · COD বা bKash
+            </p>
           </div>
         </article>
       </div>
