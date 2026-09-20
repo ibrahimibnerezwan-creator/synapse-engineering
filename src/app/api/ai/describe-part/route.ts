@@ -8,7 +8,7 @@ Analyze this component / machine nameplate photo and return a JSON object with:
 - titleBn: Professional product title in Bengali (e.g. "সিমেন্স এস৭-১৫০০ অ্যানালগ আউটপুট মডিউল")
 - brand: Manufacturer Brand (e.g. "Siemens", "HiTHIUM", "Schneider Electric", "Omron", "Delta", "Deye")
 - modelNo: Exact model/part number extracted from tag (e.g. "6ES7532-5HD00-0AB0")
-- category: Select one: "Industrial Automation", "Solar & Power Solutions", "Global Sourcing & Import"
+- category: Select one: "Industrial Automation", "Solar & Power Solutions", "Consumer Tech & Gadgets", "Global Sourcing & Import"
 - descriptionEn: 2-3 sentences technical description mentioning voltage, capacity, application, and compliance.
 - descriptionBn: 2-3 sentences professional Bengali description.
 - specs: Key technical specs as a key-value object (e.g. { "Voltage": "230V", "Channels": "4", "Resolution": "16-bit" })

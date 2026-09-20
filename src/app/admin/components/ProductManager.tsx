@@ -4,6 +4,36 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, Plus, Trash2, Edit3, ImagePlus, Sparkles, CheckCircle2, X } from 'lucide-react';
 import { Product } from '@/db/schema';
 
+const CATEGORIES = [
+  'Industrial Automation',
+  'Solar & Power Solutions',
+  'Consumer Tech & Gadgets',
+  'Global Sourcing & Import',
+];
+
+// ponytail: downscale before base64 — a phone photo overflows Vercel's 4.5MB request limit
+async function toInlineJpeg(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('Could not read that image file'));
+      el.src = url;
+    });
+
+    const max = 1400;
+    const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export default function ProductManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,35 +88,36 @@ export default function ProductManager() {
   };
 
   const handleAiExtract = async () => {
-    if (!imageFile && !primaryImage) {
-      alert('Upload an image first to extract specs with Gemini AI');
+    if (!imageFile) {
+      alert('Choose a product photo first — the extractor reads the nameplate from the image.');
       return;
     }
 
     setIsExtracting(true);
     try {
-      let imageUrl = primaryImage;
-      if (imageFile && !primaryImage) {
-        imageUrl = await handleImageUpload(imageFile);
-        setPrimaryImage(imageUrl);
-      }
+      const imageBase64 = await toInlineJpeg(imageFile);
 
-      const res = await fetch('/api/ai/nameplate-ocr', {
+      const res = await fetch('/api/ai/describe-part', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl })
+        body: JSON.stringify({ imageBase64, mimeType: 'image/jpeg' }),
       });
 
-      const data = await res.json();
-      if (data.specs) {
-        if (data.specs.brand) setBrand(data.specs.brand);
-        if (data.specs.modelNo) setModelNo(data.specs.modelNo);
-        if (data.specs.title) setTitle(data.specs.title);
-        if (data.specs.description) setDescription(data.specs.description);
-        if (data.specs.specs) setSpecsJson(JSON.stringify(data.specs.specs, null, 2));
+      const payload = await res.json().catch(() => null);
+      if (!res.ok || !payload?.data) {
+        throw new Error(payload?.error || `extractor returned ${res.status}`);
       }
+
+      const specs = payload.data;
+      if (specs.title) setTitle(specs.title);
+      if (specs.titleBn) setTitleBn(specs.titleBn);
+      if (specs.brand) setBrand(specs.brand);
+      if (specs.modelNo) setModelNo(specs.modelNo);
+      if (specs.category && CATEGORIES.includes(specs.category)) setCategory(specs.category);
+      if (specs.descriptionEn) setDescription(specs.descriptionEn);
+      if (specs.specs) setSpecsJson(JSON.stringify(specs.specs, null, 2));
     } catch (err: any) {
-      alert('AI Extraction failed: ' + err.message);
+      alert('AI Extraction failed: ' + (err?.message || 'unknown error'));
     } finally {
       setIsExtracting(false);
     }
@@ -276,7 +307,7 @@ export default function ProductManager() {
                   <button
                     type="button"
                     onClick={handleAiExtract}
-                    disabled={isExtracting || (!imageFile && !primaryImage)}
+                    disabled={isExtracting || !imageFile}
                     className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl flex items-center gap-1.5"
                   >
                     {isExtracting ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
