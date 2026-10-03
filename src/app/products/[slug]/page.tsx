@@ -21,7 +21,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   return {
     title: `${product.title} (${product.brand}) | Synapse Engineering`,
     description: product.description.slice(0, 160),
+    alternates: { canonical: '/products/' + product.slug },
     openGraph: {
+      url: '/products/' + product.slug,
       title: `${product.title} | ${product.brand}`,
       description: product.description.slice(0, 160),
       images: [{ url: product.primaryImage }],

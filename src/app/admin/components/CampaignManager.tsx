@@ -12,6 +12,7 @@ export default function CampaignManager() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState<number | null>(null);
   const [notes, setNotes] = useState<Record<number, string>>({});
+  const [tracking, setTracking] = useState<Record<number, string>>({});
   const load = useCallback((signal?: AbortSignal) => fetch('/api/admin/sourcing', { cache: 'no-store', signal })
     .then(response => readJson<{ inquiries: SourcingInquiry[] }>(response))
     .then(data => {
@@ -19,6 +20,7 @@ export default function CampaignManager() {
       if (signal?.aborted) return;
       setError('');
       setInquiries(data.inquiries); setNotes(Object.fromEntries(data.inquiries.map(inquiry => [inquiry.id, inquiry.adminNotes || ''])));
+      setTracking(Object.fromEntries(data.inquiries.map(inquiry => [inquiry.id, inquiry.trackingCode || ''])));
     })
     .catch(cause => { if (!signal?.aborted) setError(errorText(cause)); })
     .finally(() => { if (!signal?.aborted) setLoading(false); }), []);
@@ -28,7 +30,7 @@ export default function CampaignManager() {
     return () => controller.abort();
   }, [load]);
   const refresh = () => { setLoading(true); setError(''); void load(); };
-  const update = async (id: number, change: { status?: string; adminNotes?: string }) => {
+  const update = async (id: number, change: { status?: string; adminNotes?: string; trackingCode?: string }) => {
     setBusy(id); setError('');
     try {
       const data = await readJson<{ inquiry: SourcingInquiry }>(await fetch('/api/admin/sourcing', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...change }) }));
@@ -44,8 +46,9 @@ export default function CampaignManager() {
       <p className="text-sm">Quantity: {inquiry.targetQuantity || 1}{inquiry.targetBudget ? ' · Budget: ' + inquiry.targetBudget : ''}</p>
       <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{inquiry.specification || 'No additional specification.'}</p>
       {inquiry.sampleOrPhotoUrl && /^https:\/\//.test(inquiry.sampleOrPhotoUrl) && <a href={inquiry.sampleOrPhotoUrl} className="underline text-sm" target="_blank" rel="noopener noreferrer">Reference photo / link</a>}
+      <div><label htmlFor={'sourcing-tracking-' + inquiry.id} className="block text-sm font-semibold mb-1">Real shipment tracking code</label><input id={'sourcing-tracking-' + inquiry.id} maxLength={120} value={tracking[inquiry.id] || ''} onChange={event => setTracking(previous => ({ ...previous, [inquiry.id]: event.target.value }))} className="w-full border rounded-lg p-3 text-base" placeholder="Add after arranging shipment" /></div>
       <div><label htmlFor={'sourcing-note-' + inquiry.id} className="block text-sm font-semibold mb-1">Seller notes</label><textarea id={'sourcing-note-' + inquiry.id} rows={2} maxLength={2000} value={notes[inquiry.id] || ''} onChange={event => setNotes(previous => ({ ...previous, [inquiry.id]: event.target.value }))} className="w-full border rounded-lg p-3 text-base" /></div>
-      <div className="flex gap-3 flex-wrap"><button type="button" onClick={() => update(inquiry.id, { adminNotes: notes[inquiry.id] || '' })} disabled={busy !== null} className="btn-ink">{busy === inquiry.id ? 'Saving…' : 'Save notes'}</button><a href={'https://wa.me/' + whatsappPhone(inquiry.phone) + '?text=' + encodeURIComponent('Hello ' + inquiry.clientName + ', regarding your sourcing request ' + inquiry.inquiryNumber + ' for ' + inquiry.itemName)} target="_blank" rel="noopener noreferrer" className="btn-jade">WhatsApp customer ↗</a></div>
+      <div className="flex gap-3 flex-wrap"><button type="button" onClick={() => update(inquiry.id, { adminNotes: notes[inquiry.id] || '', trackingCode: tracking[inquiry.id] || '' })} disabled={busy !== null} className="btn-ink">{busy === inquiry.id ? 'Saving…' : 'Save request details'}</button><a href={'https://wa.me/' + whatsappPhone(inquiry.phone) + '?text=' + encodeURIComponent('Hello ' + inquiry.clientName + ', regarding your sourcing request ' + inquiry.inquiryNumber + ' for ' + inquiry.itemName)} target="_blank" rel="noopener noreferrer" className="btn-jade">WhatsApp customer ↗</a></div>
     </article>)}
   </section>;
 }

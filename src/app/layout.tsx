@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
+import { SITE_URL } from '@/lib/siteUrl';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Synapse Engineering & Supply — Industrial Automation, Solar ESS & China Sourcing',
   description:
     'Tier-1 engineering supply in Bangladesh: Siemens S7 PLCs, Schneider contactors, HiTHIUM 11,000-cycle LiFePO₄ battery systems, and on-ground China factory procurement with full QC.',
@@ -22,14 +24,12 @@ export const metadata: Metadata = {
     title: 'Synapse Engineering & Supply — Automation, Solar ESS & China Direct Supply',
     description:
       'Direct factory sourcing & engineering supply for Siemens PLCs, HiTHIUM 11,000-cycle LiFePO₄ batteries, and custom China procurement.',
-    url: 'https://synapse-engneering.com',
+    url: SITE_URL,
     siteName: 'Synapse Engineering & Supply',
     images: [
       {
-        url: 'https://synapse-engneering.com/wp-content/uploads/2026/04/Logo-Synapse-png-e1777269373737.png',
-        width: 800,
-        height: 600,
-        alt: 'Synapse Engineering & Supply',
+        url: '/hero/factory-panel.jpg',
+        alt: 'Industrial automation — Synapse Engineering & Supply',
       },
     ],
     locale: 'en_US',

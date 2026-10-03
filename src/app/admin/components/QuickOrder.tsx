@@ -162,7 +162,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
 
       {/* Step 1: Paste / Upload */}
       <div className="space-y-3 mb-5">
-        <textarea
+        <label htmlFor="quick-message" className="sr-only">Customer message to extract</label>
+        <textarea id="quick-message"
           rows={4}
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
@@ -224,9 +225,10 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 border-t border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Customer Name *</label>
-            <input
+            <label htmlFor="quick-name" className="block text-xs font-bold text-gray-700 mb-1">Customer Name *</label>
+            <input id="quick-name"
               type="text"
+              autoComplete="name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -236,9 +238,10 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Phone *</label>
-            <input
-              type="text"
+            <label htmlFor="quick-phone" className="block text-xs font-bold text-gray-700 mb-1">Phone *</label>
+            <input id="quick-phone"
+              type="tel"
+              autoComplete="tel"
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -249,9 +252,9 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1">Address *</label>
-          <textarea
-            rows={2}
+          <label htmlFor="quick-address" className="block text-xs font-bold text-gray-700 mb-1">Address *</label>
+          <textarea id="quick-address"
+            autoComplete="street-address" rows={2}
             required
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -262,12 +265,12 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
 
         <div>
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-xs font-bold text-gray-700">Product *</label>
+            <label htmlFor="quick-product" className="block text-xs font-bold text-gray-700">Product *</label>
             {productHint && (
               <span className="text-[11px] text-amber-600 font-medium">AI detected: {productHint}</span>
             )}
           </div>
-          <select
+          <select id="quick-product"
             required
             value={productId}
             onChange={(e) => handleProductSelect(e.target.value)}
@@ -285,8 +288,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         <div><label htmlFor="quick-quantity" className="block text-sm font-semibold mb-1">Quantity</label><input id="quick-quantity" type="number" min="1" max="20" step="1" required value={quantity} onChange={event => setQuantity(Number(event.target.value))} className="w-full p-3 border rounded-xl text-base" /></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Unit price (৳)</label>
-            <input
+            <label htmlFor="quick-amount" className="block text-xs font-bold text-gray-700 mb-1">Unit price (৳)</label>
+            <input id="quick-amount"
               type="number"
               required min="1" step="1"
               value={amount}
@@ -297,8 +300,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Delivery zone</label>
-            <select
+            <label htmlFor="quick-zone" className="block text-xs font-bold text-gray-700 mb-1">Delivery zone</label>
+            <select id="quick-zone"
               value={deliveryZone}
               onChange={(e) => setDeliveryZone(e.target.value as keyof typeof DELIVERY_CHARGES)}
               className="w-full p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-[#1a3a5c] outline-none bg-white"
@@ -310,8 +313,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Payment</label>
-            <select
+            <label htmlFor="quick-payment" className="block text-xs font-bold text-gray-700 mb-1">Payment</label>
+            <select id="quick-payment"
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value as 'cod' | 'bkash' | 'nagad')}
               className="w-full p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-[#1a3a5c] outline-none bg-white"
@@ -325,8 +328,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
 
         {paymentMethod !== 'cod' && (
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">bKash/Nagad TrxID *</label>
-            <input
+            <label htmlFor="quick-trx" className="block text-xs font-bold text-gray-700 mb-1">bKash/Nagad TrxID *</label>
+            <input id="quick-trx"
               type="text"
               required maxLength={120}
               value={trxId}
@@ -338,8 +341,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         )}
 
         <div>
-          <label className="block text-xs font-bold text-gray-700 mb-1">Note (optional)</label>
-          <input
+          <label htmlFor="quick-note" className="block text-xs font-bold text-gray-700 mb-1">Note (optional)</label>
+          <input id="quick-note"
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
