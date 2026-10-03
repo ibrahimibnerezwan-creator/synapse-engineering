@@ -12,6 +12,7 @@ import { ChevronRight, Share2 } from 'lucide-react';
 import { GroupChip } from '@/components/GroupChip';
 import { groupTone } from '@/lib/productGroups';
 import ProductImage from '@/components/ProductImage';
+import { isOrderable, parseGallery, parseSpecs } from '@/lib/productMedia';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -23,12 +24,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  let parsedSpecs: Record<string, string> = {};
-  try {
-    if (product.specs) parsedSpecs = JSON.parse(product.specs);
-  } catch {}
+  const parsedSpecs = parseSpecs(product.specs);
+  const gallery = [...new Set([product.primaryImage, ...parseGallery(product.additionalImages)])].filter(Boolean);
+  const [selectedImage, setSelectedImage] = useState('');
+  const activeImage = gallery.includes(selectedImage) ? selectedImage : product.primaryImage;
 
-  const priceVal = Number(product.price) || 0;
+  const priceVal = product.priceType !== 'quote' ? Number(product.price) || 0 : 0;
 
   const whatsappMessage = encodeURIComponent(
     `Hello Synapse Engineering, I am interested in: ${product.title} (${product.modelNo || product.brand}). Please share current pricing and delivery lead time.`
@@ -73,7 +74,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
           <div className="grid lg:grid-cols-12 gap-12 items-start mb-16">
             <div className="lg:col-span-5 space-y-3">
               <div className="desk studio flex items-center justify-center h-[420px] relative overflow-hidden rounded-lg">
-                <ProductImage product={product} priority />
+                <ProductImage product={product} image={activeImage} priority />
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   <GroupChip category={product.category} />
                   <span className="text-[10px] tracking-[0.12em] uppercase bg-[#fffdf8] px-2 py-1 border border-[rgba(28,22,18,0.12)]">
@@ -82,10 +83,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <span className="stamp bg-[#fffdf8]">{product.stockStatus}</span>
                 </div>
               </div>
+              {gallery.length > 1 && <div className="flex gap-3 flex-wrap" role="group" aria-label="Product photos">{gallery.map((source, index) => <button type="button" key={source} onClick={() => setSelectedImage(source)} aria-pressed={activeImage === source} aria-label={`View product photo ${index + 1}`} className={`w-20 h-20 border-2 rounded-lg overflow-hidden ${activeImage === source ? 'border-[#b85c38]' : 'border-transparent'}`}><ProductImage product={product} image={source} /></button>)}</div>}
               <div className="desk p-4 grid grid-cols-3 text-center text-[11px] text-[#4a4038]">
                 <div>
-                  <p className="font-medium text-[#1c1612]">Genuine</p>
-                  <p className="text-[#71665b]">Serial verified</p>
+                  <p className="font-medium text-[#1c1612]">Product details</p>
+                  <p className="text-[#71665b]">Ask for verification</p>
                 </div>
                 <div className="border-x border-[rgba(28,22,18,0.12)]">
                   <p className="font-medium text-[#1f6b4a]">Video QC</p>
@@ -115,7 +117,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <p className="mono text-2xl mt-1">{priceVal > 0 ? `৳${priceVal.toLocaleString()}` : 'Factory quote'}</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {priceVal > 0 ? (
+                  {isOrderable(product) ? (
                     <button type="button" onClick={() => setCheckoutOpen(true)} className="btn-copper flex-1 sm:flex-none px-6 py-3">
                       <span className="bn">অর্ডার করুন</span>
                     </button>
@@ -142,6 +144,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               <div className="space-y-3">
                 <h2 className="kicker">Overview</h2>
                 <p className="text-sm text-[#4a4038] leading-relaxed whitespace-pre-line">{product.description}</p>
+                {product.descriptionBn && <p lang="bn" className="bn text-base text-[#4a4038] leading-relaxed whitespace-pre-line">{product.descriptionBn}</p>}
+                {product.originCountry && <p className="text-sm text-[#71665b]">Country of origin: {product.originCountry}</p>}
+                {product.datasheetUrl && <a className="btn-ghost inline-flex" href={product.datasheetUrl} target="_blank" rel="noopener noreferrer">View datasheet / manual ↗</a>}
               </div>
 
               {Object.keys(parsedSpecs).length > 0 && (

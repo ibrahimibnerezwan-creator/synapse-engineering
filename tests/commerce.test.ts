@@ -28,7 +28,7 @@ before(async () => {
       if (statement.trim()) await client.execute(statement);
     }
   }
-  await client.execute({ sql: 'INSERT INTO products (id, slug, title, brand, category, description, primary_image, price, created_at) VALUES (1, ?, ?, ?, ?, ?, ?, 4200, ?)', args: ['qa-product', 'Trusted charger', 'Test brand', 'Consumer Tech & Gadgets', 'Fixture only', '/hero/home-gan.jpg', new Date().toISOString()] });
+  await client.execute({ sql: 'INSERT INTO products (id, slug, title, brand, category, description, primary_image, price, price_type, created_at) VALUES (1, ?, ?, ?, ?, ?, ?, 4200, \'fixed\', ?)', args: ['qa-product', 'Trusted charger', 'Test brand', 'Consumer Tech & Gadgets', 'Fixture only', '/hero/home-gan.jpg', new Date().toISOString()] });
   globalThis.fetch = async () => new Response('{}', { status: 200 });
   checkout = (await import('../src/app/api/checkout/route')).POST;
   rfq = (await import('../src/app/api/rfq/route')).POST;
@@ -85,6 +85,13 @@ test('Invalid quote requests do not report success', async () => {
   for (const change of [{ contactName: ' ' }, { phone: 'invalid' }, { quantity: 0 }, { productTitle: '' }]) {
     assert.equal((await rfq(request('/api/rfq', { ...quote, ...change }))).status, 400);
   }
+});
+test('An unavailable or quotation-only product cannot be purchased even when it has an old price', async () => {
+  await client.execute("UPDATE products SET stock_status='Out of Stock' WHERE id=1");
+  assert.equal((await checkout(request('/api/checkout', order))).status, 400);
+  await client.execute("UPDATE products SET stock_status='In Stock', price_type='quote' WHERE id=1");
+  assert.equal((await checkout(request('/api/checkout', order))).status, 400);
+  await client.execute("UPDATE products SET price_type='fixed' WHERE id=1");
 });
 test('Database write failures produce an actionable error, never a receipt or SQL leak', async () => {
   await client.execute('DROP TABLE rfqs');

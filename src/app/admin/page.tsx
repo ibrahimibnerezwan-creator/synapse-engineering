@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Lock, Cpu } from 'lucide-react';
 import AdminLayout from './components/AdminLayout';
+import { errorText, readJson } from '@/lib/clientApi';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -12,22 +13,20 @@ export default function AdminPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const res = await fetch('/api/admin/check');
-      const data = await res.json();
-      if (data.isAuthenticated) {
-        setIsAuthenticated(true);
+    const controller = new AbortController();
+    const checkAuth = async () => {
+      try {
+        const data = await readJson<{ isAuthenticated: boolean }>(await fetch('/api/admin/check', { cache: 'no-store', signal: controller.signal }));
+        if (!controller.signal.aborted) setIsAuthenticated(data.isAuthenticated === true);
+      } catch {
+        // A missing or expired session returns to the login form.
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
       }
-    } catch {
-      // not authenticated
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+    void checkAuth();
+    return () => controller.abort();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,22 +40,23 @@ export default function AdminPage() {
         body: JSON.stringify({ password })
       });
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setIsAuthenticated(true);
+      const data = await readJson<{ success: boolean; error?: string }>(res);
+      if (data.success) {
+        setIsAuthenticated(true); setPassword('');
       } else {
         setLoginError(data.error || 'Incorrect admin password');
       }
-    } catch {
-      setLoginError('Login failed. Check server connection.');
+    } catch (cause) {
+      setLoginError(errorText(cause));
     } finally {
       setIsLoggingIn(false);
     }
   };
 
   const handleLogout = async () => {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    setIsAuthenticated(false);
+    const response = await fetch('/api/admin/login', { method: 'DELETE' });
+    await readJson(response);
+    setIsAuthenticated(false); setPassword('');
   };
 
   if (isLoading) {
@@ -81,16 +81,18 @@ export default function AdminPage() {
           </div>
 
           {loginError && (
-            <div className="p-2.5 bg-red-50 text-red-600 rounded-xl text-xs font-semibold">
+            <div role="alert" className="p-2.5 bg-red-50 text-red-600 rounded-xl text-xs font-semibold">
               {loginError}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
-              <label className="text-xs font-bold text-gray-700 block mb-1">Admin Password</label>
+              <label htmlFor="admin-password" className="text-xs font-bold text-gray-700 block mb-1">Admin Password</label>
               <input
+                id="admin-password"
                 type="password"
+                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -1,67 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { isAuthenticatedAdmin } from '@/lib/auth';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+import { generateAI } from '@/lib/gemini';
+import type { Part } from '@google/generative-ai';
 
 export async function POST(req: NextRequest) {
-  const isAuthed = await isAuthenticatedAdmin();
-  if (!isAuthed) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+  if (!await isAuthenticatedAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: 'Invalid request.' }, { status: 400 }); }
+  const { text, imageBase64, mimeType = 'image/jpeg' } = body || {};
+  if ((!text && !imageBase64) || (text && (typeof text !== 'string' || text.length > 10000)) || (imageBase64 && (typeof imageBase64 !== 'string' || imageBase64.length > 1_000_000 || !/^image\/(?:jpeg|png|webp)$/.test(mimeType)))) return NextResponse.json({ error: 'Provide a customer message or a readable, resized screenshot.' }, { status: 400 });
+  const prompt = 'Extract order details from this Bangladeshi customer message or screenshot. Return JSON with name, phone, address, productHint, amountHint (unit price), deliveryZone (dhaka/suburb/outside), paymentMethod (cod/bkash/nagad). Leave unknown text blank; do not invent missing details. Only return valid JSON.';
+  const parts: Part[] = [{ text: prompt }];
+  if (text) parts.push({ text });
+  if (imageBase64) parts.push({ inlineData: { data: imageBase64, mimeType } });
   try {
-    const { text, imageBase64, mimeType } = await req.json();
-
-    if (!text && !imageBase64) {
-      return NextResponse.json(
-        { error: 'Provide either raw text message or screenshot image' },
-        { status: 400 }
-      );
-    }
-
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
-      generationConfig: {
-        responseMimeType: 'application/json'
-      }
-    });
-
-    const prompt = `You are an expert e-commerce order parser for a Bangladeshi merchant.
-Given a raw customer message or screenshot from Facebook/WhatsApp (in Bengali, English, or Banglish), extract the order details into this EXACT JSON format:
-{
-  "name": "Customer Full Name",
-  "phone": "01XXXXXXXXX (clean 11-digit BD phone or international)",
-  "address": "Full delivery address including area, Thana, District",
-  "productHint": "The product or item mentioned (e.g. 140W GaN charger, PowerHub 600W, Siemens S7-1200)",
-  "amountHint": 0,
-  "deliveryZone": "dhaka" | "suburb" | "outside",
-  "paymentMethod": "cod" | "bkash" | "nagad"
-}
-Only output valid JSON with no markdown formatting.`;
-
-    const parts: any[] = [{ text: prompt }];
-
-    if (text) {
-      parts.push({ text: `Customer Message:\n${text}` });
-    }
-
-    if (imageBase64) {
-      parts.push({
-        inlineData: {
-          data: imageBase64,
-          mimeType: mimeType || 'image/jpeg'
-        }
-      });
-    }
-
-    const result = await model.generateContent(parts);
-    const responseText = result.response.text();
-    const parsed = JSON.parse(responseText || '{}');
-
-    return NextResponse.json(parsed);
-  } catch (error: any) {
-    console.error('Parse order error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to parse order' }, { status: 500 });
-  }
+    const data = JSON.parse(await generateAI(parts, true));
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('The AI could not read the order details. Enter them manually.');
+    return NextResponse.json(data);
+  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'The AI could not read the order. Try again or fill in the form.' }, { status: 503 }); }
 }

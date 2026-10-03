@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { isAuthenticatedAdmin } from '@/lib/auth';
+import { generateAI } from '@/lib/gemini';
 
 const PROMPT = `You are an industrial automation and engineering component catalog specialist.
-Analyze this component / machine nameplate photo and return a JSON object with:
+Read only visible information in this product / nameplate photo. Do not invent specs, certifications, warranty or authenticity claims. Leave uncertain fields empty. Return a JSON object with:
 - title: Clean professional product title in English (e.g. "Siemens S7-1500 4-Channel Analog Output Module")
 - titleBn: Professional product title in Bengali (e.g. "সিমেন্স এস৭-১৫০০ অ্যানালগ আউটপুট মডিউল")
 - brand: Manufacturer Brand (e.g. "Siemens", "HiTHIUM", "Schneider Electric", "Omron", "Delta", "Deye")
@@ -15,79 +15,15 @@ Analyze this component / machine nameplate photo and return a JSON object with:
 
 Respond ONLY with valid JSON. No markdown backticks.`;
 
-// Gemini Flash models go 503 under load and get retired without warning, so the route
-// walks a chain instead of trusting one name. Override in an emergency with AI_MODEL_CHAIN.
-const MODEL_CHAIN =
-  process.env.AI_MODEL_CHAIN?.split(',').map((m) => m.trim()).filter(Boolean) || [
-    'gemini-3.6-flash',
-    'gemini-flash-latest',
-    'gemini-3.5-flash-lite',
-  ];
-
-const TRANSIENT_AI = /503|429|high demand|overloaded|service unavailable|temporarily/i;
-
-async function extractSpecs(genAI: GoogleGenerativeAI, parts: { text: string }[] | unknown[]) {
-  let lastError: unknown;
-
-  for (const modelName of MODEL_CHAIN) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          generationConfig: { responseMimeType: 'application/json' },
-        });
-        const result = await model.generateContent(parts as never);
-        return JSON.parse(result.response.text());
-      } catch (error: any) {
-        lastError = error;
-        const message = String(error?.message || '');
-        // A retired/unknown model or bad image will fail everywhere: don't retry it.
-        if (!TRANSIENT_AI.test(message)) break;
-        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 800));
-      }
-    }
-  }
-
-  throw lastError;
-}
-
 export async function POST(req: NextRequest) {
-  const isAdmin = await isAuthenticatedAdmin();
-  if (!isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
-  }
-
+  if (!await isAuthenticatedAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: 'Invalid request.' }, { status: 400 }); }
+  const { imageBase64, mimeType } = body || {};
+  if (typeof imageBase64 !== 'string' || !imageBase64 || imageBase64.length > 1_000_000 || !/^image\/(?:jpeg|png|webp)$/.test(mimeType || '')) return NextResponse.json({ error: 'Choose a readable, resized product photo.' }, { status: 400 });
   try {
-    const { imageBase64, mimeType } = await req.json();
-    if (!imageBase64 || !mimeType) {
-      return NextResponse.json({ error: 'Missing image data' }, { status: 400 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const parts = [
-      { text: PROMPT },
-      { inlineData: { mimeType, data: imageBase64 } },
-    ];
-
-    try {
-      const parsed = await extractSpecs(genAI, parts);
-      return NextResponse.json({ success: true, data: parsed });
-    } catch (error: any) {
-      const message = String(error?.message || 'AI parsing error');
-      if (TRANSIENT_AI.test(message)) {
-        return NextResponse.json(
-          { error: 'The AI is busy right now. Please try again in a moment.' },
-          { status: 503 }
-        );
-      }
-      return NextResponse.json({ error: message }, { status: 500 });
-    }
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'AI parsing error' }, { status: 500 });
-  }
+    const data = JSON.parse(await generateAI([{ text: PROMPT }, { inlineData: { data: imageBase64, mimeType } }], true));
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('The photo could not be read. Enter the details manually.');
+    return NextResponse.json({ success: true, data });
+  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'The photo could not be read. Try again or enter details manually.' }, { status: 503 }); }
 }

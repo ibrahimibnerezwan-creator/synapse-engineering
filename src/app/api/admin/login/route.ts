@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
 import { signToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 export async function POST(request: Request) {
   try {
     const { password } = await request.json();
 
-    const CORRECT_PASSWORD = process.env.ADMIN_PASSWORD || 'admin2026';
+    const correctPassword = process.env.ADMIN_PASSWORD;
+    if (!correctPassword || !process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      return NextResponse.json({ error: 'Seller login is not configured. Contact the site owner.' }, { status: 503 });
+    }
 
-    if (password === CORRECT_PASSWORD || password === 'admin2026' || password === 'admin') {
+    if (typeof password === 'string' && timingSafeEqual(createHash('sha256').update(password).digest(), createHash('sha256').update(correctPassword).digest())) {
       const token = await signToken({ role: 'admin' });
       
       const cookieStore = await cookies();
@@ -24,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: 'Invalid admin password. Default is: admin2026' },
+      { error: 'Invalid admin password.' },
       { status: 401 }
     );
   } catch {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { orders, products } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { isOrderable } from '@/lib/productMedia';
 
 export async function POST(req: NextRequest) {
   let body;
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest) {
   }
   try {
     const [product] = await db.select().from(products).where(eq(products.id, Number(productId))).limit(1);
-    if (!product || !product.price || product.price <= 0) return NextResponse.json({ error: 'This product needs a quotation. Please contact the supply desk.' }, { status: 400 });
-    const amount = product.price * qty;
+    if (!product || !isOrderable(product)) return NextResponse.json({ error: 'This product needs a quotation. Please contact the supply desk.' }, { status: 400 });
+    const amount = Number(product.price) * qty;
     // Never trust a price submitted by the browser. Ask the customer to review a changed price.
     if (Number(productAmount) !== amount) return NextResponse.json({ error: 'The product price has changed. Refresh the page and review the total before ordering.' }, { status: 409 });
     const deliveryCharge = deliveryZone === 'dhaka' ? 70 : deliveryZone === 'suburb' ? 100 : 130;

@@ -1,23 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Printer, Loader2, Package, CheckSquare, Square } from 'lucide-react';
+import { Printer, Loader2, CheckSquare, Square } from 'lucide-react';
 import { Order } from '@/db/schema';
+import { errorText, readJson } from '@/lib/clientApi';
 
 export default function LabelManager() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/orders')
-      .then((r) => r.json())
+      .then((r) => readJson<Order[]>(r))
       .then((data) => {
         if (Array.isArray(data)) {
-          setOrders(data.filter((o) => o.status === 'pending' || o.status === 'confirmed'));
+          setOrders(data.filter((o) => o.status === 'confirmed' || (o.status === 'pending' && o.paymentMethod === 'cod')));
         }
       })
-      .catch(() => {})
+      .catch(cause => setError(errorText(cause)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -56,6 +58,7 @@ export default function LabelManager() {
       </div>
 
       {/* Select Table (hidden when printing) */}
+      {error && <p role="alert" className="p-3 bg-red-50 text-red-800 no-print">{error}</p>}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm no-print">
         {loading ? (
           <div className="p-12 text-center text-gray-400 flex items-center justify-center gap-2">
@@ -70,7 +73,7 @@ export default function LabelManager() {
               <thead className="bg-[#fafaf8] border-b border-gray-200 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="p-3.5 w-10">
-                    <button onClick={selectAll} className="text-gray-500">
+                    <button type="button" aria-label="Select all shipping labels" onClick={selectAll} className="text-gray-500">
                       {selectedIds.length === orders.length ? <CheckSquare size={16} /> : <Square size={16} />}
                     </button>
                   </th>
@@ -89,11 +92,7 @@ export default function LabelManager() {
                     className="hover:bg-gray-50/80 cursor-pointer transition-colors"
                   >
                     <td className="p-3.5">
-                      {selectedIds.includes(o.id) ? (
-                        <CheckSquare size={16} className="text-[#1a3a5c]" />
-                      ) : (
-                        <Square size={16} className="text-gray-300" />
-                      )}
+                      <input type="checkbox" aria-label={`Select label for ${o.invoice}`} checked={selectedIds.includes(o.id)} onClick={event => event.stopPropagation()} onChange={() => toggleSelect(o.id)} />
                     </td>
                     <td className="p-3.5 font-bold mono">#{o.invoice}</td>
                     <td className="p-3.5">
@@ -128,7 +127,7 @@ export default function LabelManager() {
                 </div>
                 <div className="text-right">
                   <div className="text-xs font-bold mono">INVOICE: #{o.invoice}</div>
-                  <div className="text-[10px] text-gray-500">{new Date(o.createdAt).toLocaleDateString()}</div>
+                  <div className="text-[10px] text-gray-500">{new Date(o.createdAt).toLocaleDateString('en-BD', { timeZone: 'Asia/Dhaka' })}</div>
                 </div>
               </div>
 

@@ -14,6 +14,6 @@ export function consumerProducts(products: Product[], group = 'All') {
 export function searchProducts(products: Product[], query: string, category = 'All Products') {
   const needle = query.toLocaleLowerCase().trim();
   return products.filter(product => (category === 'All Products' || product.category === category) &&
-    [product.title, product.titleBn, product.brand, product.modelNo, product.description, product.subCategory]
+    [product.title, product.titleBn, product.brand, product.modelNo, product.description, product.descriptionBn, product.subCategory]
       .some(value => (value || '').toLocaleLowerCase().includes(needle)));
 }

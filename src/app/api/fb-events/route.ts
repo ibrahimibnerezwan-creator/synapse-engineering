@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const clientIp = headersList.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
     const userAgent = headersList.get('user-agent') || '';
 
-    const formattedUserData: any = {
+    const formattedUserData: Record<string, string | string[]> = {
       client_ip_address: clientIp,
       client_user_agent: userAgent,
     };
@@ -66,9 +66,10 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payload),
     });
 
+    if (!response.ok) return NextResponse.json({ success: false, error: 'Analytics delivery failed.' }, { status: 503 });
     const responseData = await response.json();
-    return NextResponse.json({ success: true, data: responseData });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, eventsReceived: responseData.events_received });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Analytics delivery failed.' }, { status: 503 });
   }
 }

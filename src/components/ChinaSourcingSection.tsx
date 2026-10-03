@@ -2,11 +2,32 @@
 
 import React, { useState } from 'react';
 import styles from './storefront.module.css';
+import { errorText, readJson } from '@/lib/clientApi';
 
 export default function ChinaSourcingSection() {
   const [partName, setPartName] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [notes, setNotes] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [reference, setReference] = useState('');
+  const [budget, setBudget] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [receipt, setReceipt] = useState('');
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault(); if (saving) return;
+    setSaving(true); setError('');
+    try {
+      const data = await readJson<{ success: boolean; inquiryNumber: string }>(await fetch('/api/sourcing-inquiry', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientName, phone, companyName, itemName: partName, targetQuantity: Number(quantity), specification: notes, targetBudget: budget, sampleOrPhotoUrl: reference }),
+      }));
+      if (!data.success || !data.inquiryNumber) throw new Error('The request was not saved. Please try again.');
+      setReceipt(data.inquiryNumber);
+    } catch (cause) { setError(errorText(cause)); } finally { setSaving(false); }
+  };
 
   const whatsappText = `Hello Synapse China Sourcing Desk,\n\nI need a quote for:\n• Part/Item: ${partName}\n• Quantity: ${quantity}\n• Notes: ${notes || 'Standard factory quote'}\n\nPlease check availability and factory pricing.`;
 
@@ -43,15 +64,26 @@ export default function ChinaSourcingSection() {
             <p className="kicker">Your sourcing brief</p>
             <h3 className="display text-3xl sm:text-4xl text-[#f3ece3]">Tell Sohel what you need.</h3>
           </div>
-          <form action="https://wa.me/8801886113236" method="get" target="_blank" rel="noopener noreferrer" className="lg:col-span-6 space-y-3">
-            <input type="hidden" name="text" value={whatsappText} />
+          {receipt ? <div className="lg:col-span-6 space-y-4" role="status">
+            <h3 className="display text-3xl text-[#f3ece3]">Your request is saved.</h3>
+            <p className="text-[#f3ece3]">Reference: {receipt}. Sohel will review your requirement and contact you.</p>
+            <a className="btn-copper" href={`https://wa.me/8801886113236?text=${encodeURIComponent(whatsappText + '\nReference: ' + receipt)}`} target="_blank" rel="noopener noreferrer">Discuss on WhatsApp ↗</a>
+            <button type="button" className="btn-ghost text-[#f3ece3]" onClick={() => { setReceipt(''); setPartName(''); setQuantity('1'); setNotes(''); setReference(''); setBudget(''); }}>Send another request</button>
+          </div> : <form onSubmit={submit} className="lg:col-span-6 space-y-3">
+            {error && <p role="alert" className="p-3 bg-red-50 text-red-800 rounded-lg">{error}</p>}
+            <fieldset disabled={saving} className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div><label htmlFor="src-name" className="kicker block mb-1.5 text-[#d4a28a]">Your name *</label><input id="src-name" autoComplete="name" required maxLength={120} value={clientName} onChange={event => setClientName(event.target.value)} className="field sourcing-field" /></div>
+              <div><label htmlFor="src-phone" className="kicker block mb-1.5 text-[#d4a28a]">Phone / WhatsApp *</label><input id="src-phone" autoComplete="tel" type="tel" required maxLength={30} value={phone} onChange={event => setPhone(event.target.value)} placeholder="01XXXXXXXXX" className="field sourcing-field" /></div>
+            </div>
+            <div><label htmlFor="src-company" className="kicker block mb-1.5 text-[#d4a28a]">Company (optional)</label><input id="src-company" maxLength={200} value={companyName} onChange={event => setCompanyName(event.target.value)} className="field sourcing-field" /></div>
             <div>
               <label htmlFor="src-part" className="kicker block mb-1.5 text-[#d4a28a]">
                 Part / gadget
               </label>
               <input
                 id="src-part"
-                required
+                required maxLength={300}
                 value={partName}
                 onChange={(e) => setPartName(e.target.value)}
                 placeholder="S7-1200 or 140W GaN"
@@ -64,7 +96,7 @@ export default function ChinaSourcingSection() {
               </label>
               <input
                 id="src-qty"
-                type="number" min="1" required
+                type="number" min="1" max="1000000" step="1" required
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 className="field sourcing-field"
@@ -76,17 +108,21 @@ export default function ChinaSourcingSection() {
               </label>
               <textarea
                 id="src-notes"
-                rows={2}
+                rows={2} maxLength={5000}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Air, brand, voltage…"
                 className="field sourcing-field"
               />
             </div>
-            <button type="submit" className="btn-copper w-full py-3">
-              Send on WhatsApp
+            <div><label htmlFor="src-reference" className="kicker block mb-1.5 text-[#d4a28a]">Photo, datasheet or product link (optional)</label><input id="src-reference" type="url" maxLength={2048} value={reference} onChange={event => setReference(event.target.value)} placeholder="https://…" className="field sourcing-field" /></div>
+            <div><label htmlFor="src-budget" className="kicker block mb-1.5 text-[#d4a28a]">Target budget (optional)</label><input id="src-budget" maxLength={200} value={budget} onChange={event => setBudget(event.target.value)} className="field sourcing-field" /></div>
+            <button type="submit" disabled={saving} className="btn-copper w-full py-3 disabled:opacity-50">
+              {saving ? 'Saving…' : 'Send sourcing request'}
             </button>
-          </form>
+            <a href={`https://wa.me/8801886113236?text=${encodeURIComponent(whatsappText)}`} target="_blank" rel="noopener noreferrer" className="block text-sm underline text-[#f3ece3]">Or ask directly on WhatsApp ↗</a>
+            </fieldset>
+          </form>}
         </div>
       </div>
     </section>

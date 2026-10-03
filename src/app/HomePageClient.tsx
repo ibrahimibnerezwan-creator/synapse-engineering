@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import BrandsMarquee from '@/components/BrandsMarquee';
@@ -21,6 +21,20 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ initialProducts }: HomePageClientProps) {
+  const [products, setProducts] = useState(initialProducts);
+  useEffect(() => {
+    const controller = new AbortController();
+    const refresh = async () => {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        const response = await fetch('/api/products', { cache: 'no-store', signal: controller.signal });
+        const data = await response.json();
+        if (response.ok && Array.isArray(data.products) && !controller.signal.aborted) setProducts(data.products);
+      } catch { /* Keep the rendered catalogue usable if a background refresh fails. */ }
+    };
+    window.addEventListener('focus', refresh);
+    return () => { window.removeEventListener('focus', refresh); controller.abort(); };
+  }, []);
   const [rfqOpen, setRfqOpen] = useState(false);
   const [selectedProductForRFQ, setSelectedProductForRFQ] = useState('');
   const [checkoutProduct, setCheckoutProduct] = useState<Product | null>(null);
@@ -40,13 +54,13 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
         <BrandsMarquee />
         <CorePillars onOpenRFQ={handleOpenRFQ} />
         <ConsumerPicks
-          products={initialProducts}
+          products={products}
           onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
         />
         <PartSearchGrid
           key={searchRequest.revision}
-          initialProducts={initialProducts}
+          initialProducts={products}
           onOpenCheckout={setCheckoutProduct}
           onOpenRFQ={handleOpenRFQ}
           searchRequest={searchRequest}

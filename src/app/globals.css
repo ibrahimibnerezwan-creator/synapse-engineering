@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+.print-only { display: none; }
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: grid !important; grid-template-columns: 1fr 1fr; }
+  .print-only > div { break-inside: avoid; }
+  .admin-shell { padding: 0 !important; background: white !important; }
+  body { background: white !important; }
+}
+
 @layer base {
   :root {
     --surface: #fffdf8;

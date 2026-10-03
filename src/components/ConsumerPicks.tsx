@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Product } from '@/db/schema';
 import { CONSUMER_FILTERS } from '@/lib/productGroups';
 import { consumerProducts } from '@/lib/storefront';
+import { isOrderable } from '@/lib/productMedia';
 import { GroupChip } from './GroupChip';
 import ProductImage from './ProductImage';
 import styles from './storefront.module.css';
@@ -13,7 +14,7 @@ interface Props { products: Product[]; onOpenCheckout?: (product: Product) => vo
 
 export default function ConsumerPicks({ products, onOpenCheckout, onOpenRFQ }: Props) {
   const [category, setCategory] = useState('All');
-  const filtered = consumerProducts(products, category);
+  const filtered = consumerProducts(products, category).filter(product => product.featured === 1);
   return (
     <section id="consumer-gadgets" className={`${styles.section} ${styles.consumer}`}>
       <div className={styles.shell}>
@@ -31,10 +32,10 @@ export default function ConsumerPicks({ products, onOpenCheckout, onOpenRFQ }: P
             <div className={styles.productInfo}>
               <div className="flex flex-wrap items-center gap-2"><GroupChip category={item.category} subCategory={item.subCategory} /></div>
               <h3><Link href={`/products/${item.slug}`}>{item.title}</Link></h3>
-              <p className={styles.productBrand}>{item.brand}</p>
+              <p className={styles.productBrand}>{item.brand} · {item.stockStatus}</p>
               <div className={styles.productActions}>
-                <p className={styles.price}>{Number(item.price) > 0 ? `৳${Number(item.price).toLocaleString('en-BD')}` : 'Request price'}</p>
-                {Number(item.price) > 0 ? <button type="button" onClick={() => onOpenCheckout?.(item)} className="btn-copper">Order now</button>
+                <p className={styles.price}>{item.priceType !== 'quote' && Number(item.price) > 0 ? `৳${Number(item.price).toLocaleString('en-BD')}` : 'Request price'}</p>
+                {isOrderable(item) ? <button type="button" onClick={() => onOpenCheckout?.(item)} className="btn-copper">Order now</button>
                   : <button type="button" onClick={() => onOpenRFQ?.(item.title)} className="btn-ink">Get a quote</button>}
               </div>
             </div>

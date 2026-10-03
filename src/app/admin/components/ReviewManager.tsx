@@ -1,100 +1,49 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Loader2, MessageSquare, RefreshCw } from 'lucide-react';
-import { RFQ } from '@/db/schema';
+import { useCallback, useEffect, useState } from 'react';
+import { Loader2, RefreshCw } from 'lucide-react';
+import type { RFQ } from '@/db/schema';
+import { RFQ_STATUSES } from '@/lib/workflow';
+import { errorText, readJson, whatsappPhone } from '@/lib/clientApi';
 
 export default function ReviewManager() {
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [revision, setRevision] = useState(0);
+  const [busy, setBusy] = useState<number | null>(null);
+  const [notes, setNotes] = useState<Record<number, string>>({});
+  const load = useCallback((signal?: AbortSignal) => fetch('/api/admin/rfqs', { cache: 'no-store', signal })
+    .then(response => readJson<{ rfqs: RFQ[] }>(response))
+    .then(data => {
+      if (!Array.isArray(data.rfqs)) throw new Error('The quotation list could not be read.');
+      if (signal?.aborted) return;
+      setError('');
+      setRfqs(data.rfqs); setNotes(Object.fromEntries(data.rfqs.map(rfq => [rfq.id, rfq.adminNotes || ''])));
+    })
+    .catch(cause => { if (!signal?.aborted) setError(errorText(cause)); })
+    .finally(() => { if (!signal?.aborted) setLoading(false); }), []);
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/admin/rfqs', { signal: controller.signal })
-      .then(async response => {
-        const data = await response.json();
-        if (!response.ok || !Array.isArray(data.rfqs)) throw new Error(data.error || 'Could not load quotation requests.');
-        return data.rfqs as RFQ[];
-      })
-      .then(data => { if (!controller.signal.aborted) { setRfqs(data); setError(''); } })
-      .catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Could not load quotation requests. Try refreshing.'); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    void load(controller.signal);
     return () => controller.abort();
-  }, [revision]);
-
-  return (
-    <div className="space-y-6 text-left">
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-[#1a1a1a]">Quotation Requests (RFQs)</h2>
-          <p className="text-xs text-gray-500">Incoming B2B factory inquiries and quotation submissions.</p>
-        </div>
-        <button
-          onClick={() => { setLoading(true); setError(''); setRevision(value => value + 1); }}
-          className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition"
-        >
-          <RefreshCw size={14} />
-          <span>Refresh</span>
-        </button>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-        {loading ? (
-          <div className="p-12 text-center text-gray-400 flex items-center justify-center gap-2">
-            <Loader2 className="animate-spin" size={18} />
-            <span>Loading quotation requests...</span>
-          </div>
-        ) : error ? (
-          <p role="alert" className="p-6 text-sm text-red-700">{error}</p>
-        ) : rfqs.length === 0 ? (
-          <div className="p-12 text-center text-gray-400 text-xs">No RFQ requests received yet.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-[#fafaf8] border-b border-gray-200 text-gray-600 font-bold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="p-3.5">RFQ #</th>
-                  <th className="p-3.5">Client & Company</th>
-                  <th className="p-3.5">Requested Product / Part</th>
-                  <th className="p-3.5">Qty</th>
-                  <th className="p-3.5">Requirements / Notes</th>
-                  <th className="p-3.5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {rfqs.map((r) => (
-                  <tr key={r.id} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="p-3.5 font-bold mono text-[#1a1a1a]">#{r.rfqNumber}</td>
-                    <td className="p-3.5">
-                      <div className="font-bold text-[#1a1a1a]">{r.contactName}</div>
-                      <div className="text-gray-500">{r.companyName || 'Private / Mill'}</div>
-                      <div className="text-[11px] text-gray-400 mono">{r.phone}</div>
-                    </td>
-                    <td className="p-3.5 font-bold text-[#1a1a1a]">{r.productTitle}</td>
-                    <td className="p-3.5 font-medium">{r.quantity}</td>
-                    <td className="p-3.5 text-gray-600 max-w-xs truncate">{r.projectRequirement || 'N/A'}</td>
-                    <td className="p-3.5 text-right">
-                      <a
-                        href={`https://wa.me/${r.phone.replace(/[^0-9]/g, '').replace(/^01/, '8801')}?text=${encodeURIComponent(
-                          `Hello ${r.contactName}, regarding your quotation request #${r.rfqNumber} for ${r.productTitle}...`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg inline-flex items-center gap-1 font-bold text-[11px]"
-                      >
-                        <MessageSquare size={13} />
-                        <span>Send Quote</span>
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  }, [load]);
+  const refresh = () => { setLoading(true); setError(''); void load(); };
+  const update = async (id: number, change: { status?: string; adminNotes?: string }) => {
+    setBusy(id); setError('');
+    try {
+      const data = await readJson<{ rfq: RFQ }>(await fetch('/api/admin/rfqs', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, ...change }) }));
+      if (!data.rfq) throw new Error('The quotation was not updated.');
+      setRfqs(previous => previous.map(item => item.id === id ? data.rfq : item));
+    } catch (cause) { setError(errorText(cause)); } finally { setBusy(null); }
+  };
+  return <section className="space-y-4">
+    <div className="flex justify-between items-center gap-3 flex-wrap"><div><h2 className="text-2xl font-bold">Quotation requests</h2><p className="text-sm text-gray-600">Follow each request from first contact to completion.</p></div><button type="button" onClick={refresh} disabled={loading || busy !== null} className="btn-ghost"><RefreshCw size={16} />Refresh</button></div>
+    {error && <p role="alert" className="p-3 bg-red-50 text-red-800 rounded-lg">{error}</p>}
+    {loading ? <p className="p-10 flex justify-center gap-2"><Loader2 size={18} className="animate-spin" />Loading quotations…</p> : !rfqs.length && !error ? <p className="p-10 bg-white border rounded-xl">No quotation requests received yet.</p> : rfqs.map(rfq => <article key={rfq.id} className="p-5 bg-white border rounded-xl space-y-3">
+      <div className="flex justify-between flex-wrap gap-3"><div><p className="text-sm text-gray-500">{rfq.rfqNumber}</p><h3 className="text-lg font-semibold">{rfq.productTitle}</h3><p>{rfq.contactName}{rfq.companyName ? ' · ' + rfq.companyName : ''}</p><a href={'tel:' + rfq.phone} className="text-sm underline">{rfq.phone}</a>{rfq.email && <p className="text-sm">{rfq.email}</p>}</div><div><label htmlFor={'rfq-status-' + rfq.id} className="sr-only">Status for {rfq.rfqNumber}</label><select id={'rfq-status-' + rfq.id} value={rfq.status || 'new'} disabled={busy !== null} onChange={event => update(rfq.id, { status: event.target.value })} className="border rounded-lg p-3 bg-white">{RFQ_STATUSES.map(status => <option key={status}>{status}</option>)}</select></div></div>
+      <p className="text-sm">Quantity: {rfq.quantity || 1}</p><p className="text-sm text-gray-700 whitespace-pre-wrap break-words">{rfq.projectRequirement || 'No additional requirement.'}</p>
+      <div><label htmlFor={'rfq-note-' + rfq.id} className="block text-sm font-semibold mb-1">Seller notes</label><textarea id={'rfq-note-' + rfq.id} rows={2} maxLength={2000} value={notes[rfq.id] || ''} onChange={event => setNotes(previous => ({ ...previous, [rfq.id]: event.target.value }))} className="w-full border rounded-lg p-3 text-base" /></div>
+      <div className="flex gap-3 flex-wrap"><button type="button" onClick={() => update(rfq.id, { adminNotes: notes[rfq.id] || '' })} disabled={busy !== null} className="btn-ink">{busy === rfq.id ? 'Saving…' : 'Save notes'}</button><a href={'https://wa.me/' + whatsappPhone(rfq.phone) + '?text=' + encodeURIComponent('Hello ' + rfq.contactName + ', regarding your quotation request ' + rfq.rfqNumber + ' for ' + rfq.productTitle)} target="_blank" rel="noopener noreferrer" className="btn-jade">Send quote on WhatsApp ↗</a></div>
+    </article>)}
+  </section>;
 }

@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Loader2, Sparkles, ImagePlus, Send, X, CheckCircle2 } from 'lucide-react';
 import { Product } from '@/db/schema';
+import { errorText, readJson } from '@/lib/clientApi';
+import { inlineImage, prepareImage } from '@/lib/clientImage';
+import { DELIVERY_CHARGES } from '@/lib/workflow';
 
 export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => void }) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,6 +22,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
   const [address, setAddress] = useState('');
   const [productId, setProductId] = useState('');
   const [amount, setAmount] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash' | 'nagad'>('cod');
   const [trxId, setTrxId] = useState('');
   const [deliveryZone, setDeliveryZone] = useState<'dhaka' | 'suburb' | 'outside'>('outside');
@@ -26,25 +30,12 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
 
   useEffect(() => {
     fetch('/api/admin/products')
-      .then((r) => r.json())
+      .then((r) => readJson<{ products: Product[] }>(r))
       .then((data) => {
-        if (Array.isArray(data)) setProducts(data);
+        if (Array.isArray(data.products)) setProducts(data.products);
       })
-      .catch(() => {});
+      .catch(error => setMsg({ kind: 'err', text: errorText(error) }));
   }, []);
-
-  const fileToBase64 = (file: File): Promise<{ base64: string; mimeType: string }> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = String(reader.result || '');
-        const [meta, base64] = result.split(',');
-        const mimeType = meta.match(/data:([^;]+)/)?.[1] || file.type || 'image/jpeg';
-        resolve({ base64, mimeType });
-      };
-      reader.onerror = () => reject(new Error('File read failed'));
-      reader.readAsDataURL(file);
-    });
 
   const handleExtract = async () => {
     if (!rawText && !screenshot) {
@@ -54,20 +45,19 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
     setIsExtracting(true);
     setMsg(null);
     try {
-      const body: any = {};
+      const body: { text?: string; imageBase64?: string; mimeType?: string } = {};
       if (rawText) body.text = rawText;
       if (screenshot) {
-        const { base64, mimeType } = await fileToBase64(screenshot);
-        body.imageBase64 = base64;
-        body.mimeType = mimeType;
+        const photo = await prepareImage(screenshot, 'image/jpeg', 600_000);
+        body.imageBase64 = await inlineImage(photo);
+        body.mimeType = photo.type;
       }
       const res = await fetch('/api/admin/parse-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Extract failed');
+      const data = await readJson<{ name?: string; phone?: string; address?: string; amountHint?: number; paymentMethod?: 'cod' | 'bkash' | 'nagad'; deliveryZone?: 'dhaka' | 'suburb' | 'outside'; productHint?: string }>(res);
 
       if (data.name) setName(data.name);
       if (data.phone) setPhone(data.phone);
@@ -82,8 +72,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         const hint = String(data.productHint).toLowerCase();
         const guess = products.find(
           (p) =>
-            p.title.toLowerCase().includes(hint) ||
-            hint.includes(p.title.toLowerCase().split(' ')[0])
+            (p.modelNo && hint.includes(p.modelNo.toLowerCase())) || hint === p.title.toLowerCase() || hint.includes(p.title.toLowerCase())
         );
         if (guess) {
           setProductId(String(guess.id));
@@ -93,8 +82,8 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         }
       }
       setMsg({ kind: 'ok', text: 'AI extraction completed — review and adjust below' });
-    } catch (err: any) {
-      setMsg({ kind: 'err', text: `Extract failed: ${err?.message || 'unknown'}` });
+    } catch (err: unknown) {
+      setMsg({ kind: 'err', text: errorText(err) });
     } finally {
       setIsExtracting(false);
     }
@@ -103,9 +92,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
   const handleProductSelect = (idStr: string) => {
     setProductId(idStr);
     const selected = products.find((p) => String(p.id) === idStr);
-    if (selected && selected.price) {
-      setAmount(String(selected.price));
-    }
+    setAmount(selected?.price ? String(selected.price) : '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,15 +112,16 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           phone,
           address,
           productId,
-          amount: amount ? parseInt(amount) : undefined,
+          amount: amount ? Number(amount) : undefined,
+          quantity,
           paymentMethod,
           trxId: paymentMethod === 'cod' ? null : trxId,
           deliveryZone,
           note
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Save failed');
+      const data = await readJson<{ success: boolean; invoice: string; trackingCode?: string }>(res);
+      if (!data.success || !data.invoice) throw new Error('The order was not saved.');
 
       setMsg({
         kind: 'ok',
@@ -150,12 +138,13 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
       setAddress('');
       setProductId('');
       setAmount('');
+      setQuantity(1);
       setTrxId('');
       setNote('');
       setProductHint('');
       onOrderCreated?.();
-    } catch (err: any) {
-      setMsg({ kind: 'err', text: `Save failed: ${err?.message || 'unknown'}` });
+    } catch (err: unknown) {
+      setMsg({ kind: 'err', text: errorText(err) });
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +157,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
         Quick Order (FB / WhatsApp)
       </h2>
       <p className="text-xs text-gray-500 mb-5">
-        Paste the customer's message OR upload a screenshot. AI fills the form. Review and save.
+        Paste the customer’s message OR upload a screenshot. AI fills the form. Review and save.
       </p>
 
       {/* Step 1: Paste / Upload */}
@@ -293,11 +282,13 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           </select>
         </div>
 
+        <div><label htmlFor="quick-quantity" className="block text-sm font-semibold mb-1">Quantity</label><input id="quick-quantity" type="number" min="1" max="20" step="1" required value={quantity} onChange={event => setQuantity(Number(event.target.value))} className="w-full p-3 border rounded-xl text-base" /></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">Amount (৳)</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Unit price (৳)</label>
             <input
               type="number"
+              required min="1" step="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="auto from product"
@@ -309,7 +300,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
             <label className="block text-xs font-bold text-gray-700 mb-1">Delivery zone</label>
             <select
               value={deliveryZone}
-              onChange={(e) => setDeliveryZone(e.target.value as any)}
+              onChange={(e) => setDeliveryZone(e.target.value as keyof typeof DELIVERY_CHARGES)}
               className="w-full p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-[#1a3a5c] outline-none bg-white"
             >
               <option value="dhaka">Inside Dhaka (৳70)</option>
@@ -322,7 +313,7 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
             <label className="block text-xs font-bold text-gray-700 mb-1">Payment</label>
             <select
               value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value as any)}
+              onChange={(e) => setPaymentMethod(e.target.value as 'cod' | 'bkash' | 'nagad')}
               className="w-full p-2.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-[#1a3a5c] outline-none bg-white"
             >
               <option value="cod">COD</option>
@@ -334,9 +325,10 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
 
         {paymentMethod !== 'cod' && (
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1">bKash/Nagad TrxID</label>
+            <label className="block text-xs font-bold text-gray-700 mb-1">bKash/Nagad TrxID *</label>
             <input
               type="text"
+              required maxLength={120}
               value={trxId}
               onChange={(e) => setTrxId(e.target.value)}
               placeholder="e.g. BL9A27D9X"
@@ -356,13 +348,14 @@ export default function QuickOrder({ onOrderCreated }: { onOrderCreated?: () => 
           />
         </div>
 
+        <p className="p-3 bg-gray-50 rounded-xl text-sm">Order total: ৳{(Number(amount || 0) * quantity + DELIVERY_CHARGES[deliveryZone]).toLocaleString('en-BD')} including ৳{DELIVERY_CHARGES[deliveryZone]} delivery. Courier booking is manual.</p>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isExtracting}
           className="w-full py-3.5 bg-[#0f2d3a] hover:bg-[#091d26] disabled:opacity-50 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-md"
         >
           {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          <span>Save Order + Send to Steadfast</span>
+          <span>Save order for manual dispatch</span>
         </button>
       </form>
     </div>

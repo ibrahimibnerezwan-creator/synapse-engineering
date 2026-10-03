@@ -6,6 +6,7 @@ import { ArrowUpRight, Search } from 'lucide-react';
 import type { Product } from '@/db/schema';
 import { CATEGORY_ORDER, groupTone } from '@/lib/productGroups';
 import { searchProducts } from '@/lib/storefront';
+import { isOrderable } from '@/lib/productMedia';
 import ProductImage from './ProductImage';
 import styles from './storefront.module.css';
 
@@ -59,8 +60,8 @@ export default function PartSearchGrid({ initialProducts, onOpenCheckout, onOpen
             {group.items.map(product => <article key={product.id} className={styles.catalogRow}>
               <Link href={`/products/${product.slug}`} className={styles.catalogThumb} aria-label={`View ${product.title}`}><ProductImage product={product} /></Link>
               <div className={styles.catalogDescription}><h3><Link href={`/products/${product.slug}`}>{product.title}</Link></h3><p>{product.modelNo || product.brand}{product.subCategory ? ` / ${product.subCategory}` : ''}</p></div>
-              <div className={styles.catalogPrice}>{Number(product.price) > 0 ? `৳${Number(product.price).toLocaleString('en-BD')}` : 'On request'}<span className={styles.stock}>{product.stockStatus}</span></div>
-              <div className={styles.catalogAction}>{Number(product.price) > 0 ? <button type="button" onClick={() => onOpenCheckout?.(product)} className="btn-copper">Order</button> : <button type="button" onClick={() => onOpenRFQ?.(product.title)} className="btn-ink">Quote</button>}<Link href={`/products/${product.slug}`} className={styles.detailLink} aria-label={`Details for ${product.title}`}><ArrowUpRight size={18} /></Link></div>
+              <div className={styles.catalogPrice}>{product.priceType !== 'quote' && Number(product.price) > 0 ? `৳${Number(product.price).toLocaleString('en-BD')}` : 'On request'}<span className={styles.stock}>{product.stockStatus}</span></div>
+              <div className={styles.catalogAction}>{isOrderable(product) ? <button type="button" onClick={() => onOpenCheckout?.(product)} className="btn-copper">Order</button> : <button type="button" onClick={() => onOpenRFQ?.(product.title)} className="btn-ink">Quote</button>}<Link href={`/products/${product.slug}`} className={styles.detailLink} aria-label={`Details for ${product.title}`}><ArrowUpRight size={18} /></Link></div>
             </article>)}
           </div>;
         })}

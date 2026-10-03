@@ -73,7 +73,7 @@ export default function CheckoutModal({ product, onClose }: CheckoutModalProps) 
       });
 
       const data = await res.json();
-      if (!res.ok || data.error) {
+      if (!res.ok || data.error || !data.success || !data.invoice) {
         throw new Error(data.error || 'Failed to place order');
       }
 

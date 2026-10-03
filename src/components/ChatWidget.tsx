@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Send, X } from 'lucide-react';
+import { readJson } from '@/lib/clientApi';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -38,7 +39,7 @@ export default function ChatWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userText, history: newMessages.slice(-6) })
       });
-      const data = await res.json();
+      const data = await readJson<{ reply: string }>(res);
       setMessages((prev) => [
         ...prev,
         {
@@ -69,7 +70,7 @@ export default function ChatWidget() {
         </button>
       )}
       {isOpen && (
-        <div className="w-[min(100vw-2rem,380px)] h-[520px] bg-[#fffdf8] border border-[rgba(28,22,18,0.18)] flex flex-col shadow-2xl">
+        <div role="dialog" aria-label="Desk advisor" className="w-[min(calc(100vw-2.5rem),380px)] h-[min(520px,calc(100svh-100px))] bg-[#fffdf8] border border-[rgba(28,22,18,0.18)] flex flex-col shadow-2xl">
           <div className="p-3.5 night flex justify-between items-center">
             <div>
               <p className="text-xs font-medium text-[#f3ece3]">Desk advisor</p>
@@ -106,6 +107,7 @@ export default function ChatWidget() {
             </label>
             <input
               id="chat-input"
+              maxLength={2000}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="PLC, battery, gadget…"

@@ -45,8 +45,8 @@ async function seed() {
         createdAt: prod.createdAt
       });
       console.log(`✓ Seeded: ${prod.title}`);
-    } catch (e: any) {
-      console.log(`Item already exists or error: ${e.message}`);
+    } catch (e: unknown) {
+      console.log(`Item already exists or error: ${e instanceof Error ? e.message : 'Unknown error'}`);
     }
   }
 
