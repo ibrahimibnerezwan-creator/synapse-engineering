@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getAllProducts, getProductBySlug } from '@/lib/data';
 import ProductDetailClient from './ProductDetailClient';
+import { productPhoto } from '@/lib/productMedia';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) {
     return { title: 'Product Not Found | Synapse Engineering' };
   }
+  const photo = productPhoto(product);
 
   return {
     title: `${product.title} (${product.brand}) | Synapse Engineering`,
@@ -26,7 +28,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       url: '/products/' + product.slug,
       title: `${product.title} | ${product.brand}`,
       description: product.description.slice(0, 160),
-      images: [{ url: product.primaryImage }],
+      images: [{ url: photo.source || '/hero/factory-panel.jpg', alt: !photo.source ? 'Synapse industrial supply — product photo on request' : photo.illustration ? 'Product use-case illustration' : product.title }],
     },
   };
 }

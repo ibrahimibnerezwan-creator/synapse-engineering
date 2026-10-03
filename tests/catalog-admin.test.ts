@@ -6,7 +6,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createClient, type Client } from '@libsql/client';
-import { displayProduct, imagePath, isOrderable, parseGallery } from '../src/lib/productMedia';
+import { displayProduct, imagePath, isOrderable, parseGallery, productPhoto } from '../src/lib/productMedia';
 import type { Product } from '../src/db/schema';
 
 (globalThis as unknown as { AsyncLocalStorage: typeof AsyncLocalStorage }).AsyncLocalStorage = AsyncLocalStorage;
@@ -142,7 +142,7 @@ test('Editing keeps product identity, inline photos and all optional fields whil
   created = updated;
 });
 test('Bad specs, prices, category, gallery and unsafe URLs cannot publish a product', async () => {
-  for (const change of [{ specs: 'bad-json' }, { specs: '[]' }, { specs: '{"x":{}}' }, { price: -1 }, { price: 1.5 }, { price: 0, priceType: 'fixed' }, { category: 'missing' }, { primaryImage: 'javascript:alert(1)' }, { additionalImages: Array(6).fill(png) }]) {
+  for (const change of [{ specs: 'bad-json' }, { specs: '[]' }, { specs: '{"x":{}}' }, { price: -1 }, { price: 1.5 }, { price: 0, priceType: 'fixed' }, { category: 'missing' }, { primaryImage: 'javascript:alert(1)' }, { primaryImage: 'blob:https://storefront.invalid/expired-photo' }, { additionalImages: Array(6).fill(png) }]) {
     assert.equal((await invoke(() => admin.POST(request('/api/admin/products', 'POST', { ...draft, ...change })))).status, 400);
   }
   assert.equal((await data.getAllProducts()).length, 1);
@@ -162,6 +162,16 @@ test('Broken legacy gallery JSON degrades to an empty gallery without losing the
   await client.execute({ sql: 'UPDATE products SET additional_images=? WHERE id=?', args: ['broken-json', created.id] });
   const [product] = await data.getAllProducts();
   assert.deepEqual(parseGallery(product.additionalImages), []);
+});
+test('A legacy temporary browser photo must be replaced with a stored photo', async () => {
+  await client.execute({ sql: 'UPDATE products SET primary_image=? WHERE id=?', args: ['blob:https://storefront.invalid/expired-photo', created.id] });
+  const [legacy] = await data.getAllProducts();
+  const failed = await invoke(() => admin.PATCH(request('/api/admin/products', 'PATCH', legacy)));
+  assert.equal(failed.status, 400);
+  assert.match((await failed.json()).error, /temporary browser photo/);
+  const fixed = await invoke(() => admin.PATCH(request('/api/admin/products', 'PATCH', { ...legacy, primaryImage: png })));
+  assert.equal(fixed.status, 200);
+  assert.equal((await client.execute({ sql: 'SELECT primary_image FROM products WHERE id=?', args: [created.id] })).rows[0].primary_image, png);
 });
 test('Upload validates photos and preserves a small photo when R2 is unconfigured', async () => {
   const form = new FormData();
@@ -190,6 +200,7 @@ test('Sourcing receipts represent saved inquiries, reachable only by the seller'
   assert.equal((await sourcing.POST(request('/api/sourcing-inquiry', 'POST', { clientName: '', phone: 'bad', itemName: 'Module' }))).status, 400);
 });
 test('Manual orders use agreed prices and quantities without inventing courier tracking or confirmed payment', async () => {
+  assert.equal((await invoke(() => manual.POST(request('/api/admin/manual-order', 'POST', { name: 'Fixture buyer', phone: '01700000000', address: 'Fixture address', productId: created.id, amount: Number.MAX_SAFE_INTEGER })))).status, 400);
   const response = await invoke(() => manual.POST(request('/api/admin/manual-order', 'POST', { name: 'Fixture buyer', phone: '01700000000', address: 'Fixture address', productId: created.id, quantity: 2, amount: 700, deliveryZone: 'dhaka', paymentMethod: 'bkash', trxId: 'FIXTURE-TRX' })));
   assert.equal(response.status, 200);
   const receipt = await response.json();
@@ -208,6 +219,11 @@ test('Delete works with the client URL and does not resurrect the deleted produc
   assert.equal(await data.getProductBySlug(created.slug), null);
   assert.deepEqual(await data.getAllProducts(), []);
   assert.equal((await invoke(() => admin.DELETE(request('/api/admin/products?id=' + created.id, 'DELETE')))).status, 404);
+});
+test('Public and sharing images use the same illustration and do not request expired photo URLs', () => {
+  assert.deepEqual(productPhoto({ ...created, primaryImage: 'https://images.unsplash.com/old-stock-photo', category: 'Consumer Tech & Gadgets', subCategory: 'Charging & Cables' }), { source: '/hero/home-gan.jpg', illustration: true });
+  assert.equal(productPhoto({ ...created, primaryImage: 'blob:https://storefront.invalid/expired' }).source, '');
+  assert.equal(productPhoto({ ...created, primaryImage: 'https://synapse-engneering.com/wp-content/uploads/old-photo.png' }).source, '');
 });
 test('Photo versions change with replacement data while stored product identity stays stable', () => {
   assert.notEqual(imagePath(1, undefined, png), imagePath(1, undefined, png + 'AAAA'));

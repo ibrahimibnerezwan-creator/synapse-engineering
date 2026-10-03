@@ -13,6 +13,7 @@ function text(value: unknown, label: string, max: number, required = false) {
 }
 
 function safeUrl(source: string, label: string, image = false) {
+  if (source.startsWith('blob:')) throw new Error('This is a temporary browser photo link. Upload the photo again before saving.');
   if (image && /^data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(source)) {
     if (source.length > Math.ceil(MAX_UPLOAD_BYTES * 4 / 3) + 100) throw new Error('This photo is too large. Select it again to resize it.');
     return source;
@@ -50,7 +51,7 @@ export function productInput(body: Record<string, unknown>, current?: Product) {
   let primaryImage = text(body.primaryImage, 'Primary image', MAX_INLINE_MEDIA_LENGTH, true);
   if (current && isImageProxy(primaryImage, current.id)) primaryImage = current.primaryImage;
   // Existing large photos remain editable without forcing a destructive re-upload.
-  if (!current || primaryImage !== current.primaryImage) safeUrl(primaryImage, 'Primary image', true);
+  if (!current || primaryImage !== current.primaryImage || !primaryImage.startsWith('data:image/')) safeUrl(primaryImage, 'Primary image', true);
   let gallery: unknown = body.additionalImages ?? [];
   if (typeof gallery === 'string') {
     try { gallery = JSON.parse(gallery || '[]'); } catch { throw new Error('Additional photos must be a valid list.'); }

@@ -7,7 +7,7 @@ import { ExternalLink, ImagePlus, Loader2, Pencil, Plus, RefreshCw, Search, Spar
 import type { Product } from '@/db/schema';
 import { CATEGORY_ORDER } from '@/lib/productGroups';
 import { STOCK_STATUSES } from '@/lib/productInput';
-import { parseGallery, parseSpecs } from '@/lib/productMedia';
+import { isLegacyMedia, parseGallery, parseSpecs } from '@/lib/productMedia';
 import { errorText, readJson } from '@/lib/clientApi';
 import { inlineImage, prepareImage } from '@/lib/clientImage';
 import ProductImage from '@/components/ProductImage';
@@ -39,6 +39,8 @@ export default function ProductManager() {
   const [formError, setFormError] = useState('');
   const [formNotice, setFormNotice] = useState('');
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [unavailablePhotos, setUnavailablePhotos] = useState<number[]>([]);
+  const photoFailed = (id: number) => setUnavailablePhotos(previous => previous.includes(id) ? previous : [...previous, id]);
 
   const loadProducts = useCallback((signal?: AbortSignal) => fetch('/api/admin/products', { cache: 'no-store', signal })
     .then(response => readJson<{ products: Product[] }>(response))
@@ -127,6 +129,7 @@ export default function ProductManager() {
         body: JSON.stringify({ ...draft, id: editing?.id, price: Number(draft.price), featured: draft.featured ? 1 : 0, displayOrder: Number(draft.displayOrder), primaryImage, additionalImages, specs }),
       }));
       if (!result.success || !result.product) throw new Error('The product was not saved. Please try again.');
+      setUnavailablePhotos(previous => previous.filter(id => id !== result.product.id));
       setProducts(previous => [...previous.filter(item => item.id !== result.product.id), result.product].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0) || b.id - a.id));
       setMessage(editing ? 'Product updated. The store now uses these details.' : 'Product published and available in the catalogue.');
       setOpen(false);
@@ -166,8 +169,8 @@ export default function ProductManager() {
     {loading ? <p className="p-12 flex justify-center gap-2"><Loader2 className="animate-spin" size={20} />Loading products…</p>
       : !filtered.length && !loadError ? <p className="p-10 border rounded-lg bg-white">No products match. Clear the filters or add your first product.</p>
       : <div className="grid gap-3">{filtered.map(product => <article key={product.id} className="bg-white border border-gray-200 rounded-xl p-4 flex gap-4 flex-wrap sm:flex-nowrap">
-        <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg bg-gray-50"><ProductImage product={product} /></div>
-        <div className="flex-1 min-w-0"><h3 className="font-semibold break-words">{product.title}</h3><p className="text-sm text-gray-500 break-words">{product.brand}{product.modelNo ? ' · ' + product.modelNo : ''}</p><p className="text-sm text-gray-600">{product.category}{product.subCategory ? ' / ' + product.subCategory : ''}</p><div className="flex flex-wrap gap-x-4 text-sm mt-2"><strong>{product.priceType === 'fixed' && Number(product.price) > 0 ? '৳' + Number(product.price).toLocaleString('en-BD') : 'Quotation'}</strong><span>{product.stockStatus}</span><span>Order: {product.displayOrder || 0}</span>{product.featured === 1 && <span className="text-emerald-700">Featured</span>}</div></div>
+        <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg bg-gray-50"><ProductImage product={product} onUnavailable={photoFailed} /></div>
+        <div className="flex-1 min-w-0"><h3 className="font-semibold break-words">{product.title}</h3>{(unavailablePhotos.includes(product.id) || isLegacyMedia(product.primaryImage)) && <p className="mt-1 text-sm text-amber-800">Photo unavailable. Edit this product and upload a replacement.</p>}<p className="text-sm text-gray-500 break-words">{product.brand}{product.modelNo ? ' · ' + product.modelNo : ''}</p><p className="text-sm text-gray-600">{product.category}{product.subCategory ? ' / ' + product.subCategory : ''}</p><div className="flex flex-wrap gap-x-4 text-sm mt-2"><strong>{product.priceType === 'fixed' && Number(product.price) > 0 ? '৳' + Number(product.price).toLocaleString('en-BD') : 'Quotation'}</strong><span>{product.stockStatus}</span><span>Order: {product.displayOrder || 0}</span>{product.featured === 1 && <span className="text-emerald-700">Featured</span>}</div></div>
         <div className="flex sm:flex-col gap-2 ml-auto"><button type="button" onClick={() => start(product)} className="btn-ghost" aria-label={'Edit ' + product.title}><Pencil size={16} />Edit</button><Link href={'/products/' + product.slug} target="_blank" rel="noopener noreferrer" className="btn-ghost" aria-label={'View ' + product.title + ' in store'}><ExternalLink size={16} />View</Link><button type="button" disabled={deleting !== null} onClick={() => remove(product)} className="px-3 py-2 flex items-center justify-center gap-2 text-red-700 border border-red-200 rounded-lg" aria-label={'Delete ' + product.title}>{deleting === product.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}Delete</button></div>
       </article>)}</div>}
     {open && <Modal onClose={close} labelledBy="product-editor-title" wide>
@@ -175,11 +178,12 @@ export default function ProductManager() {
         <div className="flex justify-between items-center mb-5"><h2 id="product-editor-title" className="text-xl font-bold">{editing ? 'Edit product' : 'Add product'}</h2><button type="button" onClick={close} disabled={saving || extracting} className="p-2" aria-label="Close product editor"><X size={22} /></button></div>
         <form onSubmit={save} className="space-y-5">
           {formError && <p role="alert" className="p-3 bg-red-50 text-red-800 rounded-lg">{formError}</p>}
+          {editing && (unavailablePhotos.includes(editing.id) || isLegacyMedia(editing.primaryImage)) && <p className="p-3 bg-amber-50 text-amber-900 rounded-lg">The existing product photo could not be loaded. Select a replacement photo before saving.</p>}
           {formNotice && <p role="status" className="p-3 bg-amber-50 text-amber-900 rounded-lg">{formNotice}</p>}
           <fieldset disabled={saving || extracting} className="space-y-5 disabled:opacity-70">
             <div className="border rounded-lg p-4 space-y-3">
               <h3 className="font-semibold">Primary product photo</h3>
-              {(imagePreview || draft.primaryImage) && <div className="h-40 w-full bg-gray-50 overflow-hidden"><Image src={imagePreview || draft.primaryImage} alt="Primary product preview" width={480} height={160} unoptimized className="h-full w-full object-contain" /></div>}
+              {(imagePreview || (draft.primaryImage && !isLegacyMedia(draft.primaryImage))) && <div className="h-40 w-full bg-gray-50 overflow-hidden"><Image src={imagePreview || draft.primaryImage} alt="Primary product preview" width={480} height={160} unoptimized className="h-full w-full object-contain" /></div>}
               <label htmlFor="product-photo" className="block text-sm">Upload photo (phone photos are resized automatically)</label>
               <input id="product-photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="w-full text-sm" onChange={event => selectPhoto(event.target.files?.[0] || null)} />
               <button type="button" disabled={!imageFile} onClick={extract} className="btn-ghost"><Sparkles size={16} />Read photo with Gemini</button>
@@ -196,6 +200,7 @@ export default function ProductManager() {
             <div><label htmlFor="product-specs" className="block text-sm font-semibold mb-1">Specifications (JSON)</label><textarea id="product-specs" rows={5} value={draft.specs} onChange={event => setField('specs', event.target.value)} className={inputClass + ' font-mono'} /><p className="text-sm text-gray-500 mt-1">Example: {"{\"Voltage\":\"230V\",\"Power\":\"600W\"}"}</p></div>
             <div className="grid sm:grid-cols-2 gap-4"><div><label htmlFor="product-stockStatus" className="block text-sm font-semibold mb-1">Availability</label><select id="product-stockStatus" value={draft.stockStatus} onChange={event => setField('stockStatus', event.target.value)} className={inputClass}>{STOCK_STATUSES.map(status => <option key={status}>{status}</option>)}</select></div>{textField('originCountry', 'Country of origin', false, 120)}</div>
             {textField('datasheetUrl', 'Datasheet / manual HTTPS URL', false, 2048)}
+            {isLegacyMedia(draft.datasheetUrl) && <p className="text-sm text-amber-800">This document link points to the former WordPress site. Add a current link; the store currently offers a manual request instead.</p>}
             <div className="border rounded-lg p-4 space-y-3"><h3 className="font-semibold">Additional photos (up to 5)</h3><div className="flex gap-3 flex-wrap">{draft.additionalImages.map((source, index) => <div key={source + index} className="relative w-24 h-24"><Image src={source} alt={'Additional photo ' + (index + 1)} width={96} height={96} unoptimized className="w-full h-full object-contain border rounded-lg" /><button type="button" aria-label={'Remove additional photo ' + (index + 1)} onClick={() => setField('additionalImages', draft.additionalImages.filter((_, position) => position !== index))} className="absolute top-0 right-0 bg-white p-1 rounded-full border"><X size={16} /></button></div>)}</div><label htmlFor="product-gallery" className="block text-sm">Upload additional photos</label><input id="product-gallery" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" className="w-full text-sm" onChange={event => { const files = Array.from(event.target.files || []); if (files.length + draft.additionalImages.length > 5) { setFormError('Use up to five additional photos.'); event.target.value = ''; } else { setGalleryFiles(files); setFormError(''); } }} />{galleryFiles.map((file, index) => <p key={index} className="text-sm flex justify-between items-center">{file.name}<button type="button" aria-label={'Remove ' + file.name} onClick={() => setGalleryFiles(previous => previous.filter((_, position) => position !== index))}><X size={16} /></button></p>)}</div>
             <div className="grid sm:grid-cols-2 gap-4"><div><label htmlFor="product-displayOrder" className="block text-sm font-semibold mb-1">Display order (lower first)</label><input id="product-displayOrder" type="number" min="0" max="100000" step="1" value={draft.displayOrder} onChange={event => setField('displayOrder', event.target.value)} className={inputClass} /></div><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={draft.featured} onChange={event => setField('featured', event.target.checked)} />Feature on the Home desk (gadgets)</label></div>
           </fieldset>

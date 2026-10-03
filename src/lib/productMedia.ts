@@ -3,6 +3,21 @@ import type { Product } from '@/db/schema';
 export const MAX_UPLOAD_BYTES = 800_000;
 export const MAX_INLINE_MEDIA_LENGTH = 2_500_000;
 
+export function isLegacyMedia(source: string) {
+  return source.startsWith('blob:') || /^https:\/\/(?:www\.)?synapse-engneering\.com\/wp-content\//i.test(source);
+}
+
+export function productPhoto(product: Pick<Product, 'primaryImage' | 'subCategory' | 'title' | 'category'>, image = product.primaryImage) {
+  const illustration = image.includes('images.unsplash.com');
+  const category = `${product.subCategory || ''} ${product.title}`.toLowerCase();
+  const fallback = category.includes('smart') || category.includes('zigbee') ? '/hero/home-smart.jpg'
+    : category.includes('charging') || category.includes('gan') ? '/hero/home-gan.jpg'
+    : product.category === 'Consumer Tech & Gadgets' ? '/hero/home-power.jpg'
+    : product.category === 'Solar & Power Solutions' ? '/hero/factory-ess.jpg'
+    : product.category === 'Global Sourcing & Import' ? '/hero/factory-floor.jpg' : '/hero/factory-panel.jpg';
+  return { source: isLegacyMedia(image) ? '' : illustration ? fallback : image, illustration };
+}
+
 export function imagePath(id: number, index?: number, source?: string) {
   const version = source ? source.length + '-' + Array.from(source.slice(-128, -112)).map(character => character.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')).join('') : '';
   const query = [index === undefined ? '' : `index=${index}`, version ? `v=${version}` : ''].filter(Boolean).join('&');

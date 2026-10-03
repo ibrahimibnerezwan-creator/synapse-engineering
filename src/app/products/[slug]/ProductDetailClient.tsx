@@ -12,7 +12,7 @@ import { ChevronRight, Share2 } from 'lucide-react';
 import { GroupChip } from '@/components/GroupChip';
 import { groupTone } from '@/lib/productGroups';
 import ProductImage from '@/components/ProductImage';
-import { isOrderable, parseGallery, parseSpecs } from '@/lib/productMedia';
+import { isLegacyMedia, isOrderable, parseGallery, parseSpecs } from '@/lib/productMedia';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -146,7 +146,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <p className="text-sm text-[#4a4038] leading-relaxed whitespace-pre-line">{product.description}</p>
                 {product.descriptionBn && <p lang="bn" className="bn text-base text-[#4a4038] leading-relaxed whitespace-pre-line">{product.descriptionBn}</p>}
                 {product.originCountry && <p className="text-sm text-[#71665b]">Country of origin: {product.originCountry}</p>}
-                {product.datasheetUrl && <a className="btn-ghost inline-flex" href={product.datasheetUrl} target="_blank" rel="noopener noreferrer">View datasheet / manual ↗</a>}
+                {product.datasheetUrl && (isLegacyMedia(product.datasheetUrl) ? <a className="btn-ghost inline-flex" href={`https://wa.me/8801886113236?text=${encodeURIComponent('Hello Synapse Engineering, please share the datasheet or manual for ' + product.title + '.')}`} target="_blank" rel="noopener noreferrer">Request datasheet / manual ↗</a> : <a className="btn-ghost inline-flex" href={product.datasheetUrl} target="_blank" rel="noopener noreferrer">View datasheet / manual ↗</a>)}
               </div>
 
               {Object.keys(parsedSpecs).length > 0 && (
