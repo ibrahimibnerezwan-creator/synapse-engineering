@@ -27,7 +27,7 @@ export default function HomePageClient({ initialProducts }: HomePageClientProps)
     const refresh = async () => {
       if (document.visibilityState !== 'visible') return;
       try {
-        const response = await fetch('/api/products', { cache: 'no-store', signal: controller.signal });
+        const response = await fetch('/api/products', { cache: 'no-cache', signal: controller.signal });
         const data = await response.json();
         if (response.ok && Array.isArray(data.products) && !controller.signal.aborted) setProducts(data.products);
       } catch { /* Keep the rendered catalogue usable if a background refresh fails. */ }

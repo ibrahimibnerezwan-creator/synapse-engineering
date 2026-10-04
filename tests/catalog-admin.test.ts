@@ -77,7 +77,7 @@ after(async () => {
 test('An empty database stays empty and missing or deleted seed slugs do not reappear', async () => {
   assert.deepEqual(await data.getAllProducts(), []);
   assert.equal(await data.getProductBySlug('hithium-heroee-16-16kwh-lifepo4-battery-pack'), null);
-  assert.deepEqual((await (await publicCatalog.GET()).json()).products, []);
+  assert.deepEqual((await (await publicCatalog.GET(request('/api/products'))).json()).products, []);
 });
 test('All seller operations require a valid session', async () => {
   const actions: Array<() => Promise<Response>> = [
@@ -106,7 +106,7 @@ test('Publish creates a real row and returns the same complete, lightweight data
   assert.equal(created.featured, 0);
   assert.equal(created.displayOrder, 7);
   const seller = (await (await invoke(() => admin.GET())).json()).products;
-  const storefront = (await (await publicCatalog.GET()).json()).products;
+  const storefront = (await (await publicCatalog.GET(request('/api/products'))).json()).products;
   assert.deepEqual(seller, storefront);
   assert.equal(storefront.length, 1);
   assert.equal(storefront[0].descriptionBn, draft.descriptionBn);
@@ -124,6 +124,80 @@ test('Binary image requests reproduce persisted primary and gallery photos', asy
   }
   assert.equal((await image.GET(request('/api/products/999/image'), { params: Promise.resolve({ id: '999' }) })).status, 404);
   assert.equal((await image.GET(request('/api/products/1/image?index=-1'), { params: Promise.resolve({ id: '1' }) })).status, 400);
+});
+test('Photo revalidation skips unchanged bytes but never hides same-URL replacements or deletion', async () => {
+  const published = await invoke(() => admin.POST(request('/api/admin/products', 'POST', { ...draft, title: 'Photo cache fixture' })));
+  const product = (await published.json()).product as Product;
+  const context = { params: Promise.resolve({ id: String(product.id) }) };
+  const primaryPath = product.primaryImage;
+  const galleryPath = parseGallery(product.additionalImages)[0];
+  const conditional = (path: string, etag: string) => new NextRequest('https://storefront.invalid' + path, { headers: { 'if-none-match': etag } });
+  try {
+    for (const path of [primaryPath, galleryPath]) {
+      const first = await image.GET(request(path), context);
+      const etag = first.headers.get('etag')!;
+      assert.equal(first.status, 200);
+      assert.ok(etag);
+      assert.match(first.headers.get('cache-control')!, /no-cache/);
+      assert.equal(first.headers.get('vercel-cdn-cache-control'), 'no-store');
+      const repeat = await image.GET(conditional(path, `"unrelated", ${etag.slice(2)}`), context);
+      assert.equal(repeat.status, 304);
+      assert.equal((await repeat.arrayBuffer()).byteLength, 0);
+      assert.equal(repeat.headers.get('etag'), etag);
+    }
+    const oldTag = (await image.GET(request(primaryPath), context)).headers.get('etag')!;
+    // The old URL's sampled version can collide: validation must hash the complete image.
+    const replacement = png.replace('P8/x8', 'P8/w8');
+    assert.notEqual(replacement, png);
+    assert.equal(imagePath(product.id, undefined, png), imagePath(product.id, undefined, replacement));
+    const edited = await invoke(() => admin.PATCH(request('/api/admin/products', 'PATCH', { ...product, primaryImage: replacement, additionalImages: [replacement] })));
+    assert.equal(edited.status, 200);
+    for (const path of [primaryPath, galleryPath]) {
+      const changed = await image.GET(conditional(path, oldTag), context);
+      assert.equal(changed.status, 200);
+      assert.notEqual(changed.headers.get('etag'), oldTag);
+      assert.deepEqual(Buffer.from(await changed.arrayBuffer()), Buffer.from(replacement.split(',')[1], 'base64'));
+    }
+    assert.equal((await invoke(() => admin.DELETE(request(`/api/admin/products?id=${product.id}`, 'DELETE')))).status, 200);
+    const deleted = await image.GET(conditional(primaryPath, oldTag), context);
+    assert.equal(deleted.status, 404);
+    assert.equal(deleted.headers.get('cache-control'), 'no-store');
+  } finally {
+    await client.execute({ sql: 'DELETE FROM products WHERE id=?', args: [product.id] });
+  }
+});
+test('Catalogue revalidation returns every publish, edit and deletion immediately; seller responses remain private', async () => {
+  const first = await publicCatalog.GET(request('/api/products'));
+  const originalTag = first.headers.get('etag')!;
+  const conditional = (etag: string) => new NextRequest('https://storefront.invalid/api/products', { headers: { 'if-none-match': etag } });
+  const repeated = await publicCatalog.GET(conditional(originalTag));
+  assert.equal(repeated.status, 304);
+  assert.equal((await repeated.arrayBuffer()).byteLength, 0);
+  const published = await invoke(() => admin.POST(request('/api/admin/products', 'POST', { ...draft, title: 'Catalogue cache fixture' })));
+  const product = (await published.json()).product as Product;
+  try {
+    const added = await publicCatalog.GET(conditional(originalTag));
+    assert.equal(added.status, 200);
+    const addedTag = added.headers.get('etag')!;
+    assert.ok((await added.json()).products.some((row: Product) => row.id === product.id));
+    assert.equal((await invoke(() => admin.PATCH(request('/api/admin/products', 'PATCH', { ...product, price: 789, stockStatus: 'Out of Stock' })))).status, 200);
+    const edited = await publicCatalog.GET(conditional(addedTag));
+    assert.equal(edited.status, 200);
+    const editedTag = edited.headers.get('etag')!;
+    const changed = (await edited.json()).products.find((row: Product) => row.id === product.id);
+    assert.equal(changed.price, 789);
+    assert.equal(changed.stockStatus, 'Out of Stock');
+    const seller = await invoke(() => admin.GET());
+    assert.equal(seller.headers.get('cache-control'), 'no-store');
+    assert.equal(seller.headers.get('etag'), null);
+    assert.equal((await invoke(() => admin.DELETE(request(`/api/admin/products?id=${product.id}`, 'DELETE')))).status, 200);
+    const deleted = await publicCatalog.GET(conditional(editedTag));
+    assert.equal(deleted.status, 200);
+    assert.equal(deleted.headers.get('etag'), originalTag);
+    assert.ok(!(await deleted.json()).products.some((row: Product) => row.id === product.id));
+  } finally {
+    await client.execute({ sql: 'DELETE FROM products WHERE id=?', args: [product.id] });
+  }
 });
 test('Editing keeps product identity, inline photos and all optional fields while changing price and availability', async () => {
   const response = await invoke(() => admin.PATCH(request('/api/admin/products', 'PATCH', { ...created, price: 650, stockStatus: 'Out of Stock' })));
